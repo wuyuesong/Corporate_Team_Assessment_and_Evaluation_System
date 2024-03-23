@@ -594,3 +594,83 @@ class MessageCenterTargetUser(CoreModel):
         db_table = table_prefix + "message_center_target_user"
         verbose_name = "消息中心目标用户表"
         verbose_name_plural = verbose_name
+
+
+# class Department(CoreModel):
+#     staff_department = models.CharField(max_length=255, verbose_name="部门名称", help_text="部门名称")
+#     normal_departmemt = models.CharField(max_length=255, verbose_name="标准化部门", help_text="标准化部门")
+#     sort = models.IntegerField(default=1, verbose_name="显示排序", help_text="显示排序")
+#     parent = models.ForeignKey(
+#         to="Department",
+#         on_delete=models.CASCADE,
+#         default=None,
+#         verbose_name="上级部门",
+#         db_constraint=False,
+#         null=True,
+#         blank=True,
+#         help_text="上级部门",
+#     )
+
+#     class Meta:
+#         db_table = table_prefix + "system_department"
+#         verbose_name = "部门"
+#         verbose_name_plural = verbose_name
+#         ordering = ("sort",)
+        
+
+class Staff(CoreModel):
+    staff_id = models.CharField(max_length=255, verbose_name="员工id", null=True, blank=True, unique=True, help_text="员工id")
+    staff_name = models.CharField(max_length=255, verbose_name="员工姓名", null=True, blank=True, help_text="员工姓名")
+    staff_department = models.CharField(max_length=255, verbose_name="员工部门", null=True, blank=True, help_text="员工部门")
+    staff_rank = models.CharField(max_length=255, verbose_name="员工职级", null=True, blank=True, help_text="员工职级")
+    staff_job = models.CharField(max_length=255, verbose_name="员工职务", null=True, blank=True, help_text="员工职务")
+    staff_telephone = models.CharField(max_length=255, verbose_name="员工电话", null=True, blank=True, help_text="员工电话")
+    staff_email = models.CharField(max_length=255, verbose_name="员工邮箱", null=True, blank=True, help_text="员工邮箱")
+    staff_status = models.CharField(max_length=255, verbose_name="政治面貌", null=True, blank=True, help_text="政治面貌")
+    staff_excellence = models.CharField(max_length=255, verbose_name="评奖评优", null=True, blank=True, help_text="评奖评优")
+    staff_kpi = models.CharField(max_length=255, verbose_name="KPI得分", null=True, blank=True, help_text="KPI得分")
+    
+    # username = models.CharField(max_length=150, unique=True, db_index=True, verbose_name="用户账号",
+    #                             help_text="用户账号")
+    # email = models.EmailField(max_length=255, verbose_name="邮箱", null=True, blank=True, help_text="邮箱")
+    # mobile = models.CharField(max_length=255, verbose_name="电话", null=True, blank=True, help_text="电话")
+    # avatar = models.CharField(max_length=255, verbose_name="头像", null=True, blank=True, help_text="头像")
+    # name = models.CharField(max_length=40, verbose_name="姓名", help_text="姓名")
+    # GENDER_CHOICES = (
+    #     (0, "未知"),
+    #     (1, "男"),
+    #     (2, "女"),
+    # )
+    # gender = models.IntegerField(
+    #     choices=GENDER_CHOICES, default=0, verbose_name="性别", null=True, blank=True, help_text="性别"
+    # )
+    # USER_TYPE = (
+    #     (0, "后台用户"),
+    #     (1, "前台用户"),
+    # )
+    # user_type = models.IntegerField(
+    #     choices=USER_TYPE, default=0, verbose_name="用户类型", null=True, blank=True, help_text="用户类型"
+    # )
+    # post = models.ManyToManyField(to="Post", blank=True, verbose_name="关联岗位", db_constraint=False,
+    #                               help_text="关联岗位")
+    # role = models.ManyToManyField(to="Role", blank=True, verbose_name="关联角色", db_constraint=False,
+    #                               help_text="关联角色")
+    # dept = models.ForeignKey(
+    #     to="Dept",
+    #     verbose_name="所属部门",
+    #     on_delete=models.PROTECT,
+    #     db_constraint=False,
+    #     null=True,
+    #     blank=True,
+    #     help_text="关联部门",
+    # )
+    # objects = CustomUserManager()
+
+    # def set_password(self, raw_password):
+    #     super().set_password(hashlib.md5(raw_password.encode(encoding="UTF-8")).hexdigest())
+
+    class Meta:
+        db_table = table_prefix + "system_staffs"
+        verbose_name = "员工表"
+        verbose_name_plural = verbose_name
+        ordering = ("-create_datetime",)
