@@ -20,7 +20,6 @@ import { NextLoading } from '/@/utils/loading';
 
 // 引入组件
 const LayoutParentView = defineAsyncComponent(() => import('/@/layout/routerView/parent.vue'));
-const LayoutFooter = defineAsyncComponent(() => import('/@/layout/footer/index.vue'));
 
 // 定义变量内容
 const layoutMainScrollbarRef = ref();
@@ -29,7 +28,6 @@ const storesTagsViewRoutes = useTagsViewRoutes();
 const storesThemeConfig = useThemeConfig();
 const { themeConfig } = storeToRefs(storesThemeConfig);
 const { isTagsViewCurrenFull } = storeToRefs(storesTagsViewRoutes);
-
 // 设置 footer 显示/隐藏
 const isFooter = computed(() => {
 	return themeConfig.value.isFooter && !route.meta.isIframe;
