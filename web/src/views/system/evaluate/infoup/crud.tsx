@@ -1,7 +1,8 @@
 import * as api from './api';
 import { UserPageQuery, AddReq, DelReq, EditReq, CreateCrudOptionsProps, CreateCrudOptionsRet, dict } from '@fast-crud/fast-crud';
 import {commonCrudConfig} from "/@/utils/commonCrud";
-
+import { downloadFile } from '/@/utils/service';
+import { getBaseURL } from '/@/utils/baseUrl';
 export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProps): CreateCrudOptionsRet {
 	const pageRequest = async (query: UserPageQuery) => {
 		return await api.GetList(query);
@@ -16,9 +17,9 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 	const addRequest = async ({ form }: AddReq) => {
 		return await api.AddObj(form);
 	};
+	
 	return {
 		crudOptions: {
-
 			container:{
 				is:'fs-layout-card',
 			},
@@ -33,7 +34,23 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 					add: {
 						show: true,
 					},
+
+					customButton: {
+						show: true,
+						label: "导出信息",
+						text:"导出信息",
+						onClick:() => {
+							// 在这里执行您想要的操作
+							downloadFile({
+								url: getBaseURL() + 'api/system/staff/export_data/',
+								params: {},
+								method: 'get'
+							})
+						},
+						order:2,
+					}	
 				},
+					
 			},
 			rowHandle: {
 				fixed:'right',
@@ -75,6 +92,24 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 				id: {
 					title: '编号',
 					search: {
+						show:true,
+						disabled: false,
+					},
+					type: 'input',
+					column:{
+						minWidth: 120,
+					},
+					form: {
+						disabled: false,
+						component: {
+		
+							placeholder: '请输入编号',
+						},
+					},
+				},
+				staff_id: {
+					title: '员工系统编号',
+					search: {
 						disabled: false,
 					},
 					type: 'input',
@@ -84,35 +119,18 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 					form: {
 						disabled: true,
 						component: {
-		
-							placeholder: '请输入编号',
-						},
-					},
-				},
-				stuff_id: {
-					title: '员工系统编号',
-					search: {
-						disabled: false,
-					},
-					type: 'input',
-					column:{
-						minWidth: 100,
-					},
-					form: {
-						disabled: true,
-						component: {
 							placeholder: '请输入系统编号',
 						},
 					},
 				},
-				stuff_firm_id: {
+				staff_firm_id: {
 					title: '员工企业编号',
 					search: {
 						disabled: false,
 					},
 					type: 'input',
 					column:{
-						minWidth: 100,
+						minWidth: 120,
 					},
 					form: {
 						disabled: true,
@@ -121,7 +139,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						},
 					},
 				},
-                stuff_name: {
+                staff_name: {
 					title: '员工姓名',
 					search: {
 						disabled: false,
@@ -137,7 +155,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						},
 					},
 				},
-                stuff_department: {
+                staff_department: {
 					title: '员工部门',
 					search: {
 						disabled: false,
@@ -153,7 +171,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						},
 					},
 				},
-                stuff_rank: {
+                staff_rank: {
 					title: '员工职级',
 					search: {
 						disabled: false,
@@ -170,7 +188,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						},
 					},
 				},
-                stuff_job: {
+                staff_job: {
 					title: '员工职务',
 					search: {
 						disabled: false,
@@ -186,7 +204,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						},
 					},
 				},
-                stuff_telephone: {
+                staff_telephone: {
 					title: '员工电话',
 					search: {
 						disabled: false,
@@ -202,7 +220,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						},
 					},
 				},
-                stuff_email: {
+                staff_email: {
 					title: '员工邮箱',
 					search: {
 						disabled: false,
@@ -218,7 +236,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						},
 					},
 				},
-                stuff_status: {
+                staff_status: {
 					title: '政治面貌',
 					search: {
 						disabled: false,
@@ -234,7 +252,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						},
 					},
 				},
-                stuff_excellence: {
+                staff_excellence: {
 					title: '评奖评优',
 					search: {
 						disabled: false,
@@ -250,7 +268,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						},
 					},
 				},
-                stuff_kpi: {
+                staff_kpi: {
 					title: 'KPI',
 					search: {
 						disabled: false,
@@ -272,9 +290,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 					}
 				})
 			},
-			FsFileUploader:{
-
-			},
+			
 		},
 	};
 };

@@ -10,7 +10,7 @@ import {  ElMessageBox } from 'element-plus'
 import { UploadFilled } from '@element-plus/icons-vue'
 import { defineAsyncComponent, onMounted, reactive, computed } from 'vue';
 import { FsActionbar } from '@fast-crud/fast-crud';
-
+import {Download } from '@element-plus/icons-vue'
 import { useFs } from '@fast-crud/fast-crud';
 import { createCrudOptions } from './crud';
 const { crudBinding, crudRef, crudExpose } = useFs({ createCrudOptions });
@@ -20,12 +20,6 @@ const refreshView = inject('refreshView')
 onMounted(() => {
 	crudExpose.doRefresh();
 });
-
-const asideSettings = ref({
-    isCollapse:true,
-    width:'50'
-})
-
 
 
 let props = defineProps({
@@ -77,7 +71,17 @@ const handleFileSuccess=function (response:any, file:any, fileList:any) {
   }).catch(()=>{
 
   })
+}
 
+
+
+// 定义一个处理点击事件的函数
+const handleDLClick = () => {
+  downloadFile({
+    url: getBaseURL() + 'api/system/staff/import_data/',
+    params: {},
+    method: 'get'
+  })
 }
 </script>
 
@@ -96,6 +100,11 @@ const handleFileSuccess=function (response:any, file:any, fileList:any) {
             <div style="padding: 10px;"></div>
             <div style="background:linear-gradient(to left,#FFFFFF,#b6b6b6,#FFFFFF);height:10px;"></div>
             <div class="container" style="padding-top: 50px; text-align: center;">
+                <div style="text-align: left; padding-left: 100px">
+                  <el-button type="primary" size="large" @click="handleDLClick">
+                    下载模板<el-icon class="el-icon--right"><Download/></el-icon>
+                  </el-button>
+                </div>
                 <div div-lc-mark style="font-size: 30px;">
                     <b>请上传人员信息文件以供分析</b>
                 </div>
