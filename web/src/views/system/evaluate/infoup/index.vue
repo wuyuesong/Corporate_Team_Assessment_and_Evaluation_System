@@ -62,7 +62,7 @@ const handleFileSuccess=function (response:any, file:any, fileList:any) {
   uploadRef.value.clearFiles()
   // 是否更新已经存在的用户数据
   return request({
-    url: props.api + 'import_data/',
+    url: getBaseURL() + 'api/system/staff/import_data/',
     method: 'post',
     data: {
       url: response.data.url
