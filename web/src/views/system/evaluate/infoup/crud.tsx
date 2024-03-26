@@ -89,57 +89,24 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						},
 					},
 				},
-				id: {
-					title: '编号',
+				staff_department: {
+					title: '单位名称',
 					search: {
 						show:true,
 						disabled: false,
 					},
 					type: 'input',
 					column:{
-						minWidth: 120,
-					},
-					form: {
-						disabled: false,
-						component: {
-		
-							placeholder: '请输入编号',
-						},
-					},
-				},
-				staff_id: {
-					title: '员工系统编号',
-					search: {
-						disabled: false,
-					},
-					type: 'input',
-					column:{
-						minWidth: 120,
+						minWidth: 100,
 					},
 					form: {
 						disabled: true,
 						component: {
-							placeholder: '请输入系统编号',
+							placeholder: '请输入单位名称',
 						},
 					},
 				},
-				staff_firm_id: {
-					title: '员工企业编号',
-					search: {
-						disabled: false,
-					},
-					type: 'input',
-					column:{
-						minWidth: 120,
-					},
-					form: {
-						disabled: true,
-						component: {
-							placeholder: '请输入企业编号',
-						},
-					},
-				},
-                staff_name: {
+				staff_name: {
 					title: '员工姓名',
 					search: {
 						disabled: false,
@@ -155,9 +122,10 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						},
 					},
 				},
-                staff_department: {
-					title: '员工部门',
+				staff_job: {
+					title: '职位等级',
 					search: {
+						show:true,
 						disabled: false,
 					},
 					type: 'input',
@@ -167,12 +135,12 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 					form: {
 						disabled: true,
 						component: {
-							placeholder: '请输入员工部门',
+							placeholder: '请输入职位等级',
 						},
 					},
 				},
-                staff_rank: {
-					title: '员工职级',
+				staff_rank: {
+					title: '岗位等级',
 					search: {
 						disabled: false,
 					},
@@ -184,12 +152,29 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						
 						disabled: true,
 						component: {
-							placeholder: '请输入员工职级',
+							placeholder: '请输入岗位等级',
 						},
 					},
 				},
-                staff_job: {
-					title: '员工职务',
+				job_title: {
+					title: '职称',
+					search: {
+						disabled: false,
+					},
+					type: 'input',
+					column:{
+						minWidth: 100,
+					},
+					form: {
+						
+						disabled: true,
+						component: {
+							placeholder: '职称',
+						},
+					},
+				},
+				staff_kpi1: {
+					title: '第一年KPI',
 					search: {
 						disabled: false,
 					},
@@ -200,10 +185,123 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 					form: {
 						disabled: true,
 						component: {
-							placeholder: '请输入员工职务',
+							placeholder: '请输入第一年KPI',
 						},
 					},
 				},
+				staff_kpi2: {
+					title: '第二年KPI',
+					search: {
+						disabled: false,
+					},
+					type: 'input',
+					column:{
+						minWidth: 100,
+					},
+					form: {
+						disabled: true,
+						component: {
+							placeholder: '请输入第二年KPI',
+						},
+					},
+				},
+				staff_kpi3: {
+					title: '第三年KPI',
+					search: {
+						disabled: false,
+					},
+					type: 'input',
+					column:{
+						minWidth: 100,
+					},
+					form: {
+						disabled: true,
+						component: {
+							placeholder: '请输入第三年KPI',
+						},
+					},
+				},
+				assessment1: {
+					title: '第一年考核结果',
+					search: {
+						disabled: false,
+					},
+					type: 'input',
+					column:{
+						minWidth: 100,
+					},
+					form: {
+						disabled: true,
+						component: {
+							placeholder: '请输入第一年考核结果',
+						},
+					},
+				},
+				sassessment2: {
+					title: '第二年考核结果',
+					search: {
+						disabled: false,
+					},
+					type: 'input',
+					column:{
+						minWidth: 100,
+					},
+					form: {
+						disabled: true,
+						component: {
+							placeholder: '请输入第二年考核结果',
+						},
+					},
+				},
+				assessment3: {
+					title: '第三年考核结果',
+					search: {
+						disabled: false,
+					},
+					type: 'input',
+					column:{
+						minWidth: 100,
+					},
+					form: {
+						disabled: true,
+						component: {
+							placeholder: '请输入第三年考核结',
+						},
+					},
+				},
+				staff_status: {
+					title: '政治面貌',
+					search: {
+						disabled: false,
+					},
+					type: 'input',
+					column:{
+						minWidth: 100,
+					},
+					form: {
+						disabled: true,
+						component: {
+							placeholder: '请输入员工电话',
+						},
+					},
+				},
+				staff_firm_id: {
+					title: '员工企业ID',
+					search: {
+						disabled: false,
+						show:true,
+					},
+					type: 'input',
+					column:{
+						minWidth: 120,
+					},
+					form: {
+						disabled: true,
+						component: {
+							placeholder: '请输入企业编号',
+						},
+					},
+				},        
                 staff_telephone: {
 					title: '员工电话',
 					search: {
@@ -233,54 +331,6 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						disabled: true,
 						component: {
 							placeholder: '请输入员工电话',
-						},
-					},
-				},
-                staff_status: {
-					title: '政治面貌',
-					search: {
-						disabled: false,
-					},
-					type: 'input',
-					column:{
-						minWidth: 100,
-					},
-					form: {
-						disabled: true,
-						component: {
-							placeholder: '请输入员工电话',
-						},
-					},
-				},
-                staff_excellence: {
-					title: '评奖评优',
-					search: {
-						disabled: false,
-					},
-					type: 'input',
-					column:{
-						minWidth: 100,
-					},
-					form: {
-						disabled: true,
-						component: {
-							placeholder: '请输入评奖评优',
-						},
-					},
-				},
-                staff_kpi: {
-					title: 'KPI',
-					search: {
-						disabled: false,
-					},
-					type: 'input',
-					column:{
-						minWidth: 100,
-					},
-					form: {
-						disabled: true,
-						component: {
-							placeholder: '请输入KPI',
 						},
 					},
 				},

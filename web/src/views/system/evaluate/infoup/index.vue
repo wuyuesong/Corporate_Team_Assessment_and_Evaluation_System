@@ -6,7 +6,6 @@ import {inject,ref} from "vue";
 import type { Action } from 'element-plus'
 import { getBaseURL } from '/@/utils/baseUrl';
 import { Session } from '/@/utils/storage';
-import {  ElMessageBox } from 'element-plus'
 import { UploadFilled } from '@element-plus/icons-vue'
 import { defineAsyncComponent, onMounted, reactive, computed } from 'vue';
 import { FsActionbar } from '@fast-crud/fast-crud';
@@ -16,6 +15,8 @@ import { createCrudOptions } from './crud';
 const { crudBinding, crudRef, crudExpose } = useFs({ createCrudOptions });
 const uploadRef = ref()
 const refreshView = inject('refreshView')
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { Eleme } from '@element-plus/icons-vue'
 // 页面打开后获取列表数据
 onMounted(() => {
 	crudExpose.doRefresh();
@@ -83,6 +84,48 @@ const handleDLClick = () => {
     method: 'get'
   })
 }
+
+
+const loading = ref(false); // 使用ref创建响应式变量
+const handleSubmmitClick = () => {
+  ElMessageBox.confirm(
+    '提交员工信息至系统之后无法修改，确定你的操作?',
+    'Warning',
+    {
+      confirmButtonText: 'OK',
+      cancelButtonText: 'Cancel',
+      type: 'warning',
+    }
+  )
+    .then(() => {
+      SubmmitInfo()
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: '操作取消',
+      })
+    })
+}
+
+//定义提交信息的函数
+const SubmmitInfo = async() => {
+      //loading.value = true; // 开始加载状态
+      // request({
+      //   // url: getBaseURL() + 'api/system/staff/import_data/',
+      //   method: 'post',
+      //   // data: {
+      //   //   url: response.data.url
+      //   // }
+      // }).then((response:any) => {
+      //   if(response.code==200){
+      //       ElMessageBox.alert('提交成功', {
+      //       })
+      //       loading.value = false; // 结束加载状态vv
+      //     } 
+      // })
+      //loading.value = false; // 结束加载状态vv
+};
 </script>
 
 
@@ -95,9 +138,33 @@ const handleDLClick = () => {
                             <b>组织人员信息</b>
                     </div>
                     <fs-crud ref="crudRef" v-bind="crudBinding" > </fs-crud>
+                    <div style="padding: 10px;">
+                      <el-button type="danger" :loading="loading" @click="handleSubmmitClick" size="large">
+                      <template #loading>
+                        <div class="custom-loading">
+                          <svg class="circular" viewBox="-10, -10, 50, 50">
+                            <path
+                              class="path"
+                              d="
+                              M 30 15
+                              L 28 17
+                              M 25.61 25.61
+                              A 15 15, 0, 0, 1, 15 30
+                              A 15 15, 0, 1, 1, 27.99 7.5
+                              L 15 15
+                            "
+                              style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"
+                            />
+                          </svg>
+                        </div>
+                      </template>
+                      提交员工信息
+                      </el-button>     
+                    </div>
+                    
             </div>
-
-            <div style="padding: 10px;"></div>
+                   
+            <div style="padding: 40px;"></div>
             <div style="background:linear-gradient(to left,#FFFFFF,#b6b6b6,#FFFFFF);height:10px;"></div>
             <div class="container" style="padding-top: 50px; text-align: center;">
                 <div style="text-align: left; padding-left: 100px">
@@ -151,4 +218,19 @@ const handleDLClick = () => {
   .el-upload{
     background-color: #4d0f0f; /* 设置上传区域的背景颜色 */
   }
+
+  .el-button .custom-loading .circular {
+  margin-right: 6px;
+  width: 18px;
+  height: 18px;
+  animation: loading-rotate 2s linear infinite;
+}
+.el-button .custom-loading .circular .path {
+  animation: loading-dash 1.5s ease-in-out infinite;
+  stroke-dasharray: 90, 150;
+  stroke-dashoffset: 0;
+  stroke-width: 2;
+  stroke: var(--el-button-text-color);
+  stroke-linecap: round;
+}
   </style>

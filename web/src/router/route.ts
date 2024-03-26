@@ -80,6 +80,8 @@ export const notFoundAndNoPower = [
  * @returns 返回路由菜单数据
  */
 export const staticRoutes: Array<RouteRecordRaw> = [
+	
+	
 	{
 		path: '/login',
 		name: 'login',
@@ -88,6 +90,7 @@ export const staticRoutes: Array<RouteRecordRaw> = [
 			title: '登录',
 		},
 	},
+
 	{
 		path: '/demo',
 		name: 'demo',
