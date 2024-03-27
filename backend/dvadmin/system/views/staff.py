@@ -39,7 +39,7 @@ class StaffSerializer(CustomModelSerializer):
     class Meta:
         model = Staff
         fields = "__all__"
-        read_only_fields = ["id"]
+        # read_only_fields = ["id"]
         # exclude = ["password"]
         # extra_kwargs = {
         #     "post": {"required": False},
@@ -97,7 +97,7 @@ class StaffCreateSerializer(CustomModelSerializer):
     class Meta:
         model = Staff
         fields = "__all__"
-        read_only_fields = ["id"]
+        # read_only_fields = ["id"]
         # extra_kwargs = {
         #     "post": {"required": False},
         #     "mobile": {"required": False},
@@ -134,7 +134,7 @@ class StaffUpdateSerializer(CustomModelSerializer):
 
     class Meta:
         model = Staff
-        read_only_fields = ["id"]
+        # read_only_fields = ["id"]
         fields = "__all__"
         # extra_kwargs = {
         #     "post": {"required": False, "read_only": True},
@@ -160,7 +160,7 @@ class StaffInfoUpdateSerializer(CustomModelSerializer):
     class Meta:
         model = Staff
         fields = "__all__"
-        exclude = ['id']
+        # exclude = ['id']
         # extra_kwargs = {
         #     "post": {"required": False, "read_only": True},
         #     "mobile": {"required": False},
@@ -243,16 +243,23 @@ class StaffViewSet(CustomModelViewSet):
     search_fields = "__all__"
     # 导出
     export_field_label = {
-        "staff_id": "员工id",
+        "staff_department": "单位名称",
         "staff_name": "员工姓名",
-        "staff_department": "员工部门",
-        "staff_rank": "员工职级",
-        "staff_job": "员工职务",
+        "staff_rank": "职位等级",
+        "staff_job": "岗位等级",
+        "staff_title": "职称",
+        "staff_kpi1": "第一年KPI",
+        "staff_kpi2": "第二年KPI",
+        "staff_kpi2": "第三年KPI",
+        "assessment1": "第一年考核结果",
+        "assessment2": "第二年考核结果",
+        "assessment3": "第三年考核结果",
+        "staff_status": "政治面貌",
+        "staff_firm_id": "员工企业id",
         "staff_telephone": "员工电话",
         "staff_email": "员工邮箱",
-        "staff_status": "政治面貌",
-        "staff_excellence": "评奖评优",
-        "staff_kpi": "KPI得分",
+        "username": "登录账号",
+        "password": "登录密码"
     }
     export_serializer_class = ExportStaffProfileSerializer
     # 导入
@@ -278,16 +285,21 @@ class StaffViewSet(CustomModelViewSet):
     #     "role": {"title": "角色", "choices": {"queryset": Role.objects.filter(status=True), "values_name": "name"}},
     # }
     import_field_dict = {
-        "staff_id": "员工id",
+        "staff_department": "单位名称",
         "staff_name": "员工姓名",
-        "staff_department": "员工部门",
-        "staff_rank": "员工职级",
-        "staff_job": "员工职务",
-        "staff_telephone": "员工电话",
-        "staff_email": "员工邮箱",
+        "staff_rank": "职位等级",
+        "staff_job": "岗位等级",
+        "staff_title": "职称",
+        "staff_kpi1": "第一年KPI",
+        "staff_kpi2": "第二年KPI",
+        "staff_kpi3": "第三年KPI",
+        "assessment1": "第一年考核结果",
+        "assessment2": "第二年考核结果",
+        "assessment3": "第三年考核结果",
         "staff_status": "政治面貌",
-        "staff_excellence": "评奖评优",
-        "staff_kpi": "KPI得分",
+        "staff_firm_id": "员工企业id",
+        "staff_telephone": "员工电话",
+        "staff_email": "员工邮箱"
     }
     
 
