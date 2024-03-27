@@ -5,6 +5,7 @@ from django_restql.fields import DynamicSerializerMethodField
 from rest_framework import serializers
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
 from django.db import connection
 from django.db.models import Q
 from application import dispatch
@@ -301,7 +302,11 @@ class StaffViewSet(CustomModelViewSet):
         "staff_telephone": "员工电话",
         "staff_email": "员工邮箱"
     }
-    
+
+    def staff_delete_all(self, request: Request):
+        Staff_all = Staff.objects.all()
+        Staff_all.delete()
+        return DetailResponse(data=[], msg="删除成功")
 
     # @action(methods=["GET"], detail=False, permission_classes=[IsAuthenticated])
     # def user_info(self, request):
