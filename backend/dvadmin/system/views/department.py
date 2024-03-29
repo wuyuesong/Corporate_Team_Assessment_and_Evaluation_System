@@ -467,7 +467,7 @@ class DepartmentViewSet(CustomModelViewSet):
     # 导出
     export_field_label = {
         "staff_department": "部门名称",
-        "normal_departmemt": "标准化部门"
+        "normal_department": "标准化部门"
     }
     export_serializer_class = ExportDepartmentProfileSerializer
     # 导入
@@ -494,7 +494,7 @@ class DepartmentViewSet(CustomModelViewSet):
     # }
     import_field_dict = {
         "staff_department": "部门名称",
-        "normal_departmemt": "标准化部门"
+        "normal_department": "标准化部门"
     }
 
     def Department_delete_all(self, request: Request):

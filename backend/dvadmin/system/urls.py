@@ -42,7 +42,7 @@ system_url.register(r'column', MenuFieldViewSet)
 
 system_url.register(r'staff', StaffViewSet)
 system_url.register(r'rank', RankViewSet)
-system_url.register(r'departmemt', DepartmentViewSet)
+system_url.register(r'department', DepartmentViewSet)
 
 
 urlpatterns = [
@@ -50,7 +50,7 @@ urlpatterns = [
     path('user/import/', UserViewSet.as_view({'get': 'import_data', 'post': 'import_data'})),
     path('staff/delete_all/', StaffViewSet.as_view({'get': 'staff_delete_all',})),
     path('rank/delete_all/', RankViewSet.as_view({'get': 'rank_delete_all',})),
-    path('departmemt/delete_all/', DepartmentViewSet.as_view({'get': 'departmemt_delete_all',})),
+    path('department/delete_all/', DepartmentViewSet.as_view({'get': 'departmemt_delete_all',})),
     path('system_config/save_content/', SystemConfigViewSet.as_view({'put': 'save_content'})),
     path('system_config/get_association_table/', SystemConfigViewSet.as_view({'get': 'get_association_table'})),
     path('system_config/get_table_data/<int:pk>/', SystemConfigViewSet.as_view({'get': 'get_table_data'})),
