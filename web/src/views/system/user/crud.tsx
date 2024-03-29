@@ -52,6 +52,11 @@ export const createCrudOptions = function ({crudExpose}: CreateCrudOptionsProps)
                     confirmMessage: '是否删除该用户？',
                 },
             },
+            form: { // crudOptions.form
+				// 以下仅element，其他ui的相关配置请看对应ui的form组件文档
+				labelWidth: "120px", //标签宽度
+				//... 更多配置请查看对应ui库文档，form表单章节
+			},
             request: {
                 pageRequest,
                 addRequest,

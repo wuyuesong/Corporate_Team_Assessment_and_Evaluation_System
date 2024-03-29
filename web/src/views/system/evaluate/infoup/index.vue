@@ -86,7 +86,8 @@ const handleDLClick = () => {
 }
 
 
-const loading = ref(false); // 使用ref创建响应式变量
+const subloading = ref(false); // 使用ref创建响应式变量
+const resetloading = ref(false); // 使用ref创建响应式变量
 const handleSubmmitClick = () => {
   ElMessageBox.confirm(
     '提交员工信息至系统之后无法修改，确定你的操作?',
@@ -99,6 +100,26 @@ const handleSubmmitClick = () => {
   )
     .then(() => {
       SubmmitInfo()
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: '操作取消',
+      })
+    })
+}
+const handleResetClick = () => {
+  ElMessageBox.confirm(
+    '确定重置?',
+    'Warning',
+    {
+      confirmButtonText: 'OK',
+      cancelButtonText: 'Cancel',
+      type: 'warning',
+    }
+  )
+    .then(() => {
+      ResetInfo()
     })
     .catch(() => {
       ElMessage({
@@ -126,6 +147,25 @@ const SubmmitInfo = async() => {
       // })
       //loading.value = false; // 结束加载状态vv
 };
+const ResetInfo = async() => {
+      resetloading.value = true; // 开始加载状态
+       request({
+          url: getBaseURL() + 'api/system/staff/delete_all/',
+         method: 'get',
+       }).then((response:any) => {
+         if(response.code==2000){
+             ElMessageBox.alert('重置成功', {
+              
+             })
+             resetloading.value = false; // 结束加载状态vv
+             refreshView()
+           } else{
+            ElMessageBox.alert(response.message)
+            resetloading.value = false;
+           }
+       })
+      //loading.value = false; // 结束加载状态vv
+};
 </script>
 
 
@@ -139,7 +179,7 @@ const SubmmitInfo = async() => {
                     </div>
                     <fs-crud ref="crudRef" v-bind="crudBinding" > </fs-crud>
                     <div style="padding: 10px;">
-                      <el-button type="danger" :loading="loading" @click="handleSubmmitClick" size="large">
+                      <el-button id="staffsubmit" type="danger" :loading="subloading" @click="handleSubmmitClick" size="large">
                       <template #loading>
                         <div class="custom-loading">
                           <svg class="circular" viewBox="-10, -10, 50, 50">
@@ -159,6 +199,28 @@ const SubmmitInfo = async() => {
                         </div>
                       </template>
                       提交员工信息
+                      </el-button>   
+                      
+                      <el-button id="staffreset" type="warning" :loading="resetloading" @click="handleResetClick" size="large">
+                      <template #loading>
+                        <div class="custom-loading">
+                          <svg class="circular" viewBox="-10, -10, 50, 50">
+                            <path
+                              class="path"
+                              d="
+                              M 30 15
+                              L 28 17
+                              M 25.61 25.61
+                              A 15 15, 0, 0, 1, 15 30
+                              A 15 15, 0, 1, 1, 27.99 7.5
+                              L 15 15
+                            "
+                              style="stroke-width: 4px; fill: rgba(0, 0, 0, 0)"
+                            />
+                          </svg>
+                        </div>
+                      </template>
+                      重置
                       </el-button>     
                     </div>
                     

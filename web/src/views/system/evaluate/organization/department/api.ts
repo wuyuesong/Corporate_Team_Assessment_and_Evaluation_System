@@ -1,6 +1,6 @@
 import { request } from '/@/utils/service';
 import { UserPageQuery, AddReq, DelReq, EditReq, InfoReq } from '@fast-crud/fast-crud';
-export const apiPrefix = '目标url';
+export const apiPrefix = '/api/system/department/';
 
 
 export function GetList(query: UserPageQuery) {

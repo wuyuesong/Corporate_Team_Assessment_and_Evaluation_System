@@ -52,6 +52,14 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 				},
 					
 			},
+			form: { // crudOptions.form
+				// 以下仅element，其他ui的相关配置请看对应ui的form组件文档
+				labelWidth: "120px", //标签宽度
+				//... 更多配置请查看对应ui库文档，form表单章节
+			},
+			toolbar:{
+				show:false
+			},
 			rowHandle: {
 				fixed:'right',
 				width: 250,
@@ -67,15 +75,14 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 					},
 				},
 			},
-			toolbar:{
-				show:false
-			},
+			
 			columns: {
 				_index: {
 					title: '序号',
 					form: { show: false },
                     disabled:true,
 					column: {
+						show:false,
 						//type: 'index',
 						align: 'center',
 						width: '70px',
@@ -122,7 +129,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						},
 					},
 				},
-				staff_job: {
+				staff_rank: {
 					title: '职位等级',
 					search: {
 						show:true,
@@ -139,7 +146,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						},
 					},
 				},
-				staff_rank: {
+				staff_job: {
 					title: '岗位等级',
 					search: {
 						disabled: false,
@@ -237,7 +244,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						},
 					},
 				},
-				sassessment2: {
+				assessment2: {
 					title: '第二年考核结果',
 					search: {
 						disabled: false,
