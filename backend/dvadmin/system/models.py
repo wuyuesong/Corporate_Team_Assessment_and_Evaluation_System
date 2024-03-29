@@ -596,26 +596,26 @@ class MessageCenterTargetUser(CoreModel):
         verbose_name_plural = verbose_name
 
 
-# class Department(CoreModel):
-#     staff_department = models.CharField(max_length=255, verbose_name="部门名称", help_text="部门名称")
-#     normal_departmemt = models.CharField(max_length=255, verbose_name="标准化部门", help_text="标准化部门")
-#     sort = models.IntegerField(default=1, verbose_name="显示排序", help_text="显示排序")
-#     parent = models.ForeignKey(
-#         to="Department",
-#         on_delete=models.CASCADE,
-#         default=None,
-#         verbose_name="上级部门",
-#         db_constraint=False,
-#         null=True,
-#         blank=True,
-#         help_text="上级部门",
-#     )
+class Department(CoreModel):
+    staff_department = models.CharField(max_length=255, verbose_name="部门名称", help_text="部门名称",  null=False, blank=False, unique=True, default="")
+    normal_departmemt = models.CharField(max_length=255, verbose_name="标准化部门", help_text="标准化部门", null=False, blank=False, unique=True, default="")
+    # sort = models.IntegerField(default=1, verbose_name="显示排序", help_text="显示排序")
+    # parent = models.ForeignKey(
+    #     to="Department",
+    #     on_delete=models.CASCADE,
+    #     default=None,
+    #     verbose_name="上级部门",
+    #     db_constraint=False,
+    #     null=True,
+    #     blank=True,
+    #     help_text="上级部门",
+    # )
 
-#     class Meta:
-#         db_table = table_prefix + "system_department"
-#         verbose_name = "部门"
-#         verbose_name_plural = verbose_name
-#         ordering = ("sort",)
+    # class Meta:
+    #     db_table = table_prefix + "system_department"
+    #     verbose_name = "部门"
+    #     verbose_name_plural = verbose_name
+    #     ordering = ("sort",)
         
 
 class Staff(CoreModel):
