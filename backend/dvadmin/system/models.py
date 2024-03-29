@@ -598,7 +598,7 @@ class MessageCenterTargetUser(CoreModel):
 
 class Department(CoreModel):
     staff_department = models.CharField(max_length=255, verbose_name="部门名称", help_text="部门名称",  null=False, blank=False, unique=True, default="")
-    normal_departmemt = models.CharField(max_length=255, verbose_name="标准化部门", help_text="标准化部门", null=False, blank=False, unique=True, default="")
+    normal_department = models.CharField(max_length=255, verbose_name="标准化部门", help_text="标准化部门", null=False, blank=False, unique=True, default="")
     # sort = models.IntegerField(default=1, verbose_name="显示排序", help_text="显示排序")
     # parent = models.ForeignKey(
     #     to="Department",

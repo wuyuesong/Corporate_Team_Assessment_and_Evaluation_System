@@ -66,7 +66,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						},
 					},
 				},
-				normal_departmemt: {
+				normal_department: {
 					title: '用户标准化部门',
 					search: {
 						disabled: false,
