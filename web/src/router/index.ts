@@ -24,6 +24,7 @@ import {toRaw} from "vue";
  */
 
 // 读取 `/src/stores/themeConfig.ts` 是否开启后端控制路由配置
+
 const storesThemeConfig = useThemeConfig(pinia);
 const {themeConfig} = storeToRefs(storesThemeConfig);
 const {isRequestRoutes} = themeConfig.value;

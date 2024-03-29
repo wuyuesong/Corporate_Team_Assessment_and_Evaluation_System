@@ -82,10 +82,10 @@ class ImportSerializerMixin:
             ws1 = wb.create_sheet("data", 1)
             ws1.sheet_state = "hidden"
             ws = wb.active
-            row = get_column_letter(len(self.import_field_dict) + 1)
+            row = get_column_letter(len(self.import_field_dict))
             column = 10
             header_data = [
-                "序号",
+                # "序号",
             ]
             validation_data_dict = {}
             for index, ele in enumerate(self.import_field_dict.values()):

@@ -1427,6 +1427,20 @@
                 "cache": false,
                 "visible": true,
                 "children": []
+            },
+            {
+                "name": "部门职务组织管理",
+                "icon": "ele-Files",
+                "sort": 2,
+                "is_link": false,
+                "is_catalog": false,
+                "web_path": "/organization",
+                "component": "system/evaluate/organization/index",
+                "component_name": "organization",
+                "status": true,
+                "cache": false,
+                "visible": true,
+                "children": []
             }
         ]
         
