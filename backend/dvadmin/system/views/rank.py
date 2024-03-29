@@ -115,7 +115,7 @@ class RankViewSet(CustomModelViewSet):
     # 导出
     export_field_label = {
         "normal_rank": "用户标准化职级",
-        "user_rank": "职位等级",
+        "staff_rank": "职位等级",
         "normal_departmemt": "用户标准化部门"
     }
     export_serializer_class = ExportRankProfileSerializer
@@ -124,7 +124,7 @@ class RankViewSet(CustomModelViewSet):
 
     import_field_dict = {
         "normal_rank": "用户标准化职级",
-        "user_rank": "职位等级",
+        "staff_rank": "职位等级",
         "normal_departmemt": "用户标准化部门"
     }
 

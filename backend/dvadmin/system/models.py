@@ -683,7 +683,7 @@ class Staff(CoreModel):
 
 class Rank(CoreModel):
     normal_rank = models.CharField(max_length=255, verbose_name="用户标准化职级", null=False, blank=False, help_text="用户标准化职级",default="")
-    user_rank = models.CharField(max_length=255, verbose_name="职位等级", null=False, blank=False, help_text="职位等级",default="")
+    staff_rank = models.CharField(max_length=255, verbose_name="职位等级", null=False, blank=False, help_text="职位等级",default="")
     normal_department = models.CharField(max_length=255, verbose_name="用户标准化部门", null=False, blank=False, help_text="用户标准化部门",default="")
     class Meta:
         db_table = table_prefix + "system_rank"
