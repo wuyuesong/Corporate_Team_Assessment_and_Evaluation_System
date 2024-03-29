@@ -101,6 +101,7 @@ class ImportSerializerMixin:
                         validation_data_dict[ele.get("title")] = list(data_list)
                     else:
                         continue
+                    validation_data_dict[ele.get("title")] = list(set(validation_data_dict[ele.get("title")]))
                     column_letter = get_column_letter(len(validation_data_dict))
                     dv = DataValidation(
                         type="list",
@@ -108,7 +109,7 @@ class ImportSerializerMixin:
                         allow_blank=True,
                     )
                     ws.add_data_validation(dv)
-                    dv.add(f"{get_column_letter(index + 2)}2:{get_column_letter(index + 2)}1048576")
+                    dv.add(f"{get_column_letter(index + 1)}2:{get_column_letter(index + 1)}1048576")
                 else:
                     header_data.append(ele)
             # 添加数据列

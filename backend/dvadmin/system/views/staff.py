@@ -9,7 +9,7 @@ from rest_framework.request import Request
 from django.db import connection
 from django.db.models import Q
 from application import dispatch
-from dvadmin.system.models import Users, Role, Dept, Staff
+from dvadmin.system.models import Users, Role, Dept, Staff, Department, Rank
 from dvadmin.system.views.role import RoleSerializer
 from dvadmin.utils.json_response import ErrorResponse, DetailResponse, SuccessResponse
 from dvadmin.utils.serializers import CustomModelSerializer
@@ -286,9 +286,9 @@ class StaffViewSet(CustomModelViewSet):
     #     "role": {"title": "角色", "choices": {"queryset": Role.objects.filter(status=True), "values_name": "name"}},
     # }
     import_field_dict = {
-        "staff_department": "单位名称",
+        "staff_department": {"title": "单位名称", "choices": {"queryset": Department.objects.all(), "values_name": "staff_department"}},
         "staff_name": "员工姓名",
-        "staff_rank": "职位等级",
+        "staff_rank": {"title": "职位等级", "choices": {"queryset": Rank.objects.all(), "values_name": "staff_rank"}},
         "staff_job": "岗位等级",
         "staff_title": "职称",
         "staff_kpi1": "第一年KPI",
