@@ -1399,5 +1399,53 @@
         ],
         "menu_button": [],
         "menu_field": []
+    },
+    {
+        "name": "评估系统",
+        "icon": "ele-Avatar",
+        "sort": 4,
+        "is_link": false,
+        "is_catalog": true,
+        "web_path": "/evaluate",
+        "component": "",
+        "component_name": "",
+        "status": true,
+        "cache": false,
+        "visible": true,
+        "parent": null,
+        "children": [
+            {
+                "name": "员工信息管理",
+                "icon": "ele-Files",
+                "sort": 1,
+                "is_link": false,
+                "is_catalog": false,
+                "web_path": "/infoup",
+                "component": "system/evaluate/infoup/index",
+                "component_name": "infoup",
+                "status": true,
+                "cache": false,
+                "visible": true,
+                "children": []
+            },
+            {
+                "name": "部门职务组织管理",
+                "icon": "ele-Files",
+                "sort": 2,
+                "is_link": false,
+                "is_catalog": false,
+                "web_path": "/organization",
+                "component": "system/evaluate/organization/index",
+                "component_name": "organization",
+                "status": true,
+                "cache": false,
+                "visible": true,
+                "children": []
+            }
+        ]
+        
     }
+    
+    
+
 ]

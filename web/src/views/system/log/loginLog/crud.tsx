@@ -332,6 +332,10 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 					}
 				})
 			},
+			FsFileUploader:{
+
+			},
+			
 		},
 	};
 };

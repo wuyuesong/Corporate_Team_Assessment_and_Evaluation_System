@@ -19,6 +19,8 @@ from dvadmin.system.views.system_config import SystemConfigViewSet
 from dvadmin.system.views.user import UserViewSet
 from dvadmin.system.views.menu_field import MenuFieldViewSet
 from dvadmin.system.views.staff import StaffViewSet
+from dvadmin.system.views.rank import RankViewSet
+from dvadmin.system.views.department import DepartmentViewSet
 
 system_url = routers.SimpleRouter()
 system_url.register(r'menu', MenuViewSet)
@@ -39,11 +41,16 @@ system_url.register(r'column', MenuFieldViewSet)
 
 
 system_url.register(r'staff', StaffViewSet)
+system_url.register(r'rank', RankViewSet)
+system_url.register(r'department', DepartmentViewSet)
 
 
 urlpatterns = [
     path('user/export/', UserViewSet.as_view({'post': 'export_data', })),
     path('user/import/', UserViewSet.as_view({'get': 'import_data', 'post': 'import_data'})),
+    path('staff/delete_all/', StaffViewSet.as_view({'get': 'staff_delete_all',})),
+    path('rank/delete_all/', RankViewSet.as_view({'get': 'rank_delete_all',})),
+    path('department/delete_all/', DepartmentViewSet.as_view({'get': 'department_delete_all',})),
     path('system_config/save_content/', SystemConfigViewSet.as_view({'put': 'save_content'})),
     path('system_config/get_association_table/', SystemConfigViewSet.as_view({'get': 'get_association_table'})),
     path('system_config/get_table_data/<int:pk>/', SystemConfigViewSet.as_view({'get': 'get_table_data'})),

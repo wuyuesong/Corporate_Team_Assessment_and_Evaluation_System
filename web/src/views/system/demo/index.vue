@@ -1,4 +1,4 @@
-<template>
+<!-- <template>
 	<fs-page>
 		<fs-crud ref="crudRef" v-bind="crudBinding">
       <template #header-top>
@@ -77,4 +77,10 @@ onMounted(() => {
 	crudExpose.doRefresh();
   initChart()
 });
-</script>
+</script> -->
+<template>
+	<fs-page>
+		
+    
+	</fs-page>
+</template>

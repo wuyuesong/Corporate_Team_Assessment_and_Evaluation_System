@@ -54,7 +54,7 @@ def import_to_data(file_url, field_data, m2m_fields=None):
             value_type = 'str'
             if isinstance(values, dict):
                 value_type = values.get('type','str')
-            cell_value = table.cell(row=row + 1, column=index + 2).value
+            cell_value = table.cell(row=row + 1, column=index + 1).value
             if cell_value is None or cell_value=='':
                 continue
             elif value_type == 'date':

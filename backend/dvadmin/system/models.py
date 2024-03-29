@@ -596,39 +596,45 @@ class MessageCenterTargetUser(CoreModel):
         verbose_name_plural = verbose_name
 
 
-# class Department(CoreModel):
-#     staff_department = models.CharField(max_length=255, verbose_name="部门名称", help_text="部门名称")
-#     normal_departmemt = models.CharField(max_length=255, verbose_name="标准化部门", help_text="标准化部门")
-#     sort = models.IntegerField(default=1, verbose_name="显示排序", help_text="显示排序")
-#     parent = models.ForeignKey(
-#         to="Department",
-#         on_delete=models.CASCADE,
-#         default=None,
-#         verbose_name="上级部门",
-#         db_constraint=False,
-#         null=True,
-#         blank=True,
-#         help_text="上级部门",
-#     )
+class Department(CoreModel):
+    staff_department = models.CharField(max_length=255, verbose_name="部门名称", help_text="部门名称",  null=False, blank=False, unique=True, default="")
+    normal_department = models.CharField(max_length=255, verbose_name="标准化部门", help_text="标准化部门", null=False, blank=False, unique=True, default="")
+    # sort = models.IntegerField(default=1, verbose_name="显示排序", help_text="显示排序")
+    # parent = models.ForeignKey(
+    #     to="Department",
+    #     on_delete=models.CASCADE,
+    #     default=None,
+    #     verbose_name="上级部门",
+    #     db_constraint=False,
+    #     null=True,
+    #     blank=True,
+    #     help_text="上级部门",
+    # )
 
-#     class Meta:
-#         db_table = table_prefix + "system_department"
-#         verbose_name = "部门"
-#         verbose_name_plural = verbose_name
-#         ordering = ("sort",)
+    # class Meta:
+    #     db_table = table_prefix + "system_department"
+    #     verbose_name = "部门"
+    #     verbose_name_plural = verbose_name
+    #     ordering = ("sort",)
         
 
 class Staff(CoreModel):
-    staff_id = models.CharField(max_length=255, verbose_name="员工id", null=True, blank=True, unique=True, help_text="员工id")
-    staff_name = models.CharField(max_length=255, verbose_name="员工姓名", null=True, blank=True, help_text="员工姓名")
-    staff_department = models.CharField(max_length=255, verbose_name="员工部门", null=True, blank=True, help_text="员工部门")
-    staff_rank = models.CharField(max_length=255, verbose_name="员工职级", null=True, blank=True, help_text="员工职级")
-    staff_job = models.CharField(max_length=255, verbose_name="员工职务", null=True, blank=True, help_text="员工职务")
+    staff_id = models.CharField(max_length=255, verbose_name="员工系统id", null=True, blank=True, unique=True, help_text="员工系统id")
+    staff_firm_id = models.CharField(max_length=255, verbose_name="员工企业id", null=False, blank=False, unique=True, help_text="员工企业id",default="")
+    staff_name = models.CharField(max_length=255, verbose_name="员工姓名", null=False, blank=False, help_text="员工姓名",default="")
+    staff_department = models.CharField(max_length=255, verbose_name="员工部门", null=False, blank=False, help_text="员工部门",default="")
+    staff_rank = models.CharField(max_length=255, verbose_name="员工职级", null=False, blank=False, help_text="员工职级",default="")
+    staff_job = models.CharField(max_length=255, verbose_name="岗位等级", null=False, blank=False, help_text="岗位等级",default="")
+    staff_title = models.CharField(max_length=255, verbose_name="员工职称", null=True, blank=True, help_text="员工职称")
     staff_telephone = models.CharField(max_length=255, verbose_name="员工电话", null=True, blank=True, help_text="员工电话")
     staff_email = models.CharField(max_length=255, verbose_name="员工邮箱", null=True, blank=True, help_text="员工邮箱")
     staff_status = models.CharField(max_length=255, verbose_name="政治面貌", null=True, blank=True, help_text="政治面貌")
-    staff_excellence = models.CharField(max_length=255, verbose_name="评奖评优", null=True, blank=True, help_text="评奖评优")
-    staff_kpi = models.CharField(max_length=255, verbose_name="KPI得分", null=True, blank=True, help_text="KPI得分")
+    assessment1 = models.CharField(max_length=255, verbose_name="第一年考核结果", null=True, blank=True, help_text="第一年考核结果")
+    assessment2 = models.CharField(max_length=255, verbose_name="第二年考核结果", null=True, blank=True, help_text="第二年考核结果")
+    assessment3 = models.CharField(max_length=255, verbose_name="第三年考核结果", null=True, blank=True, help_text="第三年考核结果")
+    staff_kpi1 = models.CharField(max_length=255, verbose_name="第一年KPI", null=True, blank=True, help_text="第一年KPI")
+    staff_kpi2 = models.CharField(max_length=255, verbose_name="第二年KPI", null=True, blank=True, help_text="第二年KPI")
+    staff_kpi3 = models.CharField(max_length=255, verbose_name="第三年KPI", null=True, blank=True, help_text="第三年KPI")
     
     # username = models.CharField(max_length=150, unique=True, db_index=True, verbose_name="用户账号",
     #                             help_text="用户账号")
@@ -671,6 +677,17 @@ class Staff(CoreModel):
 
     class Meta:
         db_table = table_prefix + "system_staffs"
+        verbose_name = "员工表"
+        verbose_name_plural = verbose_name
+        ordering = ("-create_datetime",)
+
+class Rank(CoreModel):
+    normal_rank = models.CharField(max_length=255, verbose_name="用户标准化职级", null=False, blank=False, help_text="用户标准化职级",default="")
+    staff_rank = models.CharField(max_length=255, verbose_name="职位等级", null=False, blank=False, help_text="职位等级",default="")
+    normal_department = models.CharField(max_length=255, verbose_name="用户标准化部门", null=False, blank=False, help_text="用户标准化部门",default="")
+    staff_department = models.CharField(max_length=255, verbose_name="用户部门", null=False, blank=False, help_text="用户部门",default="")
+    class Meta:
+        db_table = table_prefix + "system_rank"
         verbose_name = "员工表"
         verbose_name_plural = verbose_name
         ordering = ("-create_datetime",)

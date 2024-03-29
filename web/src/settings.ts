@@ -59,20 +59,6 @@ export default {
                             }
                         },
                     },
-                    /* search: {
-                        layout: 'multi-line',
-                        collapse: true,
-                        col: {
-                            span: 4,
-                        },
-                        options: {
-                            labelCol: {
-                                style: {
-                                    width: '100px',
-                                },
-                            },
-                        },
-                    }, */
                 };
             },
         });

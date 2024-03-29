@@ -1,6 +1,6 @@
 import { request } from '/@/utils/service';
 import { UserPageQuery, AddReq, DelReq, EditReq, InfoReq } from '@fast-crud/fast-crud';
-export const apiPrefix = '/api/system/login_log/';
+export const apiPrefix = '/api/system/rank/';
 
 
 export function GetList(query: UserPageQuery) {
