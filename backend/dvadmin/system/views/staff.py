@@ -1,4 +1,4 @@
-import hashlib
+import hashlib, random, string, os
 
 from django.contrib.auth.hashers import make_password, check_password
 from django_restql.fields import DynamicSerializerMethodField
@@ -224,6 +224,18 @@ class StaffProfileImportSerializer(CustomModelSerializer):
         # )
 
 
+def get_normal_department(department):
+    return Department.objects.get(staff_department=department).normal_department.zfill(2)
+
+def get_normal_rank(rank, department):
+    return Rank.objects.get(staff_rank=rank, staff_department=department).normal_rank.zfill(2)
+
+def generate_password():
+    length = 13
+    chars = string.ascii_letters + string.digits + '!@#$%^&*()'
+    random.seed = (os.urandom(1024))
+    return ''.join(random.choice(chars) for i in range(length))
+
 class StaffViewSet(CustomModelViewSet):
     """
     用户接口
@@ -307,6 +319,21 @@ class StaffViewSet(CustomModelViewSet):
         Staff_all = Staff.objects.all()
         Staff_all.delete()
         return DetailResponse(data=[], msg="删除成功")
+    
+    def generate_account(self, request: Request):
+        Staff_all = Staff.objects.all()
+        for staff in Staff_all:
+            normal_department = get_normal_department(staff.staff_department)
+            normal_rank = get_normal_rank(staff.staff_rank, staff.staff_department)
+            staff.staff_id = normal_department + normal_rank + staff.staff_firm_id.zfill(6)
+            staff.username = staff.staff_id
+            staff.password = generate_password()
+            Users(our_user_type=2, username=staff.username, raw_password=staff.password, staff_id=staff.staff_id).save()
+            staff.save()
+        return DetailResponse(data=[], msg="创建账号成功")
+
+
+
 
     # @action(methods=["GET"], detail=False, permission_classes=[IsAuthenticated])
     # def user_info(self, request):

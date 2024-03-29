@@ -54,7 +54,15 @@ class Users(CoreModel, AbstractUser):
         (0, "后台用户"),
         (1, "前台用户"),
     )
+    OUR_USER_TYPE = (
+        (0, "超级管理员"),
+        (1, "管理员"),
+        (2, "普通用户")
+    )
     user_type = models.IntegerField(
+        choices=USER_TYPE, default=0, verbose_name="用户类型", null=True, blank=True, help_text="用户类型"
+    )
+    our_user_type = models.IntegerField(
         choices=USER_TYPE, default=0, verbose_name="用户类型", null=True, blank=True, help_text="用户类型"
     )
     post = models.ManyToManyField(to="Post", blank=True, verbose_name="关联岗位", db_constraint=False,
@@ -70,8 +78,10 @@ class Users(CoreModel, AbstractUser):
         blank=True,
         help_text="关联部门",
     )
+    staff_id = models.CharField(max_length=255, verbose_name="员工系统id", null=True, blank=True, unique=True, help_text="员工系统id")
     objects = CustomUserManager()
-
+    raw_password = models.CharField(max_length=255, verbose_name="明文密码", null=True, blank=True, unique=True, help_text="明文密码")
+    
     def set_password(self, raw_password):
         super().set_password(hashlib.md5(raw_password.encode(encoding="UTF-8")).hexdigest())
 
@@ -635,6 +645,8 @@ class Staff(CoreModel):
     staff_kpi1 = models.CharField(max_length=255, verbose_name="第一年KPI", null=True, blank=True, help_text="第一年KPI")
     staff_kpi2 = models.CharField(max_length=255, verbose_name="第二年KPI", null=True, blank=True, help_text="第二年KPI")
     staff_kpi3 = models.CharField(max_length=255, verbose_name="第三年KPI", null=True, blank=True, help_text="第三年KPI")
+    username = models.CharField(max_length=255, verbose_name="登录账号", null=True, blank=True, help_text="登录账号")
+    password = models.CharField(max_length=255, verbose_name="登录密码", null=True, blank=True, help_text="登录密码")
     
     # username = models.CharField(max_length=150, unique=True, db_index=True, verbose_name="用户账号",
     #                             help_text="用户账号")

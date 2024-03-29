@@ -49,6 +49,7 @@ urlpatterns = [
     path('user/export/', UserViewSet.as_view({'post': 'export_data', })),
     path('user/import/', UserViewSet.as_view({'get': 'import_data', 'post': 'import_data'})),
     path('staff/delete_all/', StaffViewSet.as_view({'get': 'staff_delete_all',})),
+    path('staff/generate_account/', StaffViewSet.as_view({'get': 'generate_account',})),
     path('rank/delete_all/', RankViewSet.as_view({'get': 'rank_delete_all',})),
     path('department/delete_all/', DepartmentViewSet.as_view({'get': 'department_delete_all',})),
     path('system_config/save_content/', SystemConfigViewSet.as_view({'put': 'save_content'})),
