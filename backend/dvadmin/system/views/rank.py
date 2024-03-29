@@ -116,7 +116,8 @@ class RankViewSet(CustomModelViewSet):
     export_field_label = {
         "normal_rank": "用户标准化职级",
         "staff_rank": "职位等级",
-        "normal_departmemt": "用户标准化部门"
+        "normal_departmemt": "用户标准化部门",
+        "staff_department": "用户部门"
     }
     export_serializer_class = ExportRankProfileSerializer
     # 导入
@@ -125,7 +126,8 @@ class RankViewSet(CustomModelViewSet):
     import_field_dict = {
         "normal_rank": "用户标准化职级",
         "staff_rank": "职位等级",
-        "normal_departmemt": "用户标准化部门"
+        "normal_departmemt": "用户标准化部门",
+        "staff_department": "用户部门"
     }
 
     def Rank_delete_all(self, request: Request):
