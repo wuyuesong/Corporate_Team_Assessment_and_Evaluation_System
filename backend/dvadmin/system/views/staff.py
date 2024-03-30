@@ -334,9 +334,9 @@ class StaffViewSet(CustomModelViewSet):
             normal_department = get_normal_department(staff.staff_department)
             
             try:
-                Rank.objects.get(staff_rank=staff.rank, staff_department=staff.department)
+                Rank.objects.get(staff_rank=staff.rank, staff_department=staff.staff_department)
             except ObjectDoesNotExist:
-                return ErrorResponse(msg=f"{staff.staff_name}  {staff.staff_department}中的{staff.staff_rank}不存在")
+                return ErrorResponse(msg=f"{staff.staff_name}  {staff.staff_department}部门或{staff.staff_department}部门中的{staff.staff_rank}职级不存在")
             normal_rank = get_normal_rank(staff.staff_rank, staff.staff_department)
             staff.staff_id = normal_department + normal_rank + staff.staff_firm_id.zfill(6)
             staff.username = staff.staff_id
