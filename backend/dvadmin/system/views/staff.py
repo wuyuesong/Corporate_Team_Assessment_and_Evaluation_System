@@ -1,4 +1,5 @@
 import hashlib, random, string, os
+from django.core.exceptions import ObjectDoesNotExist
 
 from django.contrib.auth.hashers import make_password, check_password
 from django_restql.fields import DynamicSerializerMethodField
@@ -326,7 +327,16 @@ class StaffViewSet(CustomModelViewSet):
     def generate_account(self, request: Request):
         Staff_all = Staff.objects.all()
         for staff in Staff_all:
+            try:
+                Department.objects.get(staff_department=staff.department)
+            except ObjectDoesNotExist:
+                return ErrorResponse(msg=f"{staff.staff_name}  {staff.staff_department}部门不存在")
             normal_department = get_normal_department(staff.staff_department)
+            
+            try:
+                Rank.objects.get(staff_rank=staff.rank, staff_department=staff.department)
+            except ObjectDoesNotExist:
+                return ErrorResponse(msg=f"{staff.staff_name}  {staff.staff_department}中的{staff.staff_rank}不存在")
             normal_rank = get_normal_rank(staff.staff_rank, staff.staff_department)
             staff.staff_id = normal_department + normal_rank + staff.staff_firm_id.zfill(6)
             staff.username = staff.staff_id
