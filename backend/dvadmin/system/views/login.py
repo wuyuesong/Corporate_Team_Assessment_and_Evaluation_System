@@ -108,6 +108,51 @@ class LoginSerializer(TokenObtainPairSerializer):
         # 记录登录日志
         save_login_log(request=request)
         return {"code": 2000, "msg": "请求成功", "data": data}
+    
+    
+# 员工登录序列化器
+class StaffLoginSerializer(TokenObtainPairSerializer):
+    """
+    登录的序列化器:
+    重写djangorestframework-simplejwt的序列化器
+    """
+
+    class Meta:
+        model = Users
+        fields = "__all__"
+        read_only_fields = ["id"]
+
+    default_error_messages = {"no_active_account": _("账号/密码错误")}
+
+    def validate(self, attrs):
+        try:
+            user = Users.objects.get(username=attrs['username'])
+        except Exception as e:
+            return ErrorResponse(code=401, msg="账号不存在")
+        if not user.is_active:
+            raise CustomValidationError("账号被锁定")
+        data = super().validate(attrs)
+        data["name"] = self.user.name
+        data["userId"] = self.user.id
+        data["avatar"] = self.user.avatar
+        data['user_type'] = self.user.user_type
+        dept = getattr(self.user, 'dept', None)
+        
+        if dept:
+            data['dept_info'] = {
+                'dept_id': dept.id,
+                'dept_name': dept.name,
+
+            }
+        role = getattr(self.user, 'role', None)
+        if role:
+            data['role_info'] = role.values('id', 'name', 'key')
+        request = self.context.get("request")
+        request.user = self.user
+        # 记录登录日志
+        save_login_log(request=request)
+        return {"code": 2000, "msg": "请求成功", "data": data}
+
 
 
 class LoginView(TokenObtainPairView):
@@ -181,6 +226,15 @@ class LoginView(TokenObtainPairView):
     #     request.user = user
     #     save_login_log(request=request)
     #     return DetailResponse(data=result,msg="获取成功")
+    
+    
+# 员工登录 
+class StaffLoginView(TokenObtainPairView):
+    """
+    登录接口
+    """
+    serializer_class = StaffLoginSerializer
+    permission_classes = []
 
 
 class LoginTokenSerializer(TokenObtainPairSerializer):

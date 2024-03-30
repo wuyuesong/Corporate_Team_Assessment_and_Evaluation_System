@@ -15,6 +15,7 @@ from dvadmin.utils.json_response import ErrorResponse, DetailResponse, SuccessRe
 from dvadmin.utils.serializers import CustomModelSerializer
 from dvadmin.utils.validator import CustomUniqueValidator
 from dvadmin.utils.viewset import CustomModelViewSet
+from django.db import transaction
 
 
 # def recursion(instance, parent, result):
@@ -320,6 +321,8 @@ class StaffViewSet(CustomModelViewSet):
         Staff_all.delete()
         return DetailResponse(data=[], msg="删除成功")
     
+    # 加上锁，如果期间有报错，则回退，不然再次录入时主键会重复
+    @transaction.atomic
     def generate_account(self, request: Request):
         Staff_all = Staff.objects.all()
         for staff in Staff_all:
