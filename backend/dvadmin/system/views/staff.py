@@ -330,13 +330,15 @@ class StaffViewSet(CustomModelViewSet):
         Staff_all = Staff.objects.all()
         for staff in Staff_all:
             try:
-                Department.objects.get(staff_department=staff.staff_department)
+                with transaction.atomic():
+                    Department.objects.get(staff_department=staff.staff_department)
             except ObjectDoesNotExist:
                 return ErrorResponse(msg=f"{staff.staff_name}  {staff.staff_department}部门不存在")
             normal_department = get_normal_department(staff.staff_department)
             
             try:
-                Rank.objects.get(staff_rank=staff.staff_rank, staff_department=staff.staff_department)
+                with transaction.atomic():
+                    Rank.objects.get(staff_rank=staff.staff_rank, staff_department=staff.staff_department)
             except ObjectDoesNotExist:
                 return ErrorResponse(msg=f"{staff.staff_name}  {staff.staff_department}部门或{staff.staff_department}部门中的{staff.staff_rank}职级不存在")
             normal_rank = get_normal_rank(staff.staff_rank, staff.staff_department)
