@@ -207,11 +207,18 @@ class StaffProfileImportSerializer(CustomModelSerializer):
 
     def save(self, **kwargs):
         data = super().save(**kwargs)
-        # password = hashlib.new(
-        #     "md5", str(self.initial_data.get("password", "admin123456")).encode(encoding="UTF-8")
-        # ).hexdigest()
-        # data.set_password(password)
-        data.save()
+
+        try:
+            Department.objects.get(staff_department=data.staff_department)
+        except ObjectDoesNotExist:
+            return f"{data.staff_department}部门不存在"
+        
+        try:
+            Rank.objects.get(staff_rank=data.staff_rank, staff_department=data.staff_department)
+        except ObjectDoesNotExist:
+            return f"{data.staff_department}部门或{data.staff_department}部门中的{data.staff_rank}职级不存在" 
+        
+        data.save()    
         return data
 
     class Meta:

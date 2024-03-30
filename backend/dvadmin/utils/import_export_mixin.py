@@ -11,7 +11,7 @@ from rest_framework.decorators import action
 from rest_framework.request import Request
 
 from dvadmin.utils.import_export import import_to_data
-from dvadmin.utils.json_response import DetailResponse
+from dvadmin.utils.json_response import DetailResponse, ErrorResponse
 from dvadmin.utils.request_util import get_verbose_name
 
 
@@ -146,13 +146,18 @@ class ImportSerializerMixin:
             ]
             import_field_dict = {'id':'更新主键(勿改)',**self.import_field_dict}
             data = import_to_data(request.data.get("url"), import_field_dict, m2m_fields)
-            for ele in data:
-                filter_dic = {'id':ele.get('id')}
-                instance = filter_dic and queryset.filter(**filter_dic).first()
-                # print(156,ele)
-                serializer = self.import_serializer_class(instance, data=ele, request=request)
-                serializer.is_valid(raise_exception=True)
-                serializer.save()
+            with transaction.atomic(): 
+                sid = transaction.savepoint()
+                for ele in data:
+                    filter_dic = {'id':ele.get('id')}
+                    instance = filter_dic and queryset.filter(**filter_dic).first()
+                    # print(156,ele)
+                    serializer = self.import_serializer_class(instance, data=ele, request=request)
+                    serializer.is_valid(raise_exception=True)
+                    ret = serializer.save()
+                    if type(ret) == str:
+                        transaction.savepoint_rollback(sid)
+                        return ErrorResponse(msg=ret)
             return DetailResponse(msg=f"导入成功！")
 
     @action(methods=['get'],detail=False)
