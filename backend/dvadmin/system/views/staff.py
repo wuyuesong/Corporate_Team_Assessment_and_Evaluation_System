@@ -330,15 +330,13 @@ class StaffViewSet(CustomModelViewSet):
         Staff_all = Staff.objects.all()
         for staff in Staff_all:
             try:
-                with transaction.atomic():
-                    Department.objects.get(staff_department=staff.staff_department)
+                Department.objects.get(staff_department=staff.staff_department)
             except ObjectDoesNotExist:
                 return ErrorResponse(msg=f"{staff.staff_name}  {staff.staff_department}部门不存在")
             normal_department = get_normal_department(staff.staff_department)
             
             try:
-                with transaction.atomic():
-                    Rank.objects.get(staff_rank=staff.staff_rank, staff_department=staff.staff_department)
+                Rank.objects.get(staff_rank=staff.staff_rank, staff_department=staff.staff_department)
             except ObjectDoesNotExist:
                 return ErrorResponse(msg=f"{staff.staff_name}  {staff.staff_department}部门或{staff.staff_department}部门中的{staff.staff_rank}职级不存在")
             normal_rank = get_normal_rank(staff.staff_rank, staff.staff_department)
@@ -352,10 +350,16 @@ class StaffViewSet(CustomModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data, request=request)
         serializer.is_valid(raise_exception=True)
-        if serializer.data['staff_department'] not in Department.objects.values_list('staff_department',flat=True).distinct():
+        try:
+            Department.objects.get(staff_department=serializer.data["staff_department"])
+        except ObjectDoesNotExist:
             return ErrorResponse(msg=f"{serializer.data['staff_department']}部门不存在")
-        if serializer.data['staff_rank'] not in Rank.objects.values_list('staff_rank',flat=True).distinct():
-            return ErrorResponse(msg=f"{serializer.data['staff_rank']}职位不存在")
+        
+        try:
+            Rank.objects.get(staff_rank=serializer.data['staff_rank'], staff_department=serializer.data["staff_department"])
+        except ObjectDoesNotExist:
+            return ErrorResponse(msg=f"{serializer.data['staff_department']}部门或{serializer.data['staff_department']}部门中的{serializer.data['staff_rank']}职级不存在")
+        
         self.perform_create(serializer)
         return DetailResponse(data=serializer.data, msg="新增成功")
 
