@@ -300,9 +300,11 @@ class StaffViewSet(CustomModelViewSet):
     #     "role": {"title": "角色", "choices": {"queryset": Role.objects.filter(status=True), "values_name": "name"}},
     # }
     import_field_dict = {
-        "staff_department": {"title": "单位名称", "choices": {"queryset": Department.objects.all(), "values_name": "staff_department"}},
+        # "staff_department": {"title": "单位名称", "choices": {"queryset": Department.objects.all(), "values_name": "staff_department"}},
+        "staff_department": "单位名称",
         "staff_name": "员工姓名",
-        "staff_rank": {"title": "职位等级", "choices": {"queryset": Rank.objects.all(), "values_name": "staff_rank"}},
+        #"staff_rank": {"title": "职位等级", "choices": {"queryset": Rank.objects.all(), "values_name": "staff_rank"}},
+        "staff_rank": "职位等级",
         "staff_job": "岗位等级",
         "staff_title": "职称",
         "staff_kpi1": "第一年KPI",
