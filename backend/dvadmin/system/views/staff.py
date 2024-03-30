@@ -331,6 +331,16 @@ class StaffViewSet(CustomModelViewSet):
             Users(our_user_type=2, username=staff.username, raw_password=staff.password, staff_id=staff.staff_id).save()
             staff.save()
         return DetailResponse(data=[], msg="创建账号成功")
+    
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data, request=request)
+        serializer.is_valid(raise_exception=True)
+        if serializer.data['staff_department'] not in Department.objects.values_list('staff_department',flat=True).distinct():
+            return ErrorResponse(msg=f"{serializer.data['staff_department']}部门不存在")
+        if serializer.data['staff_rank'] not in Rank.objects.values_list('staff_rank',flat=True).distinct():
+            return ErrorResponse(msg=f"{serializer.data['staff_rank']}职位不存在")
+        self.perform_create(serializer)
+        return DetailResponse(data=serializer.data, msg="新增成功")
 
 
 
