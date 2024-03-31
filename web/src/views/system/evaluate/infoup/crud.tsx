@@ -102,15 +102,29 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						show:true,
 						disabled: false,
 					},
-					type: 'input',
 					column:{
 						minWidth: 100,
 					},
+					type: 'dict-tree',
+					dict: dict({
+                        isTree: true,
+                        url: '/api/system/department',
+                        label: 'staff_department',
+						value: 'staff_department'
+                    }),
 					form: {
 						disabled: true,
 						component: {
-							placeholder: '请输入单位名称',
-						},
+                            filterable: true,
+                            placeholder: '请选择',
+                            props: {
+                                checkStrictly:true,
+                                props: {
+                                    label: 'staff_department',
+									value: 'staff_department'
+                                },
+                            },
+                        },
 					},
 				},
 				staff_name: {
@@ -135,16 +149,31 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						show:true,
 						disabled: false,
 					},
-					type: 'input',
 					column:{
 						minWidth: 100,
 					},
+					type: 'dict-tree',
+					dict: dict({
+                        isTree: true,
+                        url: '/api/system/rank',
+                        label: 'staff_rank',
+						value: 'staff_rank'
+                    }),
 					form: {
 						disabled: true,
 						component: {
-							placeholder: '请输入职位等级',
-						},
+                            filterable: true,
+                            placeholder: '请选择',
+                            props: {
+                                checkStrictly:true,
+                                props: {
+                                    label: 'staff_rank',
+									value: 'staff_rank'
+                                },
+                            },
+                        },
 					},
+					
 				},
 				staff_job: {
 					title: '岗位等级',
@@ -340,6 +369,34 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 							placeholder: '请输入员工电话',
 						},
 					},
+				},
+				username:{
+					title: '用户名',
+					search: {
+						disabled: false,
+					},
+					type: 'text',
+					column:{
+						minWidth: 100,
+					},
+					form: {
+						show:false
+					}
+
+				},
+				password:{
+					title: '密码',
+					search: {
+						disabled: false,
+					},
+					type: 'text',
+					column:{
+						minWidth: 100,
+					},
+					form: {
+						show:false
+					}
+
 				},
 				...commonCrudConfig({
 					create_datetime: {
