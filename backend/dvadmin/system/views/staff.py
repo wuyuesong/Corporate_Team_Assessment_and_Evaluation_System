@@ -329,6 +329,10 @@ class StaffViewSet(CustomModelViewSet):
     def staff_delete_all(self, request: Request):
         Staff_all = Staff.objects.all()
         Staff_all.delete()
+        
+        staff_user_all = Users.objects.filter(our_user_type=2)
+        staff_user_all.delete()
+        
         return DetailResponse(data=[], msg="删除成功")
     
     # 加上锁，如果期间有报错，则回退，不然再次录入时主键会重复
