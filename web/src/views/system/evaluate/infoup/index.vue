@@ -142,9 +142,11 @@ const SubmmitInfo = async() => {
             ElMessageBox.alert('提交成功', {
             })
             subloading.value = false; // 结束加载状态vv
+            refreshView()
           } else{
             ElMessageBox.alert(response.msg)
             subloading.value = false; // 结束加载状态vv
+            refreshView()
           }
       }).catch(() => {
       ElMessage({
