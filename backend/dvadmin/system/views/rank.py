@@ -110,7 +110,12 @@ class RankViewSet(CustomModelViewSet):
     serializer_class = RankSerializer
     create_serializer_class = RankCreateSerializer
     update_serializer_class = RankUpdateSerializer
-    filter_fields = "__all__"
+    filter_fields = [
+        "normal_rank",
+        "staff_rank",
+        "normal_department",
+        "staff_department"
+    ]
     search_fields = "__all__"
     # 导出
     export_field_label = {
