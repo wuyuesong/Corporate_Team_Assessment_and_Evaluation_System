@@ -51,6 +51,7 @@ urlpatterns = [
     path('staff/delete_all/', StaffViewSet.as_view({'get': 'staff_delete_all',})),
     path('staff/generate_account/', StaffViewSet.as_view({'get': 'generate_account',})),
     path('rank/delete_all/', RankViewSet.as_view({'get': 'rank_delete_all',})),
+    path('rank/unique_rank_list/', RankViewSet.as_view({'get': 'unique_rank_list',})),
     path('department/delete_all/', DepartmentViewSet.as_view({'get': 'department_delete_all',})),
     path('system_config/save_content/', SystemConfigViewSet.as_view({'put': 'save_content'})),
     path('system_config/get_association_table/', SystemConfigViewSet.as_view({'get': 'get_association_table'})),
