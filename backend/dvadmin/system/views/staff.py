@@ -260,7 +260,22 @@ class StaffViewSet(CustomModelViewSet):
     create_serializer_class = StaffCreateSerializer
     update_serializer_class = StaffUpdateSerializer
     # filter_fields = ["name", "username", "gender", "is_active", "dept", "user_type"]
-    filter_fields = "__all__"
+    # filter_fields = "__all__"
+    filter_fields = ["staff_department",
+        "staff_name",
+        "staff_rank",
+        "staff_job",
+        "staff_title",
+        "staff_kpi1",
+        "staff_kpi2",
+        "staff_kpi2",
+        "assessment1",
+        "assessment2",
+        "assessment3",
+        "staff_status",
+        "staff_firm_id",
+        "staff_telephone",
+        "staff_email"]
     # search_fields = ["username", "name", "dept__name", "role__name"]
     search_fields = "__all__"
     # 导出
