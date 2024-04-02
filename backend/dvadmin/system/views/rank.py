@@ -134,5 +134,10 @@ class RankViewSet(CustomModelViewSet):
         Rank_all = Rank.objects.all()
         Rank_all.delete()
         return DetailResponse(data=[], msg="删除成功")
+    
+    def unique_rank_list(self, request: Request):
+        unique_rank = list(Rank.objects.order_by('staff_rank').values_list('staff_rank', flat=True).distinct())
+        return DetailResponse(data=unique_rank, msg="获取成功")
+
 
 
