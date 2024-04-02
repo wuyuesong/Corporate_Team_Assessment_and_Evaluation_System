@@ -139,7 +139,7 @@ function changestyle(rows:any){
 }
 
 const handlesame =(row:any)=>{
-  console.log("**********************************")
+
   
   const [num1, num2] = hasDuplicateScores(gridData)
   if(!(num1===num2)){

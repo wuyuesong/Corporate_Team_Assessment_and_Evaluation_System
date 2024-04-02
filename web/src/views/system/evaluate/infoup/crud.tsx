@@ -155,7 +155,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 					type: 'dict-tree',
 					dict: dict({
                         isTree: true,
-                        url: '/api/system/rank',
+                        url: '/api/system/rank/unique_rank_list',
                         label: 'staff_rank',
 						value: 'staff_rank'
                     }),
