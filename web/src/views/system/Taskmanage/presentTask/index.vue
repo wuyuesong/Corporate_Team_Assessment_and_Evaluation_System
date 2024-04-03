@@ -3,7 +3,7 @@ import { ref, onMounted ,reactive} from 'vue';
 import { ElMessageBox , ElMessage} from 'element-plus';
 import { request } from '/@/utils/service';
 import { getBaseURL } from '/@/utils/baseUrl';
-import evablock from '../ItemBlock/evaluatorBlock.vue'
+import evablock from '../component/evaluatorBlock.vue'
 
 onMounted(() => {
       fetchDepatOptions();
@@ -104,7 +104,7 @@ const fetchRankOptions = async () => {
     try {
         // 发送请求并获取数据
         const response = await request({
-        url: getBaseURL() + 'api/system/rank/',
+        url: getBaseURL() + 'api/system/rank/unique_rank_list',
         method: 'get',})
         const data = await response.data;
         // 更新选项列表
@@ -140,6 +140,10 @@ const reset=()=>{
 }
 
 
+const test=ref({
+    title:"success",
+    weight:33
+})
 
 
 
@@ -151,7 +155,7 @@ const reset=()=>{
 <template>
     <div class="eva_container">
         <div class="evaluating_container">
-            <evablock></evablock>
+            <evablock v-model="test"></evablock>
         </div>
         <div class="middle" style="font-size: 50px">
             <el-icon><DArrowRight /></el-icon>
@@ -170,12 +174,13 @@ const reset=()=>{
                             v-model="form.department"
                             placeholder="Please select "
                         >
+                            <el-option label="" value=""/>
                             <el-option
                                 v-for="item in Departoptions"
                                 :key="item.staff_department"
                                 :value="item.staff_department"
                             />
-                            <el-option label="" value=""/>
+                            
                         </el-select>
                         </el-form-item>
 
@@ -184,13 +189,14 @@ const reset=()=>{
                         <el-select
                             v-model="form.staff_rank"
                             placeholder="Please select "
-                        >
+                        >   
+                            <el-option label="" value=""/>
                             <el-option
                                 v-for="item in Rankoptions"
-                                :key="item.staff_rank"
-                                :value="item.staff_rank"
+                                :key="item.name"
+                                :value="item.name"
                             />
-                            <el-option label="" value=""/>
+                            
                         </el-select>
                         </el-form-item>
 

@@ -156,19 +156,19 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 					dict: dict({
                         isTree: true,
                         url: '/api/system/rank/unique_rank_list',
-                        label: 'staff_rank',
-						value: 'staff_rank'
+                        label: 'name',
+						value: 'name'
                     }),
 					form: {
 						disabled: true,
 						component: {
                             filterable: true,
-                            placeholder: '请选择',
+                            placeholder: '请选择职位等级',
                             props: {
                                 checkStrictly:true,
                                 props: {
-                                    label: 'staff_rank',
-									value: 'staff_rank'
+                                    label: 'name',
+									value: 'name'
                                 },
                             },
                         },

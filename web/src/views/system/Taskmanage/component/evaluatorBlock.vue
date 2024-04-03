@@ -1,6 +1,31 @@
 <script setup lang="ts">
 import { Opportunity } from '@element-plus/icons-vue'
+import test from 'node:test';
+import { computed } from 'vue';
 import { ref } from 'vue';
+
+//emit声明
+const emit=defineEmits(['update:modelValue:']);
+
+//props声明
+const model = defineModel({ 
+    type: Object,
+    required:true,
+ })
+
+
+
+//计算属性处理子组件改动权重,防止打破单向流
+const weightchange=computed({
+    get(){
+        return model.value.weight;
+    },
+    set(value){
+        model.value.weight=value;
+    }
+})
+
+
 const tableData = ref([])
 const deleteRow = (index: number) => {
   tableData.value.splice(index, 1)
@@ -10,6 +35,7 @@ const deleteRow = (index: number) => {
     <div class="evaitem_container">
         
         <el-card class="title_left">
+            <span class="evatitle_span">{{ model.title }}</span>
 
         </el-card>
         <el-card class="contain_middle">
@@ -31,12 +57,7 @@ const deleteRow = (index: number) => {
             </el-table>
         </el-card>
         <el-card class="weight_right">
-            <el-input
-                style="width: 110px"
-                size="large"
-                placeholder="权重"
-                :suffix-icon="Opportunity"
-                />
+            <el-input-number v-model="weightchange" :min="0" :max="100" style="width: 110px" placeholder="权重"  controls-position="right"/>
         </el-card>
     </div>
 </template>
@@ -69,5 +90,10 @@ const deleteRow = (index: number) => {
     display: flex;
     height: auto; 
     background-color: rgb(248, 246, 246);
+}
+.evatitle_span{
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--color-primary-label);
 }
 </style>
