@@ -159,7 +159,7 @@ class RankViewSet(CustomModelViewSet):
                 if (letter in department.normal_department) or (letter.upper() in department.normal_department):
                     ret.append(dict())
                     offset = ord(letter) - ord('a')
-                    ret[offset] = dict(id=f"a-{offset + 1}",title=f"{chinese_numerals[offset + 1]}级部门", next=[])
+                    ret[offset] = dict(id=f"a-{offset + 1}",value=f"{chinese_numerals[offset + 1]}级部门", children=[])
                     break
         
         for department in department_list:
@@ -169,13 +169,13 @@ class RankViewSet(CustomModelViewSet):
                 offset = ord(department.normal_department[0]) - ord('a')
 
             department_id = department.normal_department[1:3].lstrip('0')
-            tmp_dict = dict(id=f"b-{department_id}",title=f"{department.staff_department}", next=[])
+            tmp_dict = dict(id=f"b-{department_id}",value=f"{department.staff_department}", children=[])
             
             current_department_rank = Rank.objects.filter(staff_department=department.staff_department)
             for id,rank in enumerate(current_department_rank, start=1):
-                tmp_dict['next'].append(dict(id=f"c-{id}",title=f"{rank.staff_rank}", next=[]) )
+                tmp_dict['children'].append(dict(id=f"c-{id}",value=f"{rank.staff_rank}", children=[]) )
             
-            ret[offset]['next'].append(tmp_dict)
+            ret[offset]['children'].append(tmp_dict)
             
         return DetailResponse(data=ret, msg="获取成功")
         
