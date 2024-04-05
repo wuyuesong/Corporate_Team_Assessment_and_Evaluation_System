@@ -1,18 +1,23 @@
 <script setup lang="ts">
-import { Opportunity } from '@element-plus/icons-vue'
-import test from 'node:test';
+import { Opportunity,Delete } from '@element-plus/icons-vue'
+import { getCurrentInstance } from 'vue';
 import { computed } from 'vue';
 import { ref } from 'vue';
 
 //emit声明
 const emit=defineEmits(['update:modelValue:']);
-
+const {proxy} = getCurrentInstance();
 //props声明
 const model = defineModel({ 
     type: Object,
     required:true,
  })
 
+
+ const deletethisItem=()=>{
+    console.log("000000000000000000000");
+    proxy.$emit('remove');
+ }
 
 
 //计算属性处理子组件改动权重,防止打破单向流
@@ -25,21 +30,18 @@ const weightchange=computed({
     }
 })
 
-
-const tableData = ref([])
 const deleteRow = (index: number) => {
-  tableData.value.splice(index, 1)
+  model.value.tableData.splice(index, 1)
 }
 </script>
 <template>
     <div class="evaitem_container">
         
         <el-card class="title_left">
-            <span class="evatitle_span">{{ model.title }}</span>
-
+            <el-button type="danger"  @click="deletethisItem" size="large" :icon="Delete" circle />
         </el-card>
         <el-card class="contain_middle">
-            <el-table :data="tableData" style="width: 100%" max-height="250">
+            <el-table :data="model.tableData" style="width: 100%" max-height="250">
                 <el-table-column prop="staff_name" label="姓名" width="120" />
                 <el-table-column prop="staff_firm_id" label="ID" width="120" />
                 <el-table-column fixed="right" label="Operations" width="120">
@@ -70,7 +72,9 @@ const deleteRow = (index: number) => {
 .title_left{
     width: 100px;
     display: flex;
+    text-align: center;
     align-items: center;
+    justify-content: center;
     height: auto; /* 让所有卡片的高度占满父容器 */
     background-color: rgb(248, 246, 246);
 }
@@ -94,6 +98,5 @@ const deleteRow = (index: number) => {
 .evatitle_span{
     font-size: 16px;
     font-weight: 600;
-    color: var(--color-primary-label);
 }
 </style>

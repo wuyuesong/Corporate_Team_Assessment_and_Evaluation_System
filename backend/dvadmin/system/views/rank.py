@@ -173,7 +173,7 @@ class RankViewSet(CustomModelViewSet):
             
             current_department_rank = Rank.objects.filter(staff_department=department.staff_department)
             for id,rank in enumerate(current_department_rank, start=1):
-                tmp_dict['children'].append(dict(id=f"c-{id}",value=f"{rank.staff_rank}", children=[]) )
+                tmp_dict['children'].append(dict(id=f"c-{department.staff_department}-{rank.staff_rank}",value=f"{rank.staff_rank}", children=[]) )
             
             ret[offset]['children'].append(tmp_dict)
             

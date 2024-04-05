@@ -4,6 +4,10 @@ import { ElMessageBox , ElMessage} from 'element-plus';
 import { request } from '/@/utils/service';
 import { getBaseURL } from '/@/utils/baseUrl';
 import evablock from '../component/evaluatorBlock.vue'
+import { successMessage } from '/@/utils/message';
+import relationtree from '../component/tree.vue'
+import { forEach } from 'lodash';
+
 
 onMounted(() => {
       fetchDepatOptions();
@@ -11,8 +15,13 @@ onMounted(() => {
 });
 const loading = ref(false)
 const dialogvisable=ref(false);
+const addDrawvisable=ref(false);
 const judge=ref(true);
-const revert=async()=>{
+const evaluatingbutton=ref(true);
+
+
+
+const evaluatedrevert=async()=>{
 
     ElMessageBox.confirm('Do you want to submit?')
     .then(async () => {
@@ -23,6 +32,7 @@ const revert=async()=>{
         params:{
             staff_department:form.department,
             staff_rank:form.staff_rank,
+            
             "limit":500
         }
       })
@@ -31,6 +41,7 @@ const revert=async()=>{
             dialogvisable.value=false;
             judge.value=false;
             loading.value = false;
+            evaluatingbutton.value=false;
       }else{
         loading.value = false;
         ElMessage({
@@ -116,8 +127,9 @@ const fetchRankOptions = async () => {
         type: 'error',
         })
     }
-    
 }
+
+
 
 
 
@@ -126,7 +138,7 @@ const reset=()=>{
     .then(() => {
         griddata.value=[]
         judge.value=true;
-
+        evaluatingbutton.value=true;
 
     })
     .catch(() => {
@@ -140,22 +152,110 @@ const reset=()=>{
 }
 
 
-const test=ref({
-    title:"success",
-    weight:33
-})
+/**
+ * 根据页面提交信息增加对应组
+ */
+
+ async function fetchgroupData(targetElement) {
+    try {
+        const response = await request({
+            url: getBaseURL() + 'api/system/staff/',
+            method: 'get',
+            params: {
+                staff_department: targetElement.staff_department,
+                staff_rank: targetElement.staff_rank,
+                "limit": 500
+            }
+        });
+        return response.data; // 直接返回数据
+    } catch (error) {
+        console.error("获取数据时出错:", error);
+        return []; // 如果出现错误，则返回空数组
+    }
+}
+
+const evaluatingGroup=ref([])
+const reltree:any=ref(null);
+const addevaluatinggroup=async()=>{
+    loading.value = true;
+    const evaluatingTabledata=ref([]);
+    const addtarget=reltree.value.treeclick();
+ 
+    
 
 
+    try {
+        // 发送请求并获取数据
+        addtarget.forEach(async targetelement => {
+            const response=await request({
+                url: getBaseURL() + 'api/system/staff/',
+                method: 'get',
+                params:{
+                    staff_department:targetelement.staff_department,
+                    staff_rank:targetelement.staff_rank,
+                    "limit":500
+                }
+            })
+            const data = await response.data;
+            evaluatingTabledata.value.push(...data)
+        });
 
+        evaluatingGroup.value.push({
+            tableData:evaluatingTabledata,
+            weight:null
+        });
+        loading.value = false;
+        addDrawvisable.value=false;
+        // 更新选项列表
+    } catch (error) {
+        ElMessage({
+        showClose: true,
+        message: error.value,
+        type: 'error',
+        })
+    }
+    
+}
+
+const removeChild=(index)=>{
+      evaluatingGroup.value.splice(index, 1);
+}
 
 
 </script>
 
 
 <template>
+
+
     <div class="eva_container">
         <div class="evaluating_container">
-            <evablock v-model="test"></evablock>
+            <div class="evatag">
+                <h4 class="evaluated_title">评价组</h4>
+                <div class="addgrouo_container">
+                    <el-button class="addgroup" @click="addDrawvisable=true" :disabled="evaluatingbutton">
+                        <h4 class="evaluated_title">加入新的评价组</h4>
+                    </el-button>
+                </div>
+          
+            </div> 
+            <el-drawer v-model="addDrawvisable" title="添加评价组"  direction="btt" size="70%" :before-close="handleClose">
+                <div class="Evaluating_add__content">
+                   <relationtree ref="reltree"></relationtree>
+                    <div class="demo-drawer__footer">
+                        <el-button type="primary" :loading="loading" @click="addevaluatinggroup">{{
+                            loading ? 'Submitting ...' : 'Submit'
+                            }}</el-button>                    
+                    </div>
+                </div>
+            </el-drawer>
+            <el-scrollbar max-height="85vh">
+            <div v-for=" (group,index) in evaluatingGroup">
+                <evablock v-model="evaluatingGroup[index]"  @remove="removeChild(index)"></evablock>
+            </div>
+
+            </el-scrollbar>
+            
         </div>
         <div class="middle" style="font-size: 50px">
             <el-icon><DArrowRight /></el-icon>
@@ -202,7 +302,7 @@ const test=ref({
 
                     </el-form>
                     <div class="demo-drawer__footer">
-                        <el-button type="primary" :loading="loading" @click="revert">{{
+                        <el-button type="primary" :loading="loading" @click="evaluatedrevert">{{
                             loading ? 'Submitting ...' : 'Submit'
                             }}</el-button>
                         
@@ -229,8 +329,27 @@ const test=ref({
     display: flex; /* 使用 Flexbox 布局 */
 }
 
-
-
+.evatag{
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+   
+}
+.addgrouo_container{
+    transition: transform 0.3s ease; 
+    margin-left: 500px;
+}
+.addgrouo_container:hover{
+    transform: scale(1.2); /* 按钮容器放大 */
+}
+.addgroup{
+    background: #ededed;
+    border-radius: 8px;
+    color: #00050d;
+    min-height: 20px;
+    padding: 20px;
+    
+}
 .evaluating_container{
     margin: 30px;
     padding: 20px;
@@ -277,9 +396,14 @@ const test=ref({
 
 .evaluated_title{
     font-size: large;
+    font-weight: bold; /* 鼠标悬停时的字体粗细 */
 
 }
 .evaluatedreset{
     margin-top: 10px;
+}
+
+.Evaluating_add__content{
+    text-align: center;
 }
 </style>
