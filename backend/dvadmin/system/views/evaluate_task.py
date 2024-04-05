@@ -1,4 +1,6 @@
 import hashlib
+import uuid
+from datetime import datetime
 
 from django.contrib.auth.hashers import make_password, check_password
 from django_restql.fields import DynamicSerializerMethodField
@@ -9,12 +11,13 @@ from rest_framework.request import Request
 from django.db import connection
 from django.db.models import Q
 from application import dispatch
-from dvadmin.system.models import Users, Role, Dept, Department, EvaluateTask
+from dvadmin.system.models import Users, Role, Dept, Department, EvaluateTask, Task
 from dvadmin.system.views.role import RoleSerializer
 from dvadmin.utils.json_response import ErrorResponse, DetailResponse, SuccessResponse
 from dvadmin.utils.serializers import CustomModelSerializer
 from dvadmin.utils.validator import CustomUniqueValidator
 from dvadmin.utils.viewset import CustomModelViewSet
+
 
 
 class EvaluateTaskSerializer(CustomModelSerializer):
@@ -113,6 +116,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         "task_end_date", 
         "task_create_date",
         "evaluate_id",
+        "task_weight",
         "evaluated_id",
         "score",
         "grade_complete",
@@ -129,6 +133,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         "task_end_date":"任务结束时间", 
         "task_create_date":"任务创建时间",
         "evaluate_id":"评价人系统id",
+        "task_weight": "任务权重",
         "evaluated_id":"被评价人系统id",
         "score": "分数",
         "grade_complete": "完成情况",
@@ -146,12 +151,29 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         "task_end_date":"任务结束时间", 
         "task_create_date":"任务创建时间",
         "evaluate_id":"评价人系统id",
+        "task_weight": "任务权重",
         "evaluated_id":"被评价人系统id",
         "score": "分数",
         "grade_complete": "完成情况",
         "task_create_date":"任务创建时间",
         "grade_date":"评价时间"
     }
+
+    def evaluate_task_create(self, request: Request):
+        task_id = uuid.uuid4()
+        task_name = request.data.get("task_name")
+        task_describe = request.data.get("task_describe")
+        task_start_date = request.data.get("task_start_date")
+        task_end_date = request.data.get("task_end_date")
+        task_create_date = datetime.now()
+        Task(task_id=task_id, task_name=task_name, task_describe=task_describe, task_start_date=task_start_date, task_end_date=task_end_date, task_create_date=task_create_date)
+        evaluate = request.data.get("evaluate")
+        evaluated = request.data.get("evaluated")
+        for evaluate_one in evaluate:
+            for evaluated_one in evaluated:
+                EvaluateTask(task_id=task_id, evaluate_id=evaluate_one["evaluate_id"], task_weight=evaluate_one["task_weight"],evaluated_id=evaluated_one["evaluated_id"]).save()
+        return DetailResponse(data=dict(task_id=task_id), msg="创建成功")
+
     
     def evaluate_task_delete_all(self, request: Request):
         EvaluateTask_all = EvaluateTask.objects.all()
