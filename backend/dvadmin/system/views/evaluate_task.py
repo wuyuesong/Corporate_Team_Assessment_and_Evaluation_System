@@ -166,7 +166,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         task_start_date = request.data.get("task_start_date")
         task_end_date = request.data.get("task_end_date")
         task_create_date = datetime.now()
-        Task(task_id=task_id, task_name=task_name, task_describe=task_describe, task_start_date=task_start_date, task_end_date=task_end_date, task_create_date=task_create_date)
+        Task(task_id=task_id, task_name=task_name, task_describe=task_describe, task_start_date=task_start_date, task_end_date=task_end_date, task_create_date=task_create_date).save()
         evaluate = request.data.get("evaluate")
         evaluated = request.data.get("evaluated")
         for evaluate_one in evaluate:
