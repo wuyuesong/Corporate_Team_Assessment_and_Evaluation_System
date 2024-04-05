@@ -175,11 +175,11 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         print(len(evaluated))
         import time
         time1 = time.time()
+        tmp_list =[]
         for evaluate_one in evaluate:
-            tmp_list =[]
             for evaluated_one in evaluated:
                 tmp_list.append(EvaluateTask(task_id=task_id, evaluate_id=evaluate_one["evaluate_id"], task_weight=evaluate_one["task_weight"],evaluated_id=evaluated_one["evaluated_id"]))
-            EvaluateTask.objects.bulk_create(tmp_list)
+        EvaluateTask.objects.bulk_create(tmp_list)
         time2 = time.time()
         print(time2 - time1)
         return DetailResponse(data=dict(task_id=task_id), msg="创建成功")
