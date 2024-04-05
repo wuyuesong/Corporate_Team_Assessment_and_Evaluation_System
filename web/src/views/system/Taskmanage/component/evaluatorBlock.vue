@@ -15,7 +15,6 @@ const model = defineModel({
 
 
  const deletethisItem=()=>{
-    console.log("000000000000000000000");
     proxy.$emit('remove');
  }
 
@@ -23,10 +22,10 @@ const model = defineModel({
 //计算属性处理子组件改动权重,防止打破单向流
 const weightchange=computed({
     get(){
-        return model.value.weight;
+        return model.value.task_weight;
     },
     set(value){
-        model.value.weight=value;
+        model.value.task_weight=value;
     }
 })
 
@@ -59,7 +58,7 @@ const deleteRow = (index: number) => {
             </el-table>
         </el-card>
         <el-card class="weight_right">
-            <el-input-number v-model="weightchange" :min="0" :max="100" style="width: 110px" placeholder="权重"  controls-position="right"/>
+            <el-input-number v-model="weightchange" :min="0" :max="100" style="width: 110px" placeholder="权重(总和100)"  controls-position="right"/>
         </el-card>
     </div>
 </template>

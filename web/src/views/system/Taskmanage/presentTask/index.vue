@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import { ref, onMounted ,reactive} from 'vue';
+import { ref, onMounted ,reactive,inject} from 'vue';
 import { ElMessageBox , ElMessage} from 'element-plus';
 import { request } from '/@/utils/service';
 import { getBaseURL } from '/@/utils/baseUrl';
 import evablock from '../component/evaluatorBlock.vue'
 import { successMessage } from '/@/utils/message';
 import relationtree from '../component/tree.vue'
-import { forEach } from 'lodash';
 
+const refreshView = inject('refreshView')
 
 onMounted(() => {
       fetchDepatOptions();
@@ -19,6 +19,19 @@ const addDrawvisable=ref(false);
 const judge=ref(true);
 const evaluatingbutton=ref(true);
 
+
+//起止时间响应变量
+const startendTime=ref('');
+//任务标题
+const TaskTitle=ref('');
+//任务描述
+const TaskDescription=ref('');
+
+
+
+
+//发布任务按钮
+const taskpresentbutton=ref(true);
 
 
 const evaluatedrevert=async()=>{
@@ -137,6 +150,7 @@ const reset=()=>{
     ElMessageBox.confirm('Are you sure you want to reset this?')
     .then(() => {
         griddata.value=[]
+        evaluatingGroup.value = [];
         judge.value=true;
         evaluatingbutton.value=true;
 
@@ -151,28 +165,6 @@ const reset=()=>{
     
 }
 
-
-/**
- * 根据页面提交信息增加对应组
- */
-
- async function fetchgroupData(targetElement) {
-    try {
-        const response = await request({
-            url: getBaseURL() + 'api/system/staff/',
-            method: 'get',
-            params: {
-                staff_department: targetElement.staff_department,
-                staff_rank: targetElement.staff_rank,
-                "limit": 500
-            }
-        });
-        return response.data; // 直接返回数据
-    } catch (error) {
-        console.error("获取数据时出错:", error);
-        return []; // 如果出现错误，则返回空数组
-    }
-}
 
 const evaluatingGroup=ref([])
 const reltree:any=ref(null);
@@ -196,16 +188,23 @@ const addevaluatinggroup=async()=>{
                     "limit":500
                 }
             })
-            const data = await response.data;
-            evaluatingTabledata.value.push(...data)
+            if(response.code==2000){
+                const data = await response.data;
+                evaluatingTabledata.value.push(...data)
+            } else{
+                ElMessageBox.alert(response.message)
+           }
+            
         });
 
         evaluatingGroup.value.push({
             tableData:evaluatingTabledata,
-            weight:null
+            task_weight:null
         });
         loading.value = false;
         addDrawvisable.value=false;
+        taskpresentbutton.value=false;
+        
         // 更新选项列表
     } catch (error) {
         ElMessage({
@@ -218,7 +217,124 @@ const addevaluatinggroup=async()=>{
 }
 
 const removeChild=(index)=>{
-      evaluatingGroup.value.splice(index, 1);
+    evaluatingGroup.value.splice(index, 1);
+    if (evaluatingGroup.value.length === 0) {
+        taskpresentbutton.value=true;
+    } 
+}
+
+
+//请求负载的标准数据
+const torequestEvaluate =ref([]);
+const torequestEvaluated =ref([])
+/**
+ * 请求负载处理
+ */
+const processtoRequestData=()=>{
+    
+    //遍历evaluatingGroup数据
+    let totalweight=0;
+    evaluatingGroup.value.forEach(element => {
+
+        let total=element.tableData.length;
+        console.log(total)
+
+        if(element.task_weight===null){
+            totalweight=-1;
+            return;
+        }
+
+        totalweight=totalweight+parseFloat(element.task_weight);
+        
+        let avaweight=parseFloat(element.task_weight)/total;
+        element.tableData.forEach(ele=>{
+            const {staff_firm_id} =ele;
+            torequestEvaluate.value.push({
+                evaluated_id:staff_firm_id,
+                task_weight:avaweight
+            })
+        })
+    });
+    if(totalweight<0){
+        ElMessage({
+                showClose: true,
+                message: "存在权重没填",
+                type: 'error',
+        })
+        return true;
+    }
+    if(!(totalweight===100)){
+        ElMessage({
+                showClose: true,
+                message: "权重总和不为100",
+                type: 'error',
+            })
+        return true;
+    }
+
+    //遍历evaluatedGroup数据
+    griddata.value.forEach(element=>{
+        const {staff_firm_id} =element;
+        torequestEvaluated.value.push({
+            evaluated_id:staff_firm_id,
+        })
+    })
+    return false;
+}
+
+
+
+/**
+ * 发布任务
+ * @async  发布接口
+ * 
+ */
+
+const TaskPreSubmit=async()=>{
+    if (evaluatingGroup.value.length === 0|| griddata.value.length===0) {
+        ElMessage({
+        showClose: true,
+        message: "评价组或被评价组尚未填入，请重试",
+        type: 'error',
+        })
+        return;
+    } 
+    if(processtoRequestData()){
+        return;
+    }
+    
+    try {
+        const response=await request({
+                url: getBaseURL() + 'api/system/evaluate/',
+                method: 'post',
+                data:{
+                    evaluate_name: TaskTitle.value,
+                    evaluate_describe:TaskDescription.value,
+                    task_start_date:startendTime.value[0],
+                    task_end_date:startendTime.value[1],
+                    evaluate:torequestEvaluate.value ,
+                    evaluated:torequestEvaluated.value
+                }
+        })
+        if(response.code==2000){
+            ElMessage({
+                showClose: true,
+                message: "任务成功发布",
+                type: 'success',
+            })
+            refreshView()
+
+        } else{
+            ElMessageBox.alert(response.message)
+        }
+    } catch (error) {
+        ElMessage({
+        showClose: true,
+        message: error.value,
+        type: 'error',
+        })
+    }
+
 }
 
 
@@ -226,9 +342,55 @@ const removeChild=(index)=>{
 
 
 <template>
+    
+
+<div>
+    <div class="TaskPresntHeader">
+        <div class="TitleAndDes">
+            <div>
+                <input type="text" aria-label="标题" v-model="TaskTitle" placeholder="标题" class="TasktitleInput"/>
+            </div>
+            <div>
+                <el-input
+                    class="desArea"
+                    v-model="TaskDescription"
+                    maxlength="300"
+                    rows="6"
+                    placeholder="请对任务进行必须的描述"
+                    show-word-limit
+                    type="textarea"
+                />
+            </div>
+
+        </div>
+        <div class="ArrangeTime">
+            <span class="titlefont">
+                任务时间设置
+            </span>
+
+            <div>
+                <el-date-picker 
+                class="timepicker"
+                size="large"
+                v-model="startendTime"
+                type="datetimerange"
+                range-separator="To"
+                start-placeholder="Start date"
+                end-placeholder="End date"
+                />
+            </div>
+            
+        </div>
+
+    </div>
+
 
 
     <div class="eva_container">
+
+
+
+
         <div class="evaluating_container">
             <div class="evatag">
                 <h4 class="evaluated_title">评价组</h4>
@@ -313,20 +475,77 @@ const removeChild=(index)=>{
 
             <el-table v-if="!judge" id="EvaluatedTable"
                     :data="griddata"
-                    style="width: 100%" height="500">
+                    style="width: 100%" height="600">
                     <el-table-column prop="staff_name" label="名字"/>
                     <el-table-column prop="staff_firm_id" label="编号"/>true
             </el-table>
-            <el-button class="evaluatedreset"  v-if="!judge" @click="reset" type="warning">reset</el-button>
+            <div class="UtlTaskButton" v-if="!judge" >
+                <div>
+                    <el-button class="evaluatedreset"  @click="reset"  size="large" type="warning" >重置</el-button>
+                </div>
+                <div class="SubmitTaskButton">
+                    <el-button class="evaTaskPresent" :disabled="taskpresentbutton" @click="TaskPreSubmit" size="large" type="danger">发布任务</el-button>
+                </div>
+            </div>
+
+            
         </div>
     </div>
+</div>
     
 </template>
 <style>
 
+.TaskPresntHeader{
+    margin-left: 30px;
+    margin-right: 30px;
+    margin-top:20px;
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.3); /* 添加一个 10px 的模糊黑色阴影 */
+    padding: 20px; /* 可选：为了美观，添加一些内边距 */
+    border-radius: 10px;
+    display: Flex;
+    height: 300px;
+}
+.TitleAndDes{
+    padding: 10px;
+    width: 70%;
+    height: auto
+}
 
+.ArrangeTime{
+    padding: 10px;
+    width: 30%;
+    height: auto;
+    display: flex;
+    flex-direction: column;
+}
+.titlefont{
+    color: rgba(0, 0, 0, .54);
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 24px;
+    margin-bottom: 20px;
+}
+.TasktitleInput{
+    padding-inline: 8px;
+    background-color: transparent;
+    border-bottom: 3px solid #fc7319; /* 添加下边框线，2px宽，灰色 */
+    display: block;
+    font: 400 20px Helvetica, Arial, sans-serif;
+    width: 70%;
+    transition: border-bottom 0.2s; 
+}
+.TasktitleInput:focus{
+    border-bottom: 5px solid #fc7319; /* 添加下边框线，2px宽，灰色 */
+}
+.desArea{
+    margin-top: 30px;
+    font-size: 18px;
+    width: 70%;
+}
 .eva_container{
     display: flex; /* 使用 Flexbox 布局 */
+    
 }
 
 .evatag{
@@ -354,14 +573,14 @@ const removeChild=(index)=>{
     margin: 30px;
     padding: 20px;
     width: 800px;
-    max-height: 100vh;
+    max-height: 120vh;
     box-sizing: border-box; /* 让 padding 和 border 不会增加元素的宽度和高度 */
     box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.3); /* 添加一个 10px 的模糊黑色阴影 */
     padding: 20px; /* 可选：为了美观，添加一些内边距 */
     border-radius: 10px;
 }
 .evaluated_container{
-    max-height: 100vh;
+    max-height: 120vh;
     margin: 30px;
     padding: 20px;
     width: 500px;
@@ -385,9 +604,6 @@ const removeChild=(index)=>{
     /* border: 1px solid rgb(100, 100, 100); 添加一个 2px 宽度的黑色边框 */
     /* background-color: lightgray; 当鼠标悬停时，改变背景色为浅灰色 */
 }
-/* .el-table{
-    display: none;
-} */
 
 .el-empty:hover{
     background-color: lightgray; /* 当鼠标悬停时，改变边框颜色为深灰色 */
@@ -399,11 +615,19 @@ const removeChild=(index)=>{
     font-weight: bold; /* 鼠标悬停时的字体粗细 */
 
 }
-.evaluatedreset{
-    margin-top: 10px;
-}
+
 
 .Evaluating_add__content{
     text-align: center;
+}
+.UtlTaskButton{
+    display: flex;
+    align-items: center;
+    margin-top: 10px;
+}
+
+.SubmitTaskButton{
+    margin-left: 295px;
+
 }
 </style>
