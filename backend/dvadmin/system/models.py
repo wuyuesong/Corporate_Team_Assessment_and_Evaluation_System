@@ -706,11 +706,6 @@ class Rank(CoreModel):
         
 class EvaluateTask(CoreModel):
     task_id = models.CharField(max_length=255, verbose_name="任务id", null=False, blank=False, help_text="任务id",default="")
-    evaluate_name = models.CharField(max_length=255, verbose_name="评价任务名称", null=False, blank=False, help_text="评价任务名称",default="")
-    evaluate_describe = models.CharField(max_length=255, verbose_name="评价任务描述", null=False, blank=False, help_text="评价任务描述",default="")
-    task_start_date = models.DateField(verbose_name="任务开始时间", null=False, blank=False, help_text="任务开始时间",default="")
-    task_end_date = models.DateField(verbose_name="任务结束时间", null=False, blank=False, help_text="任务结束时间",default="")
-    task_create_date = models.DateField(auto_now_add=True ,verbose_name="任务创建时间", null=False, blank=False, help_text="任务创建时间")
     evaluate_id = models.CharField(max_length=255, verbose_name="评价人系统id", null=False, blank=False, help_text="评价人系统id",default="")
     task_weight = models.FloatField(verbose_name="任务权重", null=False, blank=False, help_text="任务权重",default=0.0)
     evaluated_id = models.CharField(max_length=255, verbose_name="被评价人系统id", null=False, blank=False, help_text="被评价人系统id",default="")
@@ -725,7 +720,7 @@ class EvaluateTask(CoreModel):
         choices=COMPLETE_CHOICES, default=0, verbose_name="完成情况", null=True, blank=True, help_text="完成情况"
     )
     
-    grade_date = models.DateField(verbose_name="评价时间", null=False, blank=False, help_text="评价时间",default="")
+    grade_date = models.DateTimeField(verbose_name="评价时间", null=True, blank=True, help_text="评价时间")
     
 
     class Meta:
@@ -738,9 +733,9 @@ class Task(CoreModel):
     task_id = models.CharField(max_length=255, verbose_name="任务id", null=False, blank=False, help_text="任务id",default="")
     task_name = models.CharField(max_length=255, verbose_name="评价任务名称", null=False, blank=False, help_text="评价任务名称",default="")
     task_describe = models.CharField(max_length=255, verbose_name="评价任务描述", null=False, blank=False, help_text="评价任务描述",default="")
-    task_start_date = models.DateField(verbose_name="任务开始时间", null=False, blank=False, help_text="任务开始时间",default="")
-    task_end_date = models.DateField(verbose_name="任务结束时间", null=False, blank=False, help_text="任务结束时间",default="")
-    task_create_date = models.DateField(auto_now_add=True ,verbose_name="任务创建时间", null=False, blank=False, help_text="任务创建时间")
+    task_start_date = models.DateTimeField(verbose_name="任务开始时间", null=True, blank=True, help_text="任务开始时间")
+    task_end_date = models.DateTimeField(verbose_name="任务结束时间", null=True, blank=True, help_text="任务结束时间")
+    task_create_date = models.DateTimeField(auto_now_add=True ,verbose_name="任务创建时间", null=True, blank=True, help_text="任务创建时间")
     
     TASK_TYPE = (
         (0, "评价任务"),

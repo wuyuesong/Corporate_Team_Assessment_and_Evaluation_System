@@ -30,6 +30,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 				editRequest,
 				delRequest,
 			},
+	
 			toolbar:{
 				show:false
 			},

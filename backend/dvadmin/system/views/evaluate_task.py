@@ -164,14 +164,23 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         task_name = request.data.get("task_name")
         task_describe = request.data.get("task_describe")
         task_start_date = request.data.get("task_start_date")
+        task_start_date = datetime.strptime(task_start_date, '%Y-%m-%dT%H:%M:%S.%fZ')
         task_end_date = request.data.get("task_end_date")
+        task_end_date = datetime.strptime(task_end_date, '%Y-%m-%dT%H:%M:%S.%fZ')
         task_create_date = datetime.now()
         Task(task_id=task_id, task_name=task_name, task_describe=task_describe, task_start_date=task_start_date, task_end_date=task_end_date, task_create_date=task_create_date).save()
         evaluate = request.data.get("evaluate")
         evaluated = request.data.get("evaluated")
+        print(len(evaluate))
+        print(len(evaluated))
+        import time
+        time1 = time.time()
         for evaluate_one in evaluate:
             for evaluated_one in evaluated:
-                EvaluateTask(task_id=task_id, evaluate_id=evaluate_one["evaluate_id"], task_weight=evaluate_one["task_weight"],evaluated_id=evaluated_one["evaluated_id"]).save()
+                EvaluateTask.objects.create(task_id=task_id, evaluate_id=evaluate_one["evaluate_id"], task_weight=evaluate_one["task_weight"],evaluated_id=evaluated_one["evaluated_id"])
+                # EvaluateTask(task_id=task_id, evaluate_id=evaluate_one["evaluate_id"], task_weight=evaluate_one["task_weight"],evaluated_id=evaluated_one["evaluated_id"]).save()
+        time2 = time.time()
+        print(time2 - time1)
         return DetailResponse(data=dict(task_id=task_id), msg="创建成功")
 
     

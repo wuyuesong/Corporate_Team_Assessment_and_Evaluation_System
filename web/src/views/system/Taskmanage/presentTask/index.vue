@@ -231,6 +231,8 @@ const torequestEvaluated =ref([])
  * 请求负载处理
  */
 const processtoRequestData=()=>{
+    torequestEvaluate.value=[];
+    torequestEvaluated.value=[];
     
     //遍历evaluatingGroup数据
     let totalweight=0;
@@ -250,7 +252,7 @@ const processtoRequestData=()=>{
         element.tableData.forEach(ele=>{
             const {staff_firm_id} =ele;
             torequestEvaluate.value.push({
-                evaluated_id:staff_firm_id,
+                evaluate_id:staff_firm_id,
                 task_weight:avaweight
             })
         })
@@ -305,18 +307,19 @@ const TaskPreSubmit=async()=>{
     
     try {
         const response=await request({
-                url: getBaseURL() + 'api/system/evaluate/',
+                url: getBaseURL() + 'api/system/evaluate_task/evaluate_task_create/',
                 method: 'post',
                 data:{
-                    evaluate_name: TaskTitle.value,
-                    evaluate_describe:TaskDescription.value,
+                    task_name: TaskTitle.value,
+                    task_describe:TaskDescription.value,
                     task_start_date:startendTime.value[0],
                     task_end_date:startendTime.value[1],
-                    evaluate:torequestEvaluate.value ,
+                    evaluate:torequestEvaluate.value,
                     evaluated:torequestEvaluated.value
                 }
         })
         if(response.code==2000){
+            console.log(response.data)
             ElMessage({
                 showClose: true,
                 message: "任务成功发布",
@@ -325,7 +328,10 @@ const TaskPreSubmit=async()=>{
             refreshView()
 
         } else{
-            ElMessageBox.alert(response.message)
+            ElMessageBox.alert(response.message);
+            torequestEvaluate.value=[];
+            torequestEvaluated.value=[];
+
         }
     } catch (error) {
         ElMessage({
@@ -377,6 +383,7 @@ const TaskPreSubmit=async()=>{
                 range-separator="To"
                 start-placeholder="Start date"
                 end-placeholder="End date"
+                time-format="HH:mm:ss"
                 />
             </div>
             

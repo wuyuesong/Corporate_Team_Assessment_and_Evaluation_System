@@ -21,6 +21,7 @@ from dvadmin.system.views.menu_field import MenuFieldViewSet
 from dvadmin.system.views.staff import StaffViewSet
 from dvadmin.system.views.rank import RankViewSet
 from dvadmin.system.views.department import DepartmentViewSet
+from dvadmin.system.views.evaluate_task import EvaluateTaskViewSet
 
 system_url = routers.SimpleRouter()
 system_url.register(r'menu', MenuViewSet)
@@ -43,6 +44,8 @@ system_url.register(r'column', MenuFieldViewSet)
 system_url.register(r'staff', StaffViewSet)
 system_url.register(r'rank', RankViewSet)
 system_url.register(r'department', DepartmentViewSet)
+system_url.register(r'evaluate_task', EvaluateTaskViewSet)
+
 
 
 urlpatterns = [
@@ -54,7 +57,7 @@ urlpatterns = [
     path('rank/unique_rank_list/', RankViewSet.as_view({'get': 'unique_rank_list',})),
     path('rank/tree_rank_list/', RankViewSet.as_view({'get': 'tree_rank_list',})),
     path('department/delete_all/', DepartmentViewSet.as_view({'get': 'department_delete_all',})),
-    path('evaluate_task/evaluate_task_create/', DepartmentViewSet.as_view({'post': 'evaluate_task_create',})),
+    path('evaluate_task/evaluate_task_create/', EvaluateTaskViewSet.as_view({'post': 'evaluate_task_create',})),
     path('system_config/save_content/', SystemConfigViewSet.as_view({'put': 'save_content'})),
     path('system_config/get_association_table/', SystemConfigViewSet.as_view({'get': 'get_association_table'})),
     path('system_config/get_table_data/<int:pk>/', SystemConfigViewSet.as_view({'get': 'get_table_data'})),
