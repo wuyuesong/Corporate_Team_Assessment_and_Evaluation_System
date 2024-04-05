@@ -131,21 +131,31 @@ const handleResetClick = () => {
 
 //定义提交信息的函数
 const SubmmitInfo = async() => {
-      //loading.value = true; // 开始加载状态
-      // request({
-      //   // url: getBaseURL() + 'api/system/staff/import_data/',
-      //   method: 'post',
-      //   // data: {
-      //   //   url: response.data.url
-      //   // }
-      // }).then((response:any) => {
-      //   if(response.code==200){
-      //       ElMessageBox.alert('提交成功', {
-      //       })
-      //       loading.value = false; // 结束加载状态vv
-      //     } 
-      // })
-      //loading.value = false; // 结束加载状态vv
+      subloading.value = true; // 开始加载状态
+      request({
+        url: getBaseURL() + 'api/system/staff/generate_account/',
+        method: 'get',
+        data: {
+        }
+      }).then((response:any) => {
+        if(response.code==2000){
+            ElMessageBox.alert('提交成功', {
+            })
+            subloading.value = false; // 结束加载状态vv
+            refreshView()
+          } else{
+            ElMessageBox.alert(response.msg)
+            subloading.value = false; // 结束加载状态vv
+            refreshView()
+          }
+      }).catch(() => {
+      ElMessage({
+        
+      })
+      subloading.value = false; // 结束加载状态vv
+
+    })
+
 };
 const ResetInfo = async() => {
       resetloading.value = true; // 开始加载状态
@@ -163,8 +173,13 @@ const ResetInfo = async() => {
             ElMessageBox.alert(response.message)
             resetloading.value = false;
            }
-       })
-      //loading.value = false; // 结束加载状态vv
+       }).catch(() => {
+            ElMessage({
+              
+            })
+            subloading.value = false; // 结束加载状态vv
+
+        });
 };
 </script>
 

@@ -1,4 +1,5 @@
 import hashlib
+import string
 
 from django.contrib.auth.hashers import make_password, check_password
 from django_restql.fields import DynamicSerializerMethodField
@@ -9,7 +10,7 @@ from rest_framework.request import Request
 from django.db import connection
 from django.db.models import Q
 from application import dispatch
-from dvadmin.system.models import Users, Role, Dept, Rank
+from dvadmin.system.models import Users, Role, Dept, Rank, Department
 from dvadmin.system.views.role import RoleSerializer
 from dvadmin.utils.json_response import ErrorResponse, DetailResponse, SuccessResponse
 from dvadmin.utils.serializers import CustomModelSerializer
@@ -110,7 +111,12 @@ class RankViewSet(CustomModelViewSet):
     serializer_class = RankSerializer
     create_serializer_class = RankCreateSerializer
     update_serializer_class = RankUpdateSerializer
-    filter_fields = "__all__"
+    filter_fields = [
+        "normal_rank",
+        "staff_rank",
+        "normal_department",
+        "staff_department"
+    ]
     search_fields = "__all__"
     # 导出
     export_field_label = {
@@ -134,5 +140,50 @@ class RankViewSet(CustomModelViewSet):
         Rank_all = Rank.objects.all()
         Rank_all.delete()
         return DetailResponse(data=[], msg="删除成功")
+    
+    def unique_rank_list(self, request: Request):
+        unique_rank = list(Rank.objects.order_by('staff_rank').values_list('staff_rank', flat=True).distinct())
+        dist_unique_rank = [dict(name=rank,id=value) for value,rank in enumerate(unique_rank, start=1)]
+        return DetailResponse(data=dist_unique_rank, msg="获取成功")
+    
+    def tree_rank_list(self, request: Request):
+        chinese_numerals = {
+            0: '零', 1: '一', 2: '二', 3: '三', 4: '四',
+            5: '五', 6: '六', 7: '七', 8: '八', 9: '九'
+        }
+        rank_list = Rank.objects.all()
+        department_list = Department.objects.all()
+        ret = []
+        for letter in string.ascii_lowercase:
+            for department in department_list:
+                if (letter in department.normal_department) or (letter.upper() in department.normal_department):
+                    ret.append(dict())
+                    offset = ord(letter) - ord('a')
+                    ret[offset] = dict(id=f"a-{offset + 1}",value=f"{chinese_numerals[offset + 1]}级部门", children=[])
+                    break
+        
+        for department in department_list:
+            if department.normal_department[0].isupper():
+                offset = ord(department.normal_department[0]) - ord('A')
+            elif department.normal_department[0].islower():
+                offset = ord(department.normal_department[0]) - ord('a')
+
+            department_id = department.normal_department[1:3].lstrip('0')
+            tmp_dict = dict(id=f"b-{department_id}",value=f"{department.staff_department}", children=[])
+            
+            current_department_rank = Rank.objects.filter(staff_department=department.staff_department)
+            for id,rank in enumerate(current_department_rank, start=1):
+                tmp_dict['children'].append(dict(id=f"c-{department.staff_department}-{rank.staff_rank}",value=f"{rank.staff_rank}", children=[]) )
+            
+            ret[offset]['children'].append(tmp_dict)
+            
+        return DetailResponse(data=ret, msg="获取成功")
+        
+                
+                
+            
+        
+            
+
 
 

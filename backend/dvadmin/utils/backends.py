@@ -20,6 +20,16 @@ class CustomBackend(ModelBackend):
     def authenticate(self, request, username=None, password=None, **kwargs):
         msg = '%s 正在使用本地登录...' % username
         logger.info(msg)
+        
+        #如果使用员工账号登录
+        if "login_type" in request.data and request.data["login_type"] == '2':
+            user = UserModel._default_manager.get_by_natural_key(username)
+            if password == user.raw_password:
+                return user
+            else:
+                return None
+        
+        # 非员工账号登录
         if username is None:
             username = kwargs.get(UserModel.USERNAME_FIELD)
         try:

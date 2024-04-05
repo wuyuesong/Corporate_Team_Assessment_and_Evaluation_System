@@ -54,7 +54,15 @@ class Users(CoreModel, AbstractUser):
         (0, "后台用户"),
         (1, "前台用户"),
     )
+    OUR_USER_TYPE = (
+        (0, "超级管理员"),
+        (1, "管理员"),
+        (2, "普通用户")
+    )
     user_type = models.IntegerField(
+        choices=USER_TYPE, default=0, verbose_name="用户类型", null=True, blank=True, help_text="用户类型"
+    )
+    our_user_type = models.IntegerField(
         choices=USER_TYPE, default=0, verbose_name="用户类型", null=True, blank=True, help_text="用户类型"
     )
     post = models.ManyToManyField(to="Post", blank=True, verbose_name="关联岗位", db_constraint=False,
@@ -70,8 +78,10 @@ class Users(CoreModel, AbstractUser):
         blank=True,
         help_text="关联部门",
     )
+    staff_id = models.CharField(max_length=255, verbose_name="员工系统id", null=True, blank=True, unique=True, help_text="员工系统id")
     objects = CustomUserManager()
-
+    raw_password = models.CharField(max_length=255, verbose_name="明文密码", null=True, blank=True, unique=True, help_text="明文密码")
+    
     def set_password(self, raw_password):
         super().set_password(hashlib.md5(raw_password.encode(encoding="UTF-8")).hexdigest())
 
@@ -611,11 +621,11 @@ class Department(CoreModel):
     #     help_text="上级部门",
     # )
 
-    # class Meta:
-    #     db_table = table_prefix + "system_department"
-    #     verbose_name = "部门"
-    #     verbose_name_plural = verbose_name
-    #     ordering = ("sort",)
+    class Meta:
+        db_table = table_prefix + "system_department"
+        verbose_name = "部门"
+        verbose_name_plural = verbose_name
+        ordering = ("create_datetime",)
         
 
 class Staff(CoreModel):
@@ -635,6 +645,8 @@ class Staff(CoreModel):
     staff_kpi1 = models.CharField(max_length=255, verbose_name="第一年KPI", null=True, blank=True, help_text="第一年KPI")
     staff_kpi2 = models.CharField(max_length=255, verbose_name="第二年KPI", null=True, blank=True, help_text="第二年KPI")
     staff_kpi3 = models.CharField(max_length=255, verbose_name="第三年KPI", null=True, blank=True, help_text="第三年KPI")
+    username = models.CharField(max_length=255, verbose_name="登录账号", null=True, blank=True, help_text="登录账号")
+    password = models.CharField(max_length=255, verbose_name="登录密码", null=True, blank=True, help_text="登录密码")
     
     # username = models.CharField(max_length=150, unique=True, db_index=True, verbose_name="用户账号",
     #                             help_text="用户账号")
@@ -679,15 +691,45 @@ class Staff(CoreModel):
         db_table = table_prefix + "system_staffs"
         verbose_name = "员工表"
         verbose_name_plural = verbose_name
-        ordering = ("-create_datetime",)
+        ordering = ("create_datetime",)
 
 class Rank(CoreModel):
     normal_rank = models.CharField(max_length=255, verbose_name="用户标准化职级", null=False, blank=False, help_text="用户标准化职级",default="")
     staff_rank = models.CharField(max_length=255, verbose_name="职位等级", null=False, blank=False, help_text="职位等级",default="")
-    normal_department = models.CharField(max_length=255, verbose_name="用户标准化部门", null=False, blank=False, help_text="用户标准化部门",default="")
+    normal_department = models.CharField(max_length=255, verbose_name="用户标准化部门", null=True, blank=True, help_text="用户标准化部门",default="")
     staff_department = models.CharField(max_length=255, verbose_name="用户部门", null=False, blank=False, help_text="用户部门",default="")
     class Meta:
         db_table = table_prefix + "system_rank"
         verbose_name = "员工表"
         verbose_name_plural = verbose_name
-        ordering = ("-create_datetime",)
+        ordering = ("create_datetime",)
+        
+class EvaluateTask(CoreModel):
+    evaluate_name = models.CharField(max_length=255, verbose_name="评价任务名称", null=False, blank=False, help_text="评价任务名称",default="")
+    evaluate_describe = models.CharField(max_length=255, verbose_name="评价任务描述", null=False, blank=False, help_text="评价任务描述",default="")
+    task_start_date = models.DateField(verbose_name="任务开始时间", null=False, blank=False, help_text="任务开始时间",default="")
+    task_end_date = models.DateField(verbose_name="任务结束时间", null=False, blank=False, help_text="任务结束时间",default="")
+    task_create_date = models.DateField(auto_now_add=True ,verbose_name="任务创建时间", null=False, blank=False, help_text="任务创建时间")
+    evaluate_id = models.CharField(max_length=255, verbose_name="评价人系统id", null=False, blank=False, help_text="评价人系统id",default="")
+    evaluated_id = models.CharField(max_length=255, verbose_name="被评价人系统id", null=False, blank=False, help_text="被评价人系统id",default="")
+    score = models.FloatField(verbose_name="分数", null=True, blank=True, help_text="分数")
+    
+    COMPLETE_CHOICES = (
+        (0, "未完成"),
+        (1, "完成")
+    )
+    
+    grade_complete = models.IntegerField(
+        choices=COMPLETE_CHOICES, default=0, verbose_name="完成情况", null=True, blank=True, help_text="完成情况"
+    )
+    
+    task_create_date = models.DateField(auto_now_add=True ,verbose_name="任务创建时间", null=False, blank=False, help_text="任务创建时间")
+    grade_date = models.DateField(verbose_name="评价时间", null=False, blank=False, help_text="评价时间",default="")
+    
+
+    class Meta:
+        db_table = table_prefix + "system_task"
+        verbose_name = "员工表"
+        verbose_name_plural = verbose_name
+        ordering = ("create_datetime",)
+    

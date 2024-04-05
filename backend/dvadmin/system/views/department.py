@@ -461,7 +461,10 @@ class DepartmentViewSet(CustomModelViewSet):
     create_serializer_class = DepartmentCreateSerializer
     update_serializer_class = DepartmentUpdateSerializer
     # filter_fields = ["name", "username", "gender", "is_active", "dept", "user_type"]
-    filter_fields = "__all__"
+    filter_fields = [
+        "staff_department",
+        "normal_department"
+    ]
     # search_fields = ["username", "name", "dept__name", "role__name"]
     search_fields = "__all__"
     # 导出

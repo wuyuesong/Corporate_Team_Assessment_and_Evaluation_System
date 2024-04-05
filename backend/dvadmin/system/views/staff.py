@@ -1,4 +1,5 @@
-import hashlib
+import hashlib, random, string, os
+from django.core.exceptions import ObjectDoesNotExist
 
 from django.contrib.auth.hashers import make_password, check_password
 from django_restql.fields import DynamicSerializerMethodField
@@ -9,12 +10,13 @@ from rest_framework.request import Request
 from django.db import connection
 from django.db.models import Q
 from application import dispatch
-from dvadmin.system.models import Users, Role, Dept, Staff
+from dvadmin.system.models import Users, Role, Dept, Staff, Department, Rank
 from dvadmin.system.views.role import RoleSerializer
 from dvadmin.utils.json_response import ErrorResponse, DetailResponse, SuccessResponse
 from dvadmin.utils.serializers import CustomModelSerializer
 from dvadmin.utils.validator import CustomUniqueValidator
 from dvadmin.utils.viewset import CustomModelViewSet
+from django.db import transaction
 
 
 # def recursion(instance, parent, result):
@@ -205,11 +207,18 @@ class StaffProfileImportSerializer(CustomModelSerializer):
 
     def save(self, **kwargs):
         data = super().save(**kwargs)
-        # password = hashlib.new(
-        #     "md5", str(self.initial_data.get("password", "admin123456")).encode(encoding="UTF-8")
-        # ).hexdigest()
-        # data.set_password(password)
-        data.save()
+
+        try:
+            Department.objects.get(staff_department=data.staff_department)
+        except ObjectDoesNotExist:
+            return f"{data.staff_department}部门不存在"
+        
+        try:
+            Rank.objects.get(staff_rank=data.staff_rank, staff_department=data.staff_department)
+        except ObjectDoesNotExist:
+            return f"{data.staff_department}部门或{data.staff_department}部门中的{data.staff_rank}职级不存在" 
+        
+        data.save()    
         return data
 
     class Meta:
@@ -223,6 +232,18 @@ class StaffProfileImportSerializer(CustomModelSerializer):
         #     "date_joined",
         # )
 
+
+def get_normal_department(department):
+    return Department.objects.get(staff_department=department).normal_department.zfill(2)
+
+def get_normal_rank(rank, department):
+    return Rank.objects.get(staff_rank=rank, staff_department=department).normal_rank.zfill(2)
+
+def generate_password():
+    length = 13
+    chars = string.ascii_letters + string.digits + '!@#$%^&*()'
+    random.seed = (os.urandom(1024))
+    return ''.join(random.choice(chars) for i in range(length))
 
 class StaffViewSet(CustomModelViewSet):
     """
@@ -239,7 +260,22 @@ class StaffViewSet(CustomModelViewSet):
     create_serializer_class = StaffCreateSerializer
     update_serializer_class = StaffUpdateSerializer
     # filter_fields = ["name", "username", "gender", "is_active", "dept", "user_type"]
-    filter_fields = "__all__"
+    # filter_fields = "__all__"
+    filter_fields = ["staff_department",
+        "staff_name",
+        "staff_rank",
+        "staff_job",
+        "staff_title",
+        "staff_kpi1",
+        "staff_kpi2",
+        "staff_kpi2",
+        "assessment1",
+        "assessment2",
+        "assessment3",
+        "staff_status",
+        "staff_firm_id",
+        "staff_telephone",
+        "staff_email"]
     # search_fields = ["username", "name", "dept__name", "role__name"]
     search_fields = "__all__"
     # 导出
@@ -286,8 +322,10 @@ class StaffViewSet(CustomModelViewSet):
     #     "role": {"title": "角色", "choices": {"queryset": Role.objects.filter(status=True), "values_name": "name"}},
     # }
     import_field_dict = {
+        # "staff_department": {"title": "单位名称", "choices": {"queryset": Department.objects.all(), "values_name": "staff_department"}},
         "staff_department": "单位名称",
         "staff_name": "员工姓名",
+        #"staff_rank": {"title": "职位等级", "choices": {"queryset": Rank.objects.all(), "values_name": "staff_rank"}},
         "staff_rank": "职位等级",
         "staff_job": "岗位等级",
         "staff_title": "职称",
@@ -306,7 +344,53 @@ class StaffViewSet(CustomModelViewSet):
     def staff_delete_all(self, request: Request):
         Staff_all = Staff.objects.all()
         Staff_all.delete()
+        
+        staff_user_all = Users.objects.filter(our_user_type=2)
+        staff_user_all.delete()
+        
         return DetailResponse(data=[], msg="删除成功")
+    
+    # 加上锁，如果期间有报错，则回退，不然再次录入时主键会重复
+    @transaction.atomic
+    def generate_account(self, request: Request):
+        Staff_all = Staff.objects.all()
+        for staff in Staff_all:
+            try:
+                Department.objects.get(staff_department=staff.staff_department)
+            except ObjectDoesNotExist:
+                return ErrorResponse(msg=f"{staff.staff_name}  {staff.staff_department}部门不存在")
+            normal_department = get_normal_department(staff.staff_department)
+            
+            try:
+                Rank.objects.get(staff_rank=staff.staff_rank, staff_department=staff.staff_department)
+            except ObjectDoesNotExist:
+                return ErrorResponse(msg=f"{staff.staff_name}  {staff.staff_department}部门或{staff.staff_department}部门中的{staff.staff_rank}职级不存在")
+            normal_rank = get_normal_rank(staff.staff_rank, staff.staff_department)
+            staff.staff_id = normal_department + normal_rank + staff.staff_firm_id.zfill(6)
+            staff.username = staff.staff_id
+            staff.password = generate_password()
+            Users(our_user_type=2, username=staff.username, raw_password=staff.password, staff_id=staff.staff_id).save()
+            staff.save()
+        return DetailResponse(data=[], msg="创建账号成功")
+    
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data, request=request)
+        serializer.is_valid(raise_exception=True)
+        try:
+            Department.objects.get(staff_department=serializer.data["staff_department"])
+        except ObjectDoesNotExist:
+            return ErrorResponse(msg=f"{serializer.data['staff_department']}部门不存在")
+        
+        try:
+            Rank.objects.get(staff_rank=serializer.data['staff_rank'], staff_department=serializer.data["staff_department"])
+        except ObjectDoesNotExist:
+            return ErrorResponse(msg=f"{serializer.data['staff_department']}部门或{serializer.data['staff_department']}部门中的{serializer.data['staff_rank']}职级不存在")
+        
+        self.perform_create(serializer)
+        return DetailResponse(data=serializer.data, msg="新增成功")
+
+
+
 
     # @action(methods=["GET"], detail=False, permission_classes=[IsAuthenticated])
     # def user_info(self, request):

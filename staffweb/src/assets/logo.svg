@@ -1,0 +1,15 @@
+<svg width="40" height="32" xmlns="http://www.w3.org/2000/svg">
+
+ <g>
+  <title>Layer 1</title>
+  <path id="svg_1" d="m123.2525,136.5l0,0c0,-74.28229 61.78471,-134.5 137.99999,-134.5l0,0c36.59986,0 71.70071,14.17049 97.58071,39.39413c25.88003,25.22365 40.41928,59.43424 40.41928,95.10587l0,0c0,74.28228 -61.78471,134.5 -137.99999,134.5l0,0c-76.21527,0 -137.99999,-60.21772 -137.99999,-134.5zm69,0l0,0c0,37.14114 30.89237,67.25 69,67.25c38.10765,0 69,-30.10886 69,-67.25c0,-37.14114 -30.89236,-67.25 -69,-67.25l0,0c-38.10762,0 -69,30.10887 -69,67.25z" stroke="#000" fill="#619E73"/>
+  <path stroke="#000" id="svg_3" d="m155.28747,163.70834c-19.06077,0 -34.5,-14.32044 -34.5,-32c0,-17.67956 15.43923,-32 34.5,-32c19.06077,0 34.5,14.32044 34.5,32c0,17.67956 -15.43923,32 -34.5,32z" opacity="undefined" fill="#B6C7EA"/>
+  <text stroke-dasharray="2,2" font-weight="bold" transform="matrix(8.60328 0 0 4.19773 -1070.04 -520.137)" stroke="#000" xml:space="preserve" text-anchor="start" font-family="'Alumni Sans'" font-size="24" stroke-width="0" id="svg_5" y="163.97426" x="147.26631" fill="#2D6862">E</text>
+  <text stroke="#000" xml:space="preserve" text-anchor="start" font-family="'Alumni Sans'" font-size="24" id="svg_7" y="113.49999" x="-128.99998" stroke-dasharray="2,2" stroke-width="0" fill="#7AD6CA">s</text>
+  <text transform="matrix(4.1031 0 0 2.45607 -133.879 4.90048)" stroke="#000" xml:space="preserve" text-anchor="start" font-family="'Alumni Sans'" font-size="24" id="svg_10" y="102.40487" x="84.31436" stroke-dasharray="2,2" stroke-width="0" fill="#DDDDDD">S</text>
+  <text transform="matrix(4.00763 0 0 3.04362 -146.878 -69.2687)" stroke="#000" xml:space="preserve" text-anchor="start" font-family="'Alumni Sans'" font-size="24" id="svg_11" y="123.51107" x="7.7047" stroke-dasharray="2,2" stroke-width="0" fill="#DDDDDD">S</text>
+  <text transform="matrix(4.00763 0 0 3.04362 -146.878 -69.2687)" stroke="#000" xml:space="preserve" text-anchor="start" font-family="'Alumni Sans'" font-size="24" id="svg_12" y="112.34016" x="18.68376" stroke-dasharray="2,2" stroke-width="0" fill="#DDDDDD">S</text>
+  <text transform="matrix(4.00763 0 0 2.45607 -137.878 -7.39693)" stroke="#000" xml:space="preserve" text-anchor="start" font-family="'Alumni Sans'" font-size="24" id="svg_13" y="107.41182" x="97.0343" stroke-dasharray="2,2" stroke-width="0" fill="#DDDDDD">Y</text>
+  <text transform="matrix(4.00763 0 0 2.52135 -146.878 -11.6837)" stroke="#000" xml:space="preserve" text-anchor="start" font-family="'Alumni Sans'" font-size="24" id="svg_14" y="106.12105" x="107.76384" stroke-dasharray="2,2" stroke-width="0" fill="#DDDDDD">S</text>
+ </g>
+</svg>

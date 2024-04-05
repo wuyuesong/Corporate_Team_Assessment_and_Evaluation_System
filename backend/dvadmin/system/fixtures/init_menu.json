@@ -1401,7 +1401,7 @@
         "menu_field": []
     },
     {
-        "name": "评估系统",
+        "name": "企业信息管理",
         "icon": "ele-Avatar",
         "sort": 4,
         "is_link": false,
@@ -1444,6 +1444,36 @@
             }
         ]
         
+    },
+    {
+        "name": "评测任务管理",
+        "icon": "ele-SetUp",
+        "sort": 5,
+        "is_link": false,
+        "is_catalog": true,
+        "web_path": "/Taskmanage",
+        "component": "",
+        "component_name": "",
+        "status": true,
+        "cache": false,
+        "visible": true,
+        "parent": null,
+        "children": [
+            {
+                "name": "评测任务发布",
+                "icon": "ele-Management",
+                "sort": 1,
+                "is_link": false,
+                "is_catalog": false,
+                "web_path": "/presentTask",
+                "component": "system/Taskmanage/presentTask/index",
+                "component_name": "presentTask",
+                "status": true,
+                "cache": false,
+                "visible": true,
+                "children": []
+            }
+        ]
     }
     
     
