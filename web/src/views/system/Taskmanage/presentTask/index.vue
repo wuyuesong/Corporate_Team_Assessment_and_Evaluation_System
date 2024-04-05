@@ -13,6 +13,7 @@ onMounted(() => {
       fetchDepatOptions();
       fetchRankOptions ();
 });
+const pageloading = ref(false)
 const loading = ref(false)
 const dialogvisable=ref(false);
 const addDrawvisable=ref(false);
@@ -305,6 +306,7 @@ const TaskPreSubmit=async()=>{
         return;
     }
     
+    pageloading.value=true;
     try {
         const response=await request({
                 url: getBaseURL() + 'api/system/evaluate_task/evaluate_task_create/',
@@ -319,7 +321,7 @@ const TaskPreSubmit=async()=>{
                 }
         })
         if(response.code==2000){
-            console.log(response.data)
+            pageloading.value=false;
             ElMessage({
                 showClose: true,
                 message: "任务成功发布",
@@ -331,7 +333,7 @@ const TaskPreSubmit=async()=>{
             ElMessageBox.alert(response.message);
             torequestEvaluate.value=[];
             torequestEvaluated.value=[];
-
+            pageloading.value=false;
         }
     } catch (error) {
         ElMessage({
@@ -339,6 +341,7 @@ const TaskPreSubmit=async()=>{
         message: error.value,
         type: 'error',
         })
+        pageloading.value=false;
     }
 
 }
@@ -350,7 +353,7 @@ const TaskPreSubmit=async()=>{
 <template>
     
 
-<div>
+<div v-loading="pageloading">
     <div class="TaskPresntHeader">
         <div class="TitleAndDes">
             <div>
