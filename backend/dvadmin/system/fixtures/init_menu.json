@@ -1472,6 +1472,20 @@
                 "cache": false,
                 "visible": true,
                 "children": []
+            },
+            {
+                "name": "任务进度管理",
+                "icon": "ele-Stopwatch",
+                "sort": 2,
+                "is_link": false,
+                "is_catalog": false,
+                "web_path": "/observeTask",
+                "component": "system/Taskmanage/observeTask/index",
+                "component_name": "observeTask",
+                "status": true,
+                "cache": false,
+                "visible": true,
+                "children": []
             }
         ]
     }

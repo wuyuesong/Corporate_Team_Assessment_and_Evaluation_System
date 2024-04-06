@@ -5,6 +5,7 @@ import {onMounted } from 'vue';
 import Header from '../component/header.vue'
 import CardItem from '../component/CardItem.vue'
 import { NextLoading } from '/@/utils/loading';
+import { on } from 'e-icon-picker/utils';
 const loading = ref(true); // 标记是否正在加载用户信息
 
 // 定义 Task 对象的类型
@@ -22,10 +23,11 @@ const Tasks = ref<Task[]>([]);
 onMounted(() => {
   NextLoading.done();
 	fetchTaskInfo();
+
 });
 
 
-const fetchTaskInfo = () => {
+const fetchTaskInfo = async() => {
   let task1: Task = {
   title: "完成报告1",
   starttime: "2024-03-30 09:00",
