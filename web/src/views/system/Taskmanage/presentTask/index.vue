@@ -251,9 +251,9 @@ const processtoRequestData=()=>{
         
         let avaweight=parseFloat(element.task_weight)/total;
         element.tableData.forEach(ele=>{
-            const {staff_firm_id} =ele;
+            const {staff_id} =ele;
             torequestEvaluate.value.push({
-                evaluate_id:staff_firm_id,
+                evaluate_id:staff_id,
                 task_weight:avaweight
             })
         })
@@ -277,9 +277,9 @@ const processtoRequestData=()=>{
 
     //遍历evaluatedGroup数据
     griddata.value.forEach(element=>{
-        const {staff_firm_id} =element;
+        const {staff_id} =element;
         torequestEvaluated.value.push({
-            evaluated_id:staff_firm_id,
+            evaluated_id:staff_id,
         })
     })
     return false;
@@ -303,6 +303,14 @@ const TaskPreSubmit=async()=>{
         return;
     } 
     if(processtoRequestData()){
+        return;
+    }
+    if(startendTime.value.length<2){
+        ElMessage({
+        showClose: true,
+        message: "请输入起止时间",
+        type: 'error',
+        })
         return;
     }
     
@@ -555,18 +563,19 @@ const TaskPreSubmit=async()=>{
 }
 .eva_container{
     display: flex; /* 使用 Flexbox 布局 */
-    
+    width: 100%;
 }
 
 .evatag{
     display: flex;
     align-items: center;
+    width: 100%;
     margin-bottom: 20px;
    
 }
 .addgrouo_container{
     transition: transform 0.3s ease; 
-    margin-left: 500px;
+    width: 25%;
 }
 .addgrouo_container:hover{
     transform: scale(1.2); /* 按钮容器放大 */
@@ -582,7 +591,7 @@ const TaskPreSubmit=async()=>{
 .evaluating_container{
     margin: 30px;
     padding: 20px;
-    width: 800px;
+    width: 65%;
     max-height: 120vh;
     box-sizing: border-box; /* 让 padding 和 border 不会增加元素的宽度和高度 */
     box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.3); /* 添加一个 10px 的模糊黑色阴影 */
@@ -593,7 +602,7 @@ const TaskPreSubmit=async()=>{
     max-height: 120vh;
     margin: 30px;
     padding: 20px;
-    width: 500px;
+    width:30%;
     height:auto;
     box-sizing: border-box; /* 让 padding 和 border 不会增加元素的宽度和高度 */
     box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.3); /* 添加一个 10px 的模糊黑色阴影 */
@@ -605,6 +614,7 @@ const TaskPreSubmit=async()=>{
     margin-top: 30px;
     margin-bottom: 30px;
     align-items: center;
+    width: auto;
 }
 
 .Evaadd__content{
@@ -623,6 +633,8 @@ const TaskPreSubmit=async()=>{
 .evaluated_title{
     font-size: large;
     font-weight: bold; /* 鼠标悬停时的字体粗细 */
+    padding: 10px;
+    width: 75%;
 
 }
 
@@ -637,7 +649,10 @@ const TaskPreSubmit=async()=>{
 }
 
 .SubmitTaskButton{
-    margin-left: 295px;
+    margin-left: 250px;
 
+}
+.evablock{
+    width: 100%;
 }
 </style>
