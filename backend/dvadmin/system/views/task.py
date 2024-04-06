@@ -9,7 +9,7 @@ from rest_framework.request import Request
 from django.db import connection
 from django.db.models import Q
 from application import dispatch
-from dvadmin.system.models import Users, Role, Dept, Department, Task
+from dvadmin.system.models import Users, Role, Dept, Department, Task, EvaluateTask
 from dvadmin.system.views.role import RoleSerializer
 from dvadmin.utils.json_response import ErrorResponse, DetailResponse, SuccessResponse
 from dvadmin.utils.serializers import CustomModelSerializer
@@ -142,5 +142,26 @@ class TaskViewSet(CustomModelViewSet):
         Task_all = Task.objects.all()
         Task_all.delete()
         return DetailResponse(data=[], msg="删除成功")
+    
+    def task_list(self, request: Request):
+        staff_id = request.data.get("staff_id")
+        user = request.user
+        print(user.staff_id)
+        cur_evaluate_task_id = list(EvaluateTask.objects.filter(evaluate_id=staff_id).values_list('task_id', flat=True).distinct())
+        task_info = Task.objects.filter(task_id__in=cur_evaluate_task_id)
+        ret=[]
+        for task in task_info:
+            ret.append({
+                "task_id":task.task_id,
+                "task_name":task.task_name,
+                "task_describe":task.task_describe,
+                "task_start_date":task.task_start_date,
+                "task_end_date":task.task_end_date,
+                "task_create_date":task.task_create_date,
+                "task_type":task.task_type
+            })
+
+        return DetailResponse(data=ret, msg="获取成功")        
+
 
 

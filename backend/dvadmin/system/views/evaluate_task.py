@@ -1,5 +1,6 @@
 import hashlib
 import uuid
+import time
 from datetime import datetime
 
 from django.contrib.auth.hashers import make_password, check_password
@@ -110,34 +111,22 @@ class EvaluateTaskViewSet(CustomModelViewSet):
     update_serializer_class = EvaluateTaskUpdateSerializer
     # filter_fields = ["name", "username", "gender", "is_active", "dept", "user_type"]
     filter_fields = [
-        "evaluate_name",
-        "evaluate_describe",
-        "task_start_date",
-        "task_end_date", 
-        "task_create_date",
         "evaluate_id",
         "task_weight",
         "evaluated_id",
         "score",
         "grade_complete",
-        "task_create_date",
         "grade_date"
     ]
     # search_fields = ["username", "name", "dept__name", "role__name"]
     search_fields = "__all__"
     # 导出
     export_field_label = {
-        "evaluate_name":"评价任务名称",
-        "evaluate_describe":"评价任务描述",
-        "task_start_date":"任务开始时间",
-        "task_end_date":"任务结束时间", 
-        "task_create_date":"任务创建时间",
         "evaluate_id":"评价人系统id",
         "task_weight": "任务权重",
         "evaluated_id":"被评价人系统id",
         "score": "分数",
         "grade_complete": "完成情况",
-        "task_create_date":"任务创建时间",
         "grade_date":"评价时间"
     }
     export_serializer_class = ExportEvaluateTaskProfileSerializer
@@ -145,17 +134,11 @@ class EvaluateTaskViewSet(CustomModelViewSet):
     import_serializer_class = EvaluateTaskProfileImportSerializer
 
     import_field_dict = {
-        "evaluate_name":"评价任务名称",
-        "evaluate_describe":"评价任务描述",
-        "task_start_date":"任务开始时间",
-        "task_end_date":"任务结束时间", 
-        "task_create_date":"任务创建时间",
         "evaluate_id":"评价人系统id",
         "task_weight": "任务权重",
         "evaluated_id":"被评价人系统id",
         "score": "分数",
         "grade_complete": "完成情况",
-        "task_create_date":"任务创建时间",
         "grade_date":"评价时间"
     }
 
@@ -168,20 +151,17 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         task_end_date = request.data.get("task_end_date")
         task_end_date = datetime.strptime(task_end_date, '%Y-%m-%dT%H:%M:%S.%fZ')
         task_create_date = datetime.now()
-        Task(task_id=task_id, task_name=task_name, task_describe=task_describe, task_start_date=task_start_date, task_end_date=task_end_date, task_create_date=task_create_date).save()
+        Task(task_id=task_id, task_name=task_name, task_describe=task_describe, task_start_date=task_start_date, task_end_date=task_end_date, task_create_date=task_create_date, task_type=0).save()
         evaluate = request.data.get("evaluate")
         evaluated = request.data.get("evaluated")
-        print(len(evaluate))
-        print(len(evaluated))
-        import time
-        time1 = time.time()
+        # time1 = time.time()
         tmp_list =[]
         for evaluate_one in evaluate:
             for evaluated_one in evaluated:
                 tmp_list.append(EvaluateTask(task_id=task_id, evaluate_id=evaluate_one["evaluate_id"], task_weight=evaluate_one["task_weight"],evaluated_id=evaluated_one["evaluated_id"]))
         EvaluateTask.objects.bulk_create(tmp_list)
-        time2 = time.time()
-        print(time2 - time1)
+        # time2 = time.time()
+        # print("生成任务耗时：", time2 - time1)
         return DetailResponse(data=dict(task_id=task_id), msg="创建成功")
 
     
