@@ -174,6 +174,17 @@ class EvaluateTaskViewSet(CustomModelViewSet):
             ret.append(dict(evaluated_id=evaluated.staff_id, evaluated_name=evaluated.staff_name, evaluated_rank=evaluated.staff_rank, evaluated_department=evaluated.staff_department))
 
         return DetailResponse(data=ret, msg="查询成功")
+    
+    def submit_evaluate_task(self, request: Request):
+        evaluate_id = request.data.get("evaluate_id")
+        task_id = request.data.get("task_id")
+        scores = request.data.get("scores")
+        
+        for score in scores:
+            evaluated_id = score["evaluated_id"]
+            EvaluateTask.objects.filter(evaluate_id=evaluate_id, task_id=task_id, evaluated_id=evaluated_id).update(score=score["score"],grade_complete=1,grade_date=datetime.now())
+
+        return DetailResponse(data=[], msg="提交成功")
 
 
     def evaluate_task_delete_all(self, request: Request):
