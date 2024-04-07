@@ -41,6 +41,7 @@ const loginClick = async () => {
      loginApi.login({ username:input.value, password: password.value,login_type:"2"}).then((res: any) => {
         if (res.code === 2000) {
           Session.set('token', res.data.access);
+          Cookies.set('staff_id',input.value)
           Cookies.set('username', res.data.name);
           loginSuccess();
         }else{  

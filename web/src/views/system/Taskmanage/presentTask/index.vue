@@ -6,7 +6,6 @@ import { getBaseURL } from '/@/utils/baseUrl';
 import evablock from '../component/evaluatorBlock.vue'
 import { successMessage } from '/@/utils/message';
 import relationtree from '../component/tree.vue'
-
 const refreshView = inject('refreshView')
 
 onMounted(() => {

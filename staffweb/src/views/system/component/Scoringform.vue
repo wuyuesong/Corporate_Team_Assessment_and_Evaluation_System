@@ -1,16 +1,76 @@
 <script setup lang="ts">
-import { defineProps ,ref} from 'vue';
+import { defineProps ,ref,onMounted,getCurrentInstance,inject} from 'vue';
 import type { FormInstance } from 'element-plus'
-import { ITEM_RENDER_EVT } from 'element-plus/es/components/virtual-list/src/defaults';
-import { isNull, isNumber, last } from 'lodash';
-import { ElMessageBox } from 'element-plus'
-import { trace } from 'console';
+import { request } from '/@/utils/service';
+import { getBaseURL } from '/@/utils/baseUrl';
+import Cookies from 'js-cookie';
+import type { Action } from 'element-plus'
+import { ElMessageBox ,ElMessage} from 'element-plus'
+const refreshView = inject('refreshView')
+onMounted(() => {
+	  fetchscoreList()
+   
+});
+const subscoreloading=ref(false)
+const loadingData=ref(false)
+const fetchscoreList= async()=>{
+  try {
+        // 发送请求并获取数据
+        const response = await request({
+          url: getBaseURL() + 'api/system/evaluate_task/evaluate_task_info/',
+          method: 'post',
+          data:{
+            staff_id:Cookies.get('staff_id'),
+            task_id:props.task_id
+
+          }
+        })
+        const data = await response.data;
+        if(response.code===2000){
+            for (let index = 0; index < data.length; index++) {
+              const element = data[index];
+              let item: evaItem = {
+                department: element.evaluated_department,
+                office: element.evaluated_rank,
+                name: element.evaluated_name,
+                ID: element.evaluated_id,
+                score:NaN,             
+                rank:-1
+              };
+              gridData.push(item);
+            }
+            loadingData.value=!loadingData.value
+        }else{
+          ElMessage({
+            showClose: true,
+            message: response.msg,
+            type: 'error',
+            })
+        }
+    } catch (error) {
+        ElMessage({
+        showClose: true,
+        message: error.message,
+        type: 'error',
+        })
+    }
+}
+
 const dialogVisible = ref(false)
 const formRef = ref<FormInstance | null>(null)
 const errmessage=ref({
   lastnum:'',
   nextnum:''
 })
+
+const props = defineProps({
+  task_id:String,
+  title:String,
+  discribe:String
+});
+
+
+
 let mySet: Set<object> = new Set();
 
 interface evaItem{
@@ -23,82 +83,7 @@ interface evaItem{
 }
 
 
-const gridData :evaItem[]=[
-  {
-    department:'长春分公司',
-    office:'总经理',
-    ID:'1',
-    name: 'Peter Parker',
-    score:NaN,
-    rank:-1
-
-  },
-  {
-    department:'长春分公司',
-    office:'总经理',
-    ID:'2',
-    name: 'Peter Parker',
-    score:NaN,
-    rank:-1
-  
-
-  },
-  {
-    department:'长春分公司',
-    office:'总经理',
-    ID:'3',
-    name: 'Peter Parker',
-    score:NaN,
-    rank:-1
-
-  },
-  {
-    department:'长春分公司',
-    office:'总经理',
-    ID:'4',
-    name: 'Peter Parker',
-    score:NaN,
-    rank:-1
-
-  },
-  {
-    department:'长春分公司',
-    office:'总经理',
-    ID:'5',
-    name: 'Peter Parker',
-    score:NaN,
-    rank:-1
-
-  },
-  {
-    department:'长春分公司',
-    office:'总经理',
-    ID:'6',
-    name: 'Peter Parker',
-    score:NaN,
-    rank:-1
-
-
-  },
-  {
-    department:'长春分公司',
-    office:'总经理',
-    ID:'7',
-    name: 'Peter Parker',
-    score:NaN,
-    rank:-1
-
-  },
-  {
-    department:'长春分公司',
-    office:'总经理',
-    ID:'8',
-    name: 'Peter Parker',
-    score:NaN,
-    rank:-1
-
-  },
-]
+const gridData :evaItem[]=[]
 
 function hasDuplicateScores(gridData:any) {
 
@@ -172,7 +157,6 @@ const handlesame =(row:any)=>{
       errmessage.value.lastnum=min.toString();
       errmessage.value.nextnum=max.toString();
     }
-    console.log("**********************************")
     dialogVisible.value = true;
   }
 }
@@ -195,6 +179,88 @@ const tableRowClassName = ({
 
 
 const inputValue = ref<string>('');
+
+
+/**
+ * 提交分数
+ */
+const utlsubmitStyle=ref([])
+ const submitTaskcore=()=>{
+  ElMessageBox.confirm(
+    '是否确认提交?',
+    'Warning',
+    {
+      confirmButtonText: 'OK',
+      cancelButtonText: 'Cancel',
+      type: 'warning',
+    }
+    )
+    .then(async() => {
+      ElMessage({
+        type: 'success',
+        message: 'Submit completed',
+      })
+      subscoreloading.value=true;
+      
+      try {
+        utlsubmitStyle.value=[];
+        gridData.forEach(ele=>{
+            const{ID,score}=ele;
+            utlsubmitStyle.value.push({
+              evaluated_id:ID,
+              score:score
+            })
+        })
+        const response = await request({
+          url: getBaseURL() + 'api/system/evaluate_task/submit_evaluate_task/',
+          method: 'post',
+          data:{
+            evaluate_id:Cookies.get('staff_id'),
+            task_id:props.task_id,
+            scores:utlsubmitStyle.value
+          }
+        })
+        const data = await response.data;
+        if(response.code===2000){
+          subscoreloading.value=false;
+          ElMessageBox.alert('Success', '成功提交', {
+            confirmButtonText: 'OK',
+            callback: (action: Action) => {
+              location.reload()
+            },
+          })
+        }else{
+          ElMessage({
+          type: 'error',
+          message: response.msg,
+          })
+          subscoreloading.value=false;
+        }
+
+        
+      } catch (error) {
+        ElMessage({
+        type: 'error',
+        message: error.message,
+        })
+        subscoreloading.value=false;
+      }
+      
+
+
+
+      
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: 'Submit canceled',
+      })
+    })
+}
+
+
+
 </script>
 
 
@@ -203,13 +269,15 @@ const inputValue = ref<string>('');
 
 <template>
 
-<el-dialog
-    v-model="dialogVisible"
-    v-bind="errmessage"
-    title="Tips"
-    width="500"
-    :before-close="handleClose"
-  >
+<div class="scorelistCon"  v-loading="subscoreloading">
+
+  <el-dialog
+      v-model="dialogVisible"
+      v-bind="errmessage"
+      title="tips"
+      width="500"
+      :before-close="handleClose"
+    >
     <span>输入重复，请重新输入 ,{{ errmessage.lastnum }} 和 {{ errmessage.nextnum }}</span>
     <template #footer>
       <div class="dialog-footer">
@@ -219,12 +287,21 @@ const inputValue = ref<string>('');
       </div>
     </template>
   </el-dialog>
+
+
+
+
+
+  <div class="prescore">
+    <p class="scorelistTitle">{{ $props.title }}</p>
+    <el-text size="large"> {{ $props.discribe }}</el-text>
+  </div>
   <el-form
     ref="formRef"
     label-width="auto"
     class="demo-ruleForm"
     >
-    <el-table  :data="gridData"  :row-class-name="tableRowClassName" :row-style="changestyle">
+    <el-table   ref="thistable" :key="loadingData" :data="gridData" :row-class-name="tableRowClassName" :row-style="changestyle">
       <el-table-column type="index" width="50" />
       <el-table-column property="department" label="部门" width="150" />
       <el-table-column property="office" label="职位" width="200" />
@@ -232,12 +309,18 @@ const inputValue = ref<string>('');
       <el-table-column label="得分" width="250">
         <template v-slot:default="{ row }">
             <el-input-number v-model="row.score" controls-position="right" :precision="2" :step="0.01" :min="60" :max="100" @keyup.enter="handlesame(row)" @blur="handlesame(row)"/>
-
         </template>
       </el-table-column>
     <el-table-column  label="排名" property="rank" />
     </el-table>
-  </el-form> 
+  </el-form>
+  <div class="submitscored">
+    <el-col :span="12"></el-col>
+    <el-col :span="10"></el-col>
+    <el-col :span="8"><el-button size="large" type="danger" @click="submitTaskcore"> 提交</el-button></el-col>
+    
+  </div>
+</div>
 </template>
 
 
@@ -263,5 +346,24 @@ const inputValue = ref<string>('');
 .el-table .success-row {
   --el-table-tr-bg-color: #ff1d1d;
 }
+.prescore{
+  flex:block;
+  text-align: center; /* horizontally center */
+}
 
+.scorelistTitle{
+    font-size: 3rem;
+    line-height: 1.33333;
+    font-weight: 400;
+    color: #4a4a4a;
+    top: 0;
+    left: 0;
+    padding: 13px;
+    margin: 0;
+}
+
+.submitscored{
+  margin: 20px;
+  display: flex;
+}
 </style>
