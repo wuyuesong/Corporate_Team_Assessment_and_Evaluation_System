@@ -60,8 +60,9 @@ urlpatterns = [
     path('rank/tree_rank_list/', RankViewSet.as_view({'get': 'tree_rank_list',})),
     path('department/delete_all/', DepartmentViewSet.as_view({'get': 'department_delete_all',})),
     path('evaluate_task/evaluate_task_create/', EvaluateTaskViewSet.as_view({'post': 'evaluate_task_create',})),
-    path('evaluate_task/evaluate_task_info/', EvaluateTaskViewSet.as_view({'post': 'evaluate_task_info',})),
-    path('task/task_list/', TaskViewSet.as_view({'post': 'task_list',})),
+    # path('evaluate_task/evaluate_task_info/', EvaluateTaskViewSet.as_view({'post': 'evaluate_task_info',})),
+    # path('evaluate_task/submit_evaluate_task/', EvaluateTaskViewSet.as_view({'post': 'submit_evaluate_task',})),
+    # path('task/task_list/', TaskViewSet.as_view({'post': 'task_list',})),
 
     path('system_config/save_content/', SystemConfigViewSet.as_view({'put': 'save_content'})),
     path('system_config/get_association_table/', SystemConfigViewSet.as_view({'get': 'get_association_table'})),

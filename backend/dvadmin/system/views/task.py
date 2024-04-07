@@ -143,6 +143,8 @@ class TaskViewSet(CustomModelViewSet):
         Task_all.delete()
         return DetailResponse(data=[], msg="删除成功")
     
+
+    @action(methods=['POST'], detail=False, permission_classes=[])
     def task_list(self, request: Request):
         staff_id = request.data.get("staff_id")
         user = request.user
