@@ -12,7 +12,7 @@ from rest_framework.request import Request
 from django.db import connection
 from django.db.models import Q
 from application import dispatch
-from dvadmin.system.models import Users, Role, Dept, Department, EvaluateTask, Task
+from dvadmin.system.models import Users, Role, Dept, Department, EvaluateTask, Task, Staff
 from dvadmin.system.views.role import RoleSerializer
 from dvadmin.utils.json_response import ErrorResponse, DetailResponse, SuccessResponse
 from dvadmin.utils.serializers import CustomModelSerializer
@@ -164,7 +164,18 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         # print("生成任务耗时：", time2 - time1)
         return DetailResponse(data=dict(task_id=task_id), msg="创建成功")
 
-    
+    def evaluate_task_info(self, request: Request):
+        task_id = request.data.get("task_id")
+        staff_id = request.data.get("staff_id")
+        evaluated_id_list = list(EvaluateTask.objects.filter(task_id=task_id, evaluate_id=staff_id).values_list('evaluated_id', flat=True).distinct())
+        evaluated_queryset = Staff.objects.filter(staff_id__in=evaluated_id_list)
+        ret = []
+        for evaluated in evaluated_queryset:
+            ret.append(dict(evaluated_id=evaluated.staff_id, evaluated_name=evaluated.staff_name, evaluated_rank=evaluated.staff_rank, evaluated_department=evaluated.staff_department))
+
+        return DetailResponse(data=ret, msg="查询成功")
+
+
     def evaluate_task_delete_all(self, request: Request):
         EvaluateTask_all = EvaluateTask.objects.all()
         EvaluateTask_all.delete()
