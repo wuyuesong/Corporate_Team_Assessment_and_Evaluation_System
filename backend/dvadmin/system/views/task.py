@@ -149,7 +149,7 @@ class TaskViewSet(CustomModelViewSet):
         staff_id = request.data.get("staff_id")
         user = request.user
         print(user.staff_id)
-        cur_evaluate_task_id = list(EvaluateTask.objects.filter(evaluate_id=staff_id).values_list('task_id', flat=True).distinct())
+        cur_evaluate_task_id = list(EvaluateTask.objects.filter(evaluate_id=staff_id, grade_complete=0).values_list('task_id', flat=True).distinct())
         task_info = Task.objects.filter(task_id__in=cur_evaluate_task_id)
         ret=[]
         for task in task_info:
