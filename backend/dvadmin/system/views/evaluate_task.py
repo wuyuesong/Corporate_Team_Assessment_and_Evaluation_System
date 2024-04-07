@@ -164,6 +164,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         # print("生成任务耗时：", time2 - time1)
         return DetailResponse(data=dict(task_id=task_id), msg="创建成功")
 
+    @action(methods=['POST'], detail=False, permission_classes=[])
     def evaluate_task_info(self, request: Request):
         task_id = request.data.get("task_id")
         staff_id = request.data.get("staff_id")
@@ -175,6 +176,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
 
         return DetailResponse(data=ret, msg="查询成功")
     
+    @action(methods=['POST'], detail=False, permission_classes=[])
     def submit_evaluate_task(self, request: Request):
         evaluate_id = request.data.get("evaluate_id")
         task_id = request.data.get("task_id")
