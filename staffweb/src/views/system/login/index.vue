@@ -39,17 +39,21 @@ const loginClick = async () => {
       Cookies.clear();
       return;
     }
+    loading.value=true;
     // Md5.hashStr(password.value),
      loginApi.login({ username:input.value, password: password.value,login_type:"2"}).then((res: any) => {
         if (res.code === 2000) {
           Session.set('token', res.data.access);
           Cookies.set('staff_id',input.value)
           Cookies.set('username', res.data.name);
+          loading.value=false;
           loginSuccess();
         }else{  
+          
+          loading.value=false;
         }
       }).catch((err: any) => {
-       
+        loading.value=false;
       });
 };
 
@@ -73,11 +77,12 @@ const loginSuccess = () => {
       // }
 };
 
-const loadingover=ref(false)
+const loading = ref(false)
+
 
 </script>
 <template>
-  <jumploading class="thistop" v-if="!loadingover"/>
+  <jumploading class="thistop" v-if="true"/>
   <div class="app_container">
     <header>
       <a class="logo" >
@@ -89,7 +94,7 @@ const loadingover=ref(false)
     </header>
     <main class="loginmainpage">
       <div style="height: 120px; width: 100%"/>
-      <div class="card">
+      <div class="card" v-loading="loading">
           <div class="organ">
               <div class="headercontent">
                 <h1 class="header__content__heading ">登录</h1>
