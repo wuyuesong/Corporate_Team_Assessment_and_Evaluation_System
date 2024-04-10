@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import * as loginApi from './api';
+
+
 import {Md5}  from 'ts-md5';
 import { useRoute, useRouter } from 'vue-router';
 import { Session } from '/@/utils/storage';
@@ -16,8 +18,7 @@ const { userInfos } = storeToRefs(useUserInfo());
 const route = useRoute();
 const router = useRouter();
 import { message } from '/@/utils/message';
-
-
+import jumploading from '../Animate/jumploading.vue';
 
   
 
@@ -29,6 +30,8 @@ onMounted(() => {
 
 
 const loginClick = async () => {
+
+    
     errors.value='';
     if (!input.value||!password.value){
       errors.value = 'Please enter your username or password';
@@ -36,7 +39,6 @@ const loginClick = async () => {
       Cookies.clear();
       return;
     }
-
     // Md5.hashStr(password.value),
      loginApi.login({ username:input.value, password: password.value,login_type:"2"}).then((res: any) => {
         if (res.code === 2000) {
@@ -71,14 +73,16 @@ const loginSuccess = () => {
       // }
 };
 
+const loadingover=ref(false)
+
 </script>
 <template>
+  <jumploading class="thistop" v-if="!loadingover"/>
   <div class="app_container">
     <header>
-      <a class="logo" href="/" >
+      <a class="logo" >
       <li-icon type="logo" size="50dp"  color="brand" role="banner">
         <svg width="40" height="32" viewBox="0 0 102 26" fill="none" id="logo">
-          
         </svg>
       </li-icon>
     </a>
@@ -116,8 +120,8 @@ const loginSuccess = () => {
       <div style="height: 120px; width: 100%"/>
 
     </main>
-  </div>
-
+  
+</div>
 
 </template>
 
@@ -132,11 +136,15 @@ const loginSuccess = () => {
   font-display: swap;
 }
 
-#app__container {
-
+.app__container {
     display: flex;
     min-height: 100vh;
     background-color: var(--color-background-canvas, #ffffff);
+    z-index: 1;
+
+}
+.thistop{
+  display: relative;
 }
 
 .loginmainpage{
@@ -159,7 +167,6 @@ const loginSuccess = () => {
 .app__content {
     display: flex;
     flex: 1;
-    float: none;
     flex-direction: column;
     justify-content: center;
     margin: 0 auto;
@@ -203,6 +210,7 @@ const loginSuccess = () => {
     margin-top: 24px;
     position: relative;
     background-color: #fff;
+    z-index: 1;
 }
 
 
@@ -212,12 +220,11 @@ const loginSuccess = () => {
     line-height: 1.33333;
     font-weight: 400;
     color: rgba(0, 0, 0, 0.9);
-    position: relative;
-    z-index: 1;
     border: 2px solid #ccc; /* 设置边框为1像素宽，实线，颜色为灰色 */
     height: 60px;
     padding: 28px 15px 6px;
     border-radius: 4px !important;
+    z-index: 1;
 }
 
 .l-1>label {
@@ -233,6 +240,7 @@ const loginSuccess = () => {
     margin: 0;
     -webkit-transition: .2s all;
     transition: .2s all;
+    z-index: 1;
 }
 
 input:focus + .form__label--floating,
