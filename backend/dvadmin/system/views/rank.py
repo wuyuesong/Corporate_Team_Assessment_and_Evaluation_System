@@ -142,7 +142,7 @@ class RankViewSet(CustomModelViewSet):
         return DetailResponse(data=[], msg="删除成功")
     
     def unique_rank_list(self, request: Request):
-        unique_rank = list(Rank.objects.order_by('staff_rank').values_list('staff_rank', flat=True).distinct())
+        unique_rank = list(Rank.objects.order_by('staff_rank').values_list('staff_rank', flat=True).distinct().order_by('staff_rank'))
         dist_unique_rank = [dict(name=rank,id=value) for value,rank in enumerate(unique_rank, start=1)]
         return DetailResponse(data=dist_unique_rank, msg="获取成功")
     

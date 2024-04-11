@@ -168,7 +168,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
     def evaluate_task_info(self, request: Request):
         task_id = request.data.get("task_id")
         staff_id = request.data.get("staff_id")
-        evaluated_id_list = list(EvaluateTask.objects.filter(task_id=task_id, evaluate_id=staff_id).values_list('evaluated_id', flat=True).distinct())
+        evaluated_id_list = list(EvaluateTask.objects.filter(task_id=task_id, evaluate_id=staff_id).values_list('evaluated_id', flat=True).distinct().order_by('evaluated_id'))
         evaluated_queryset = Staff.objects.filter(staff_id__in=evaluated_id_list)
         ret = []
         for evaluated in evaluated_queryset:
@@ -200,7 +200,8 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         task_id = request.data.get("task_id")
         task = Task.objects.get(task_id=task_id)
 
-        undo_staff_id_list = list(EvaluateTask.objects.filter(task_id=task_id, grade_complete=0).values_list('evaluate_id', flat=True).distinct())
+        all_evaluate = list(EvaluateTask.objects.filter(task_id=task_id).values_list('evaluate_id', flat=True).distinct().order_by('evaluate_id'))
+        undo_staff_id_list = list(EvaluateTask.objects.filter(task_id=task_id, grade_complete=0).values_list('evaluate_id', flat=True).distinct().order_by('evaluate_id'))
         undo_staff_info = Staff.objects.filter(staff_id__in=undo_staff_id_list)
 
         ret = {"task_id":task.task_id,
@@ -208,7 +209,8 @@ class EvaluateTaskViewSet(CustomModelViewSet):
                 "task_describe":task.task_describe,
                 "task_start_date":task.task_start_date,
                 "task_end_date":task.task_end_date,
-                "task_create_date":task.task_create_date}
+                "task_create_date":task.task_create_date,
+                "staff_count":len(all_evaluate),}
         undo_staff = []
         for staff in undo_staff_info:
             undo_staff.append({
