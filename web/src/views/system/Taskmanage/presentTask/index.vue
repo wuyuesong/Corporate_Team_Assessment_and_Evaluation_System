@@ -304,11 +304,19 @@ const TaskPreSubmit=async()=>{
     if(processtoRequestData()){
         return;
     }
+    if(TaskTitle.value.length<=0){
+        ElMessage({
+            showClose: true,
+            message: "请输入任务标题",
+            type: 'error',
+        })
+        return;
+    }
     if(startendTime.value.length<2){
         ElMessage({
-        showClose: true,
-        message: "请输入起止时间",
-        type: 'error',
+            showClose: true,
+            message: "请输入起止时间",
+            type: 'error',
         })
         return;
     }

@@ -1,65 +1,308 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted, ref,reactive } from 'vue';
 import dayjs from 'dayjs'
-
-const value2 = ref(dayjs().add(1, 'month').startOf('month'))
-
-const currentDate = new Date();
-const formattedDate = `${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()} ${currentDate.getHours()}:${currentDate.getMinutes()}:${currentDate.getSeconds()}`;
-const value1 = ref(formattedDate);
+import { ElMessageBox , ElMessage} from 'element-plus';
+import { request } from '/@/utils/service';
+import { getBaseURL } from '/@/utils/baseUrl';
+import type { Action } from 'element-plus'
+import {Edit} from '@element-plus/icons-vue'
 const OTtasklist =ref([])
+const currentTask=ref('')
+const Selectedtitle=ref('')
+
+let BTime: Date = new Date();
+let ETime: Date = new Date();
+
+const dialogVisible=ref(false);
+const departmentMap = reactive( new Map());
+const OTtaskcontent=ref({
+    task_name:'',
+    task_create_date:'',
+    task_describe:'',
+    task_start_date:'',
+    task_end_date:'',
+    task_state:0,
+    undo_staff:[],
+    staff_count:0
+})
+const overloading=ref(false)
+
+onMounted(()=>{
+    fetchAllTaskList()
+})
 
 
+const fetchAllTaskList=async()=>{
+    try {
+        const response=await request({
+                url: getBaseURL() + 'api/system/task/task_list_all/',
+                method: 'get',
+        })
+        if(response.code==2000){
+           OTtasklist.value=response.data
+        } 
+    } catch (error) {
+       
+    }
+}
+
+const fetchTaskpageInfo=async()=>{
+    try {
+        const response=await request({
+                url: getBaseURL() + 'api/system/evaluate_task/task_info/',
+                method: 'post',
+                data:{
+                    task_id:currentTask.value
+                }
+        })
+        if(response.code==2000){
+            OTtaskcontent.value=response.data as any
+            if(OTtaskcontent.value.task_start_date.length>0){
+                BTime=new Date(OTtaskcontent.value.task_start_date)
+            }
+            if(OTtaskcontent.value.task_end_date.length>0){
+                BTime=new Date(OTtaskcontent.value.task_end_date)
+            }
+            if(OTtaskcontent.value.undo_staff.length>0){
+                departmentMap.clear();
+                OTtaskcontent.value.undo_staff.forEach(ele =>{
+                    if (departmentMap.has(ele.staff_department)) {
+                         departmentMap.get(ele.staff_department).push(ele)
+                    } else {
+                        departmentMap.set(ele.staff_department,[])
+                        departmentMap.get(ele.staff_department).push(ele)
+                    }
+                })
+            }
+            
+        } 
+        
+    } catch (error) {
+        ElMessage({
+        showClose: true,
+        message: error.message,
+        type: 'error',
+        })
+    }
+}
+
+const ObTask=(value)=>{
+    currentTask.value=value
+    fetchTaskpageInfo()
+}
+
+
+
+function judgeTasktime() {
+    if(currentTask.value==='') return;
+    const currentTime: Date = new Date();
+    if (currentTime < BTime) {
+        OTtaskcontent.value.task_state=1
+    }else if(currentTime>=BTime&&currentTime<=ETime){
+        OTtaskcontent.value.task_state=2
+    }else{
+        OTtaskcontent.value.task_state=3
+    }
+
+}
+
+// 每秒获取一次当前时间
+setInterval(judgeTasktime, 1000);
+
+
+const deleteTask=()=>{
+    ElMessageBox.alert('是否确定删除此任务', '警告', {
+    confirmButtonText: 'OK',
+    callback: (action: Action) => {
+    if(action==='confirm'){
+            ElMessage({
+                type: 'info',
+                message: `action: ${action}`,
+            })
+            confirmdeleteTask()
+        }
+    },
+    
+  })
+}
+const confirmdeleteTask = async()=>{
+    try {
+        const response=await request({
+                url: getBaseURL() + 'api/system/evaluate_task/task_delete_single/',
+                method: 'post',
+                data:{
+                    task_id:currentTask.value
+                }
+        })
+        if(response.code==2000){
+            ElMessage({
+            showClose: true,
+            message: "删除成功",
+            type: 'success',
+            })
+            location.reload()
+        }
+    } catch (error) {
+        ElMessage({
+        showClose: true,
+        message: error.message,
+        type: 'error',
+        })
+    }
+}
+
+const handleDialogClose=()=>{
+    location.reload()
+}
+
+const confirmsEditTask=async()=>{
+    try {
+        const response=await request({
+                url: getBaseURL() + 'api/system/task/modify_task/',
+                method: 'post',
+                data:{
+                    task_id:currentTask.value,
+                    task_name:OTtaskcontent.value.task_name,
+                    task_describe:OTtaskcontent.value.task_describe,
+                    task_start_date:OTtaskcontent.value.task_start_date,
+                    task_end_date:OTtaskcontent.value.task_end_date,
+                }
+        })
+        if(response.code==2000){
+            ElMessage({
+                showClose: true,
+                message: "修改成功",
+                type: 'success',
+            })
+            location.reload()
+        }else{
+            ElMessage({
+                showClose: true,
+                message: "修改失败",
+                type: 'error',
+            })
+        }
+    }catch (error) {
+        ElMessage({
+            showClose: true,
+            message: error.message,
+            type: 'error',
+        })
+    }
+}
 </script>
 
 <template>
     <div class="OTbody">
         <div  class="OTcontainer">
             <div class="OTheader">
+                
                 <div class="OTheaderBlank">
+                    <el-button type="primary" :icon="Edit" :disabled="!(currentTask.length>0)" @click="dialogVisible=true" >修改任务</el-button>
                 </div>
-                <el-select v-model="OTtasklist"  placeholder="Select" size="large" style="width: 340px">
-                    <el-option>
-
-                    </el-option>
+                
+                <el-select v-model="Selectedtitle" placeholder="Select" size="large" style="width: 340px">
+                    <el-option
+                                v-for="item in OTtasklist"
+                                :key="item.task_name"
+                                :value="item.task_name"
+                                @click="ObTask(item.task_id)"
+                            />
                 </el-select>
-
             </div>
+            <el-dialog
+                title="修改任务"
+                v-model="dialogVisible"
+                width="60%"
+                :before-close="handleDialogClose"
+                >
+                <el-form :model="OTtaskcontent" label-width="120px">
+                    <el-form-item label="任务标题">
+                        <el-input v-model="OTtaskcontent.task_name"></el-input>
+                    </el-form-item>
+                    <el-form-item label="任务开始时间">
+                        <el-date-picker
+                            v-model=OTtaskcontent.task_start_date
+                            type="datetime"
+                            placeholder="选择日期时间"
+                            value-format="yyyy-MM-dd HH:mm:ss"
+                            ></el-date-picker>
+                    </el-form-item>
+                    <el-form-item label="任务结束时间">
+                        <el-date-picker
+                            v-model=OTtaskcontent.task_end_date
+                            type="datetime"
+                            placeholder="选择日期时间"
+                            value-format="yyyy-MM-dd HH:mm:ss"
+                            ></el-date-picker>
+                    </el-form-item>
+                    <el-form-item label="任务描述">
+                        <el-input
+                            type="textarea"
+                            placeholder="请输入内容"
+                            v-model="OTtaskcontent.task_describe"
+                            :rows="6"
+                            limit="300"
+                            >
+                        </el-input>
+                    </el-form-item>
+                </el-form>
+                <span slot="footer" class="dialog-footer">
+                    <el-button type="primary" @click="confirmsEditTask">确 定</el-button>
+                </span>
+            </el-dialog>
+
             <div class="OTmainer">
-                <el-descriptions title="User Info" >
-                    <el-descriptions-item label="Username">kooriookami</el-descriptions-item>
-                    <el-descriptions-item label="Telephone">18100000000</el-descriptions-item>
-                    <el-descriptions-item label="Place">Suzhou</el-descriptions-item>
-                    <el-descriptions-item label="Remarks">
-                        <el-tag size="small">School</el-tag>
-                    </el-descriptions-item>
-                    <el-descriptions-item label="Address">
-                        No.1188, Wuzhong Avenue, Wuzhong District, Suzhou, Jiangsu Province
+                <el-descriptions title="TASK INFO" >
+                    
+                    <el-descriptions-item label="任务标题">{{OTtaskcontent.task_name}}</el-descriptions-item>
+                    <el-descriptions-item label="任务创建时间">{{OTtaskcontent.task_create_date.replace('T',' ')}}</el-descriptions-item>
+                    <el-descriptions-item label="状态">
+                        <el-tag size="large" type="success" v-if="OTtaskcontent.task_state===1">已开始</el-tag>
+                        <el-tag size="large" type="danger" v-if="OTtaskcontent.task_state===2">未开始</el-tag>
+                        <el-tag size="large" type="info" v-if="OTtaskcontent.task_state===3">已结束</el-tag>
                     </el-descriptions-item>
                 </el-descriptions>
+                <div>
+                <p>任务描述</p>
+                <el-input
+                    v-model="OTtaskcontent.task_describe"
+                    maxlength="300"
+                    rows="6"
+                    placeholder="请对任务进行必须的描述"
+                    show-word-limit
+                    type="textarea"
+                    disabled="true"
+                    style="font-size: large;padding-top: 10px;padding-right: 20px;"
+                />
+
+                </div>
                 <div style="height: 20px;"/>
+                
                 <div class="OTstatistics">
                     <el-col :span="10">
-                        <el-statistic title="任务时间" :value="value1+'~'+value2.format('YYYY-MM-DD')">
+                        <el-statistic title="任务时间" :value="OTtaskcontent.task_start_date.replace('T',' ')+' ~ '+OTtaskcontent.task_end_date.replace('T',' ')">
                             
                         </el-statistic>
                     </el-col>
 
-                    <el-col :span="10">
-                        <el-statistic title="完成情况" :value="0" >
+                    <el-col :span="8">
+                        <el-statistic title="完成情况" :value="OTtaskcontent.staff_count-OTtaskcontent.undo_staff.length" >
                             <template #suffix>
                                 <el-popover
                                     placement="top-start"
-                                    title="明细"
+                                    title="未完成"
                                     :width="600"
                                     trigger="hover"
                                     popper-style="box-shadow: rgb(14 18 22 / 20%) 0px 10px 38px -10px, rgb(14 18 22 / 20%) 0px 10px 20px -15px; padding: 20px; border-radius: 15px;"
                                     >
                                     <template #reference>
-                                        <p>/100</p>
+                                        <p>/{{  OTtaskcontent.staff_count}}</p>
                                     </template>
                                     <template #default>
-                                        <p>this is content</p>
+                                        <div v-for="item in departmentMap" >
+                                            {{ item[0]}} 还剩 {{item[1].length}}个人尚未完成
+                                        </div>
                                     </template>
                                 </el-popover>
                             </template>
@@ -67,7 +310,7 @@ const OTtasklist =ref([])
                     </el-col>
 
                     <el-col :span="10">
-                        <el-countdown format="DD [days] HH:mm:ss" :value="value2">
+                        <el-countdown format="DD [days] HH:mm:ss" :value="dayjs(OTtaskcontent.task_end_date==='' ? new Date() :OTtaskcontent.task_end_date)">
                             <template #title>
                             <div style="display: inline-flex; align-items: center">
                                 <el-icon style="margin-right: 4px" :size="12">
@@ -80,6 +323,38 @@ const OTtasklist =ref([])
                         
                     </el-col>
                 </div>
+                <el-collapse>
+                    <el-collapse-item title="详细信息" name="1">
+                    </el-collapse-item>
+                </el-collapse>
+
+                <div class="refButton">
+                    <div class="button_item" >
+                        <div class="backbox" @click="deleteTask" v-if="currentTask.length>0">
+                            <p class="gT">删除任务</p>
+                        </div>
+                        <div class="backbox locked" v-if="!(currentTask.length>0)">
+                            <p class="gT">删除任务</p>
+                        </div>
+                    </div>
+
+                    <div class="button_item">
+                        
+                    </div>
+                    <div class="button_item">
+                        
+                    </div>
+                    <div class="button_item">
+                        
+                    </div>
+
+                    <div class="button_item">
+                        <div class="forwardbox locked">
+                            <p class="gT">生成结果</p>
+                        </div>
+                    </div>
+
+                </div>
                 
             </div>
             
@@ -90,18 +365,29 @@ const OTtasklist =ref([])
 <style scoped>
 .OTcontainer{
     margin: 30px;
-    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.3); /* 添加一个 10px 的模糊黑色阴影 */
+    box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.2); /* 添加一个 10px 的模糊黑色阴影 */
     background-color: #ffffff;
     padding: 20px; /* 可选：为了美观，添加一些内边距 */
-    border-radius: 10px;
     display: block;
-    height: 100%;
+    border-radius: 10px;
+    transition: all ease 0.3s;
+    overflow: hidden;
+    background: var(--el-color-white);
+    color: var(--el-text-color-primary);
+    border: 1px solid var(--next-border-color-light);
+}
+.OTcontainer:hover{
+    box-shadow: 0 2px 12px var(--next-color-dark-hover);
+        transition: all ease 0.3s;
 }
 .OTheader{
     display: flex;
     width: 100%;
 }
 .OTheaderBlank{
+    display: flex;
+    align-items: center;
+    padding-left: 30px;
     width: 80%;
 }
 .OTmainer{
@@ -109,7 +395,91 @@ const OTtasklist =ref([])
     margin: 30px;
 }
 .OTstatistics{
+    margin-top: 30px;
     display: flex;
 }
+.refButton{
+    margin-top: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 20px;
+    
+}
+.button_item{
+    width: 20%;
+    
+}
+.forwardbox{
+    margin: auto;
+    height: 50px;
+    width: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #1308ad;
+    border-radius: 20px;
+    background: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: #1308ad 3px solid;
+    
+}
+.forwardbox:hover {
+    background: #c4c0ff;
+    transition: all 0.3s ease;
+    
+}
+
+.forwardbox.locked{
+    background-color: #ddd;
+    color: #aaa;
+    cursor: not-allowed;
+}
+.forwardbox.locked:hover {
+     background-color: #ddd; /* 与锁定状态背景色相同 */
+     color: #aaa; /* 与锁定状态字体颜色相同 */
+}
+
+
+.backbox{
+    margin: auto;
+    height: 50px;
+    width: 100px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #e11e1e;
+    border-radius: 20px;
+    background: #ffffff;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: #e11e1e 3px solid;
+    
+    
+}
+.backbox.locked{
+    background-color: #ddd;
+    color: #aaa;
+    cursor: not-allowed;
+}
+.backbox.locked:hover {
+     background-color: #ddd; /* 与锁定状态背景色相同 */
+     color: #aaa; /* 与锁定状态字体颜色相同 */
+}
+.backbox:hover {
+    background: #ffbebe;
+    transition: all 0.3s ease;
+}
+.gT{
+    font-size: large;
+    font-weight: bold;
+}
+
+
+
+
+
 
 </style>
