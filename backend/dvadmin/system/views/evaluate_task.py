@@ -168,7 +168,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
     def evaluate_task_info(self, request: Request):
         task_id = request.data.get("task_id")
         staff_id = request.data.get("staff_id")
-        evaluated_id_list = list(EvaluateTask.objects.filter(task_id=task_id, evaluate_id=staff_id).values_list('evaluated_id', flat=True).distinct())
+        evaluated_id_list = list(EvaluateTask.objects.filter(task_id=task_id, evaluate_id=staff_id).values_list('evaluated_id', flat=True).distinct().order_by('evaluated_id'))
         evaluated_queryset = Staff.objects.filter(staff_id__in=evaluated_id_list)
         ret = []
         for evaluated in evaluated_queryset:

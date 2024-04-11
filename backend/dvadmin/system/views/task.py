@@ -149,7 +149,7 @@ class TaskViewSet(CustomModelViewSet):
         staff_id = request.data.get("staff_id")
         user = request.user
         print(user.staff_id)
-        cur_evaluate_task_id = list(EvaluateTask.objects.filter(evaluate_id=staff_id, grade_complete=0).values_list('task_id', flat=True).distinct())
+        cur_evaluate_task_id = list(EvaluateTask.objects.filter(evaluate_id=staff_id, grade_complete=0).values_list('task_id', flat=True).distinct().order_by('task_id'))
         task_info = Task.objects.filter(task_id__in=cur_evaluate_task_id)
         ret=[]
         for task in task_info:
@@ -165,26 +165,6 @@ class TaskViewSet(CustomModelViewSet):
 
         return DetailResponse(data=ret, msg="获取成功")        
     
-    @action(methods=['POST'], detail=False, permission_classes=[])
-    def task_list(self, request: Request):
-        staff_id = request.data.get("staff_id")
-        user = request.user
-        print(user.staff_id)
-        cur_evaluate_task_id = list(EvaluateTask.objects.filter(evaluate_id=staff_id, grade_complete=0).values_list('task_id', flat=True).distinct())
-        task_info = Task.objects.filter(task_id__in=cur_evaluate_task_id)
-        ret=[]
-        for task in task_info:
-            ret.append({
-                "task_id":task.task_id,
-                "task_name":task.task_name,
-                "task_describe":task.task_describe,
-                "task_start_date":task.task_start_date,
-                "task_end_date":task.task_end_date,
-                "task_create_date":task.task_create_date,
-                "task_type":task.task_type
-            })
-
-        return DetailResponse(data=ret, msg="获取成功")    
     
     @action(methods=['GET'], detail=False, permission_classes=[])
     def task_list_all(self, request: Request):
