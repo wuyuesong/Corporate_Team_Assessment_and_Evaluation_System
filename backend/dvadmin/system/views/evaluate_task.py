@@ -193,5 +193,32 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         EvaluateTask_all = EvaluateTask.objects.all()
         EvaluateTask_all.delete()
         return DetailResponse(data=[], msg="删除成功")
+    
+
+    @action(methods=['POST'], detail=False, permission_classes=[])
+    def task_info(self, request: Request):
+        task_id = request.data.get("task_id")
+        task = Task.objects.get(task_id=task_id)
+
+        undo_staff_id_list = list(EvaluateTask.objects.filter(task_id=task_id, grade_complete=0).values_list('evaluate_id', flat=True).distinct())
+        undo_staff_info = Staff.objects.filter(staff_id__in=undo_staff_id_list)
+
+        ret = {"task_id":task.task_id,
+                "task_name":task.task_name,
+                "task_describe":task.task_describe,
+                "task_start_date":task.task_start_date,
+                "task_end_date":task.task_end_date,
+                "task_create_date":task.task_create_date}
+        undo_staff = []
+        for staff in undo_staff_info:
+            undo_staff.append({
+                "staff_name":staff.staff_name,
+                "staff_firm_id":staff.staff_id,
+                "staff_department":staff.staff_department
+            })
+
+        ret["undo_staff"] = undo_staff
+
+        return DetailResponse(data=ret, msg="获取成功")     
 
 
