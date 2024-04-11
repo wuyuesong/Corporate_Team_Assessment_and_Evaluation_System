@@ -222,5 +222,15 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         ret["undo_staff"] = undo_staff
 
         return DetailResponse(data=ret, msg="获取成功")     
+    
+
+    @action(methods=['post'], detail=False, permission_classes=[])
+    def task_delete_single(self, request: Request):
+        task_id = request.data.get("task_id")
+        task_all = Task.objects.filter(task_id=task_id)
+        evaluateTask_all = EvaluateTask.objects.filter(task_id=task_id)
+        task_all.delete()
+        evaluateTask_all.delete()
+        return DetailResponse(data=[], msg="删除成功")
 
 
