@@ -182,6 +182,24 @@ class TaskViewSet(CustomModelViewSet):
             })
 
         return DetailResponse(data=ret, msg="获取成功")    
+    
+
+    @action(methods=['POST'], detail=False, permission_classes=[])
+    def modify_task(self, request: Request):
+        task_id = request.data.get("task_id")
+        if 'task_name' in request.data:
+            Task.objects.filter(task_id=task_id).update(task_name=request.data.get("task_name"))
+
+        if 'task_describe' in request.data:
+            Task.objects.filter(task_id=task_id).update(task_describe=request.data.get("task_describe"))
+
+        if 'task_start_date' in request.data:
+            Task.objects.filter(task_id=task_id).update(task_start_date=request.data.get("task_start_date"))
+        
+        if 'task_end_date' in request.data:
+            Task.objects.filter(task_id=task_id).update(task_end_date=request.data.get("task_end_date"))
+
+        return DetailResponse(data=[], msg="修改成功")  
 
 
 
