@@ -10,8 +10,7 @@ import math
 def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
 
     non_zero_counts_row = np.count_nonzero(range_data, axis=1)
-    non_zero_counts_col = np.count_nonzero(range_data, axis=1)
-
+    non_zero_counts_col = np.count_nonzero(range_data, axis=0)
 
     #####################################  step1  ######################################### 归一化
     max_value = np.max(range_data)
@@ -173,9 +172,10 @@ def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
     dot_product = np.zeros_like(first_row)
     for i in range(z_score.shape[1]):
         column = z_score[:, i]
-        dot_product[i] = np.dot(column, weight)
+        dot_product[i] = np.dot(column, weight/100)
 
-    sorted_indices = np.argsort(dot_product)
+    dot_product = dot_product.astype(float)
+    sorted_indices = np.argsort(-dot_product)
 
     # with open('step12_out.txt', 'w') as file:
     #     for i in range(sorted_indices.shape[0]):
@@ -190,6 +190,6 @@ def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
     ##########################################################################################
     rank = []
     for i in range(sorted_indices.shape[0]):
-        rank.append({"rank": i + 1, "id": first_row[sorted_indices[i]], "score": dot_product[i]})
+        rank.append({"rank": i + 1, "id": first_row[sorted_indices[i]], "score": dot_product[sorted_indices[i]]})
 
     return rank, abnormal_data

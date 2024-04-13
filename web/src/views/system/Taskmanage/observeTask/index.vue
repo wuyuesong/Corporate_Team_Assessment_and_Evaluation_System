@@ -29,7 +29,7 @@ const OTtaskcontent=ref({
     task_end_date:'',
     task_state:0,
     undo_staff:[],
-    staff_count:0
+    staff_count:0,
 })
 const overloading=ref(false)
 
@@ -68,7 +68,7 @@ const fetchTaskpageInfo=async()=>{
                 BTime=new Date(OTtaskcontent.value.task_start_date)
             }
             if(OTtaskcontent.value.task_end_date.length>0){
-                BTime=new Date(OTtaskcontent.value.task_end_date)
+                ETime=new Date(OTtaskcontent.value.task_end_date)
             }
             if(OTtaskcontent.value.undo_staff.length>0){
                 departmentMap.clear();
@@ -120,18 +120,23 @@ const fetchTimeFromNTP=async()=>{
 function judgeTasktime() {
     currentTime=new Date()
     if(currentTask.value==='') return;
-    if (currentTime < BTime) {
+
+
+    if (currentTime.getTime()< BTime.getTime()) {
+        //未开始
         OTtaskcontent.value.task_state=1
-    }else if(currentTime>=BTime&&currentTime<=ETime){
+    }else if(currentTime.getTime()>=BTime.getTime()&&currentTime.getTime()<=ETime.getTime()){
+        //进行中
         OTtaskcontent.value.task_state=2
     }else{
+        //已结束
         OTtaskcontent.value.task_state=3
     }
 
 }
 
 // 每秒获取一次当前时间,更新系统时间
-setInterval(fetchTimeFromNTP, 1000);
+// setInterval(fetchTimeFromNTP, 1000);
 setInterval(judgeTasktime, 1000);
 
 
@@ -215,6 +220,34 @@ const confirmsEditTask=async()=>{
         })
     }
 }
+
+
+
+const generateResult=async()=>{
+    try {
+        const response=await request({
+                url: getBaseURL() + 'api/system/evaluate_task/task_calc/',
+                method: 'post',
+                data:{
+                   task_id:currentTask.value
+                }
+        })
+        if(response.code==2000){
+            ElMessage({
+                showClose: true,
+                message: "生成结果成功",
+                type: 'success',
+            })
+            // location.reload()
+        }
+    }catch (error) {
+        ElMessage({
+            showClose: true,
+            message: error.message,
+            type: 'error',
+        })
+    }
+}
 </script>
 
 <template>
@@ -283,8 +316,8 @@ const confirmsEditTask=async()=>{
                     <el-descriptions-item label="任务标题">{{OTtaskcontent.task_name}}</el-descriptions-item>
                     <el-descriptions-item label="任务创建时间">{{OTtaskcontent.task_create_date.replace('T',' ')}}</el-descriptions-item>
                     <el-descriptions-item label="状态">
-                        <el-tag size="large" type="success" v-if="OTtaskcontent.task_state===1">已开始</el-tag>
-                        <el-tag size="large" type="danger" v-if="OTtaskcontent.task_state===2">未开始</el-tag>
+                        <el-tag size="large" type="success" v-if="OTtaskcontent.task_state===2">进行中</el-tag>
+                        <el-tag size="large" type="danger" v-if="OTtaskcontent.task_state===1">未开始</el-tag>
                         <el-tag size="large" type="info" v-if="OTtaskcontent.task_state===3">已结束</el-tag>
                     </el-descriptions-item>
                 </el-descriptions>
@@ -374,7 +407,10 @@ const confirmsEditTask=async()=>{
                     </div>
 
                     <div class="button_item">
-                        <div class="forwardbox locked">
+                        <div class="forwardbox"  @click="generateResult" v-if="OTtaskcontent.task_state===3||OTtaskcontent.undo_staff.length===0">
+                            <p class="gT">生成结果</p>
+                        </div>
+                        <div class="forwardbox locked" v-if="!(OTtaskcontent.task_state===3||OTtaskcontent.undo_staff.length===0)">
                             <p class="gT">生成结果</p>
                         </div>
                     </div>
