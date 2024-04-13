@@ -732,7 +732,7 @@ class EvaluateTask(CoreModel):
 class Task(CoreModel):
     task_id = models.CharField(max_length=255, verbose_name="任务id", null=False, blank=False, help_text="任务id",default="")
     task_name = models.CharField(max_length=255, verbose_name="评价任务名称", null=False, blank=False, help_text="评价任务名称",default="")
-    task_describe = models.CharField(max_length=255, verbose_name="评价任务描述", null=False, blank=False, help_text="评价任务描述",default="")
+    task_describe = models.CharField(max_length=2000, verbose_name="评价任务描述", null=False, blank=False, help_text="评价任务描述",default="")
     task_start_date = models.DateTimeField(verbose_name="任务开始时间", null=True, blank=True, help_text="任务开始时间")
     task_end_date = models.DateTimeField(verbose_name="任务结束时间", null=True, blank=True, help_text="任务结束时间")
     task_create_date = models.DateTimeField(auto_now_add=True ,verbose_name="任务创建时间", null=True, blank=True, help_text="任务创建时间")

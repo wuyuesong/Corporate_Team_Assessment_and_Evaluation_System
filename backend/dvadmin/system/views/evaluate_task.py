@@ -18,6 +18,8 @@ from dvadmin.utils.json_response import ErrorResponse, DetailResponse, SuccessRe
 from dvadmin.utils.serializers import CustomModelSerializer
 from dvadmin.utils.validator import CustomUniqueValidator
 from dvadmin.utils.viewset import CustomModelViewSet
+from dvadmin.utils.calc import calc_score
+import numpy as np
 
 
 
@@ -232,5 +234,38 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         task_all.delete()
         evaluateTask_all.delete()
         return DetailResponse(data=[], msg="删除成功")
+    
+    @action(methods=['post'], detail=False, permission_classes=[])
+    def task_calc(self, request: Request):
+        task_id = request.data.get("task_id")
+        
+        task_all = Task.objects.filter(task_id=task_id)
+
+        all_evaluate = list(EvaluateTask.objects.filter(task_id=task_id).values_list('evaluate_id', flat=True).distinct().order_by('evaluate_id'))
+        all_evaluated = list(EvaluateTask.objects.filter(task_id=task_id).values_list('evaluated_id', flat=True).distinct().order_by('evaluated_id'))
+
+        map_evaluate = {}
+        map_evaluated = {}
+        for index, evaluate_id in enumerate(all_evaluate):
+            map_evaluate[evaluate_id] = index
+        
+        for index, evaluated_id in enumerate(all_evaluated):
+            map_evaluated[evaluated_id] = index
+
+        scores = np.zeros((len(all_evaluate), len(all_evaluated)))
+        weight = np.array(len(all_evaluate) * [0])
+        for task in task_all:
+            i = map_evaluate[task.evaluate_id]
+            j = map_evaluated[task.evaluated_id]
+            scores[i, j] = task.score
+            weight[i] = task.task_weight
+
+        mul = 2
+        rank, abnormal_data = calc_score(len(all_evaluate), len(all_evaluated), mul, np.array(all_evaluated), np.array(all_evaluate), scores, weight)
+
+        return DetailResponse(data=dict(rank_list=rank, abnormal_data=abnormal_data), msg="计算成功")
+        
+
+
 
 
