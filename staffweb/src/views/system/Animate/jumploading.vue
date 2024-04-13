@@ -44,7 +44,7 @@ onMounted(()=>{
 }
 .container_hidden{
     transform: translateY(100%);
-    transition: transform 2.8s ease;
+    transition: transform 1.8s ease;
 }
 
 </style>

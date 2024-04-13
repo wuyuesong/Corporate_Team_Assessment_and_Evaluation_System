@@ -6,6 +6,7 @@ import { request } from '/@/utils/service';
 import { getBaseURL } from '/@/utils/baseUrl';
 import type { Action } from 'element-plus'
 import {Edit} from '@element-plus/icons-vue'
+
 const OTtasklist =ref([])
 const currentTask=ref('')
 const Selectedtitle=ref('')
@@ -13,6 +14,11 @@ const Selectedtitle=ref('')
 let BTime: Date = new Date();
 let ETime: Date = new Date();
 
+
+const tempTime=ref({
+    starttemptime:'',
+    endtemptime:''
+})
 const dialogVisible=ref(false);
 const departmentMap = reactive( new Map());
 const OTtaskcontent=ref({
@@ -28,6 +34,7 @@ const OTtaskcontent=ref({
 const overloading=ref(false)
 
 onMounted(()=>{
+    fetchTimeFromNTP()
     fetchAllTaskList()
 })
 
@@ -74,6 +81,9 @@ const fetchTaskpageInfo=async()=>{
                     }
                 })
             }
+
+            tempTime.value.starttemptime=OTtaskcontent.value.task_start_date
+            tempTime.value.endtemptime=OTtaskcontent.value.task_end_date
             
         } 
         
@@ -92,10 +102,21 @@ const ObTask=(value)=>{
 }
 
 
+let currentTime: Date=new Date()
+const fetchTimeFromNTP=async()=>{
+    try {
+       
+    } catch (error) {
+        ElMessage({
+        showClose: true,
+        message: error.message,
+        type: 'error',
+        })
+    }
+}
 
 function judgeTasktime() {
     if(currentTask.value==='') return;
-    const currentTime: Date = new Date();
     if (currentTime < BTime) {
         OTtaskcontent.value.task_state=1
     }else if(currentTime>=BTime&&currentTime<=ETime){
@@ -106,7 +127,8 @@ function judgeTasktime() {
 
 }
 
-// 每秒获取一次当前时间
+// 每秒获取一次当前时间,更新系统时间
+setInterval(fetchTimeFromNTP, 1000);
 setInterval(judgeTasktime, 1000);
 
 
@@ -164,8 +186,8 @@ const confirmsEditTask=async()=>{
                     task_id:currentTask.value,
                     task_name:OTtaskcontent.value.task_name,
                     task_describe:OTtaskcontent.value.task_describe,
-                    task_start_date:OTtaskcontent.value.task_start_date,
-                    task_end_date:OTtaskcontent.value.task_end_date,
+                    task_start_date:tempTime.value.starttemptime,
+                    task_end_date:tempTime.value.endtemptime,
                 }
         })
         if(response.code==2000){
@@ -222,18 +244,18 @@ const confirmsEditTask=async()=>{
                     </el-form-item>
                     <el-form-item label="任务开始时间">
                         <el-date-picker
-                            v-model=OTtaskcontent.task_start_date
+                            v-model=tempTime.starttemptime
                             type="datetime"
                             placeholder="选择日期时间"
-                            value-format="yyyy-MM-dd HH:mm:ss"
+                            value-format="YYYY-MM-DD HH:mm:ss "
                             ></el-date-picker>
                     </el-form-item>
                     <el-form-item label="任务结束时间">
                         <el-date-picker
-                            v-model=OTtaskcontent.task_end_date
+                            v-model=tempTime.endtemptime
                             type="datetime"
                             placeholder="选择日期时间"
-                            value-format="yyyy-MM-dd HH:mm:ss"
+                            value-format="YYYY-MM-DD HH:mm:ss "
                             ></el-date-picker>
                     </el-form-item>
                     <el-form-item label="任务描述">
@@ -324,7 +346,7 @@ const confirmsEditTask=async()=>{
                     </el-col>
                 </div>
                 <el-collapse>
-                    <el-collapse-item title="详细信息" name="1">
+                     <el-collapse-item title="详细信息" name="1">
                     </el-collapse-item>
                 </el-collapse>
 
@@ -353,9 +375,7 @@ const confirmsEditTask=async()=>{
                             <p class="gT">生成结果</p>
                         </div>
                     </div>
-
-                </div>
-                
+                </div>              
             </div>
             
         </div>
