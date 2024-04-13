@@ -239,7 +239,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
     def task_calc(self, request: Request):
         task_id = request.data.get("task_id")
         
-        task_all = Task.objects.filter(task_id=task_id)
+        task_all = EvaluateTask.objects.filter(task_id=task_id)
 
         all_evaluate = list(EvaluateTask.objects.filter(task_id=task_id).values_list('evaluate_id', flat=True).distinct().order_by('evaluate_id'))
         all_evaluated = list(EvaluateTask.objects.filter(task_id=task_id).values_list('evaluated_id', flat=True).distinct().order_by('evaluated_id'))
