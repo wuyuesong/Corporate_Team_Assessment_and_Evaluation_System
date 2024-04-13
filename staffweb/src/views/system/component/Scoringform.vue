@@ -7,12 +7,16 @@ import Cookies from 'js-cookie';
 import type { Action } from 'element-plus'
 import { ElMessageBox ,ElMessage} from 'element-plus'
 const refreshView = inject('refreshView')
+
+const thistable = ref<HTMLTableElement | null>(null)
 onMounted(() => {
 	  fetchscoreList()
    
 });
 const subscoreloading=ref(false)
 const loadingData=ref(false)
+
+const gridrowflag=ref([])
 const fetchscoreList= async()=>{
   try {
         // 发送请求并获取数据
@@ -38,6 +42,10 @@ const fetchscoreList= async()=>{
                 rank:-1
               };
               gridData.push(item);
+              //@ts-ignore
+              gridrowflag.value.push({
+                state:false
+              })
             }
             loadingData.value=!loadingData.value
         }else{
@@ -91,7 +99,7 @@ function hasDuplicateScores(gridData:any) {
     let i=0,j=0;
     for (i=0;i<gridData.length;i++) {
         for(j=i+1;j<gridData.length;j++){
-          if(gridData[i].score===gridData[j].score){
+          if(gridData[i].score===gridData[j].score&&gridData[i].score!==0){
             return [i,j]
           }
         }
@@ -110,7 +118,7 @@ function changestyle(rows:any){
 
 
 
-  const filteredData = gridData.filter(item => !(isNaN(item.score)||typeof item.score === 'object'));
+  const filteredData = gridData.filter(item => !(isNaN(item.score)||typeof item.score === 'object'||item.score===0));
   filteredData.sort((a, b) => b.score - a.score);
   filteredData.forEach((item, index) => {
       item.rank = index + 1;
@@ -134,7 +142,7 @@ const handlesame =(row:any)=>{
     console.log(target)
     row.score=NaN;
     
-    const filteredData = gridData.filter((item, index) => {return !(index=== num1);}).filter(item => !(isNaN(item.score)||typeof item.score === 'object'));
+    const filteredData = gridData.filter((item, index) => {return !(index=== num1);}).filter(item => !(isNaN(item.score)||typeof item.score === 'object'||item.score===0));
     filteredData.sort((a, b) => b.score-a.score);
     console.log(filteredData)
     let min:number=60;
@@ -161,6 +169,19 @@ const handlesame =(row:any)=>{
   }
 }
 
+const handleignore = (row:any)=>{
+  row.score=0;
+  row.rank=-1;
+
+}
+
+const handlecancelignore=(row:any)=>{
+  row.score=NaN;
+  row.rank=-1;
+}
+
+
+
 const handleClose = (done: () => void) => {
 
 }
@@ -181,6 +202,28 @@ const tableRowClassName = ({
 const inputValue = ref<string>('');
 
 
+//未填数据获取焦点
+const focusneedtobeWrite=(idx:number)=>{
+  //@ts-ignore
+  const table=thistable.value.$el.querySelector('.el-table__body-wrapper');
+  const rows = table.querySelectorAll('.el-table__row');
+  //@ts-ignore
+  rows.forEach((row, index) => {
+    if (index === idx) {
+      const input = row.querySelector('input');
+      if (input) {
+        input.focus();
+      }
+    }
+  });
+
+
+  
+  
+
+}
+
+
 /**
  * 提交分数
  */
@@ -196,21 +239,26 @@ const utlsubmitStyle=ref([])
     }
     )
     .then(async() => {
-      ElMessage({
-        type: 'success',
-        message: 'Submit completed',
-      })
       subscoreloading.value=true;
-      
       try {
         utlsubmitStyle.value=[];
-        gridData.forEach(ele=>{
-            const{ID,score}=ele;
+        for(let idx=0;idx<gridData.length;idx++){
+          const{ID,score}=gridData[idx];
+            if(typeof score === 'object'||isNaN(score)){
+              ElMessage({
+                  type: 'error',
+                  message: '还有分数未填',
+                })
+                focusneedtobeWrite(idx)
+                subscoreloading.value=false;
+              return;
+            }
+            //@ts-ignore
             utlsubmitStyle.value.push({
               evaluated_id:ID,
               score:score
             })
-        })
+        }
         const response = await request({
           url: getBaseURL() + 'api/system/evaluate_task/submit_evaluate_task/',
           method: 'post',
@@ -294,7 +342,10 @@ const utlsubmitStyle=ref([])
 
   <div class="prescore">
     <p class="scorelistTitle">{{ $props.title }}</p>
-    <el-text size="large"> {{ $props.discribe }}</el-text>
+    <!-- <el-text size="large"  class="Scorediscription">
+      <textarea readonly cols="100" rows="5"> {{ $props.discribe }}</textarea>
+    </el-text> -->
+    <el-input class="Scorediscription" v-model="$props.discribe" type="textarea"  disabled="true" autosize="true" />
   </div>
   <el-form
     ref="formRef"
@@ -306,12 +357,15 @@ const utlsubmitStyle=ref([])
       <el-table-column property="department" label="部门" width="150" />
       <el-table-column property="office" label="职位" width="200" />
       <el-table-column property="name" label="姓名" width="200" />
-      <el-table-column label="得分" width="250">
+      <el-table-column label="得分" width="300">
         <template v-slot:default="{ row }">
-            <el-input-number v-model="row.score" controls-position="right" :precision="2" :step="0.01" :min="60" :max="100" @keyup.enter="handlesame(row)" @blur="handlesame(row)"/>
+              <el-input-number v-model="row.score" controls-position="right" :precision="2" :step="0.01" :min="60" :max="100" @keyup.enter="handlesame(row)" @blur="handlesame(row)" v-if="row.score!==0"/>
+              <el-tag  style="width: 150px;" v-if="row.score===0" effect="dark" size="large">不进行评分</el-tag>
+              <el-button  type="info" style="background-color: cornflowerblue; margin-left: 10px;width: 70px;" @click="handleignore(row)" v-if="row.score!==0">不评分</el-button>
+              <el-button type="info" style="background-color:firebrick; margin-left: 10px;width: 70px;" v-if="row.score===0" @click="handlecancelignore(row)">撤销</el-button>
         </template>
       </el-table-column>
-    <el-table-column  label="排名" property="rank" />
+    <el-table-column  label="排名" property="rank" />info
     </el-table>
   </el-form>
   <div class="submitscored">
@@ -366,4 +420,10 @@ const utlsubmitStyle=ref([])
   margin: 20px;
   display: flex;
 }
+.Scorediscription{
+  margin-top: 10px;
+  margin-bottom: 10px;
+  font-size: large;
+}
+
 </style>

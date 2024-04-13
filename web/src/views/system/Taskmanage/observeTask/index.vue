@@ -115,7 +115,10 @@ const fetchTimeFromNTP=async()=>{
     }
 }
 
+
+//TODO: 判断任务时间与当前时间关系（待优化 当前时间必须和服务器时间相同）
 function judgeTasktime() {
+    currentTime=new Date()
     if(currentTask.value==='') return;
     if (currentTime < BTime) {
         OTtaskcontent.value.task_state=1
