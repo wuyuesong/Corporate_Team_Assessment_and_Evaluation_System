@@ -267,7 +267,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
             EvaluateTaskRank.objects.create(task_id=task_id, evaluated_id=rank["id"], evaluated_rank=rank["rank"], evaluated_score=rank["score"])
 
         for abnormal_data in abnormal_datas:
-            EvaluateTaskAbnormalData.objects.create(task_id=task_id, evaluate_id=abnormal_data["evaluate_id"], evaluated_id=abnormal_data["evaluated_id"],origin_value=abnormal_data["fix_value"],fix_value=abnormal_data["fix_value"])
+            EvaluateTaskAbnormalData.objects.create(task_id=task_id, evaluate_id=abnormal_data["evaluate_id"], evaluated_id=abnormal_data["evaluated_id"],origin_value=abnormal_data["origin_value"],fix_value=abnormal_data["fix_value"])
 
         Task.objects.filter(task_id=task_id).update(task_done=1)
 
@@ -295,7 +295,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         ret= []
         for abnormal_data in abnormal_data_list:
             evaluated_name = Staff.objects.get(staff_id=abnormal_data.evaluated_id).staff_name
-            evaluate_name = Staff.objects.get(staff_id=abnormal_data.evaluated_id).staff_name
+            evaluate_name = Staff.objects.get(staff_id=abnormal_data.evaluate_id).staff_name
             ret.append(dict(evaluate_id=abnormal_data.evaluate_id, 
                             evaluated_id=abnormal_data.evaluated_id, 
                             origin_value=abnormal_data.origin_value, 
