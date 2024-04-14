@@ -6,11 +6,17 @@ import { request } from '/@/utils/service';
 import { getBaseURL } from '/@/utils/baseUrl';
 import type { Action } from 'element-plus'
 import {Edit} from '@element-plus/icons-vue'
+import * as echarts from 'echarts';
+import { maxBy } from 'lodash';
 
 const OTtasklist =ref([])
 const currentTask=ref('')
 const Selectedtitle=ref('')
 
+
+//图例dom
+const legendDom=ref()
+const abnoramlDom=ref()
 let BTime: Date = new Date();
 let ETime: Date = new Date();
 
@@ -30,6 +36,7 @@ const OTtaskcontent=ref({
     task_state:0,
     undo_staff:[],
     staff_count:0,
+    task_done:0
 })
 const overloading=ref(false)
 
@@ -55,6 +62,9 @@ const fetchAllTaskList=async()=>{
 
 const fetchTaskpageInfo=async()=>{
     try {
+
+
+
         const response=await request({
                 url: getBaseURL() + 'api/system/evaluate_task/task_info/',
                 method: 'post',
@@ -81,9 +91,12 @@ const fetchTaskpageInfo=async()=>{
                     }
                 })
             }
-
             tempTime.value.starttemptime=OTtaskcontent.value.task_start_date
             tempTime.value.endtemptime=OTtaskcontent.value.task_end_date
+            if(OTtaskcontent.value.task_done===1){
+                fetchrankresinfo()
+                fetchabnorinfo()
+            }
             
         } 
         
@@ -98,10 +111,30 @@ const fetchTaskpageInfo=async()=>{
 
 const ObTask=(value)=>{
     currentTask.value=value
+    //pageinfo初始化
+    departmentMap.clear();
+    OTtaskcontent.value={
+        task_name:'',
+        task_create_date:'',
+        task_describe:'',
+        task_start_date:'',
+        task_end_date:'',
+        task_state:0,
+        undo_staff:[],
+        staff_count:0,
+        task_done:0
+    }
+    tempTime.value={
+        starttemptime:'',
+        endtemptime:''
+    }
+    if(legendDom.value){
+        echarts.init(legendDom.value).clear()
+    }
     fetchTaskpageInfo()
 }
 
-
+//ntp 解决时间同步（dgram不兼容问题没法解决）
 let currentTime: Date=new Date()
 const fetchTimeFromNTP=async()=>{
     try {
@@ -150,6 +183,7 @@ const deleteTask=()=>{
                 message: `action: ${action}`,
             })
             confirmdeleteTask()
+            
         }
     },
     
@@ -238,7 +272,7 @@ const generateResult=async()=>{
                 message: "生成结果成功",
                 type: 'success',
             })
-            // location.reload()
+            location.reload()
         }
     }catch (error) {
         ElMessage({
@@ -248,6 +282,208 @@ const generateResult=async()=>{
         })
     }
 }
+
+//获取结果排名分数的信息
+const fetchrankresinfo=async()=>{
+    try {
+        const response=await request({
+                url: getBaseURL() + 'api/system/evaluate_task/get_rank/',
+                method: 'post',
+                data:{
+                   task_id:currentTask.value
+                }
+        })
+        if(response.code==2000){
+            if(response.data){
+                let rankdata =[]
+                let rankname =[]
+                let rankscore=[]
+                response.data.forEach(ele =>{
+                    rankdata.push(ele.evaluated_rank)
+                    rankname.push(ele.evaluated_name)
+                    rankscore.push(ele.evaluated_score)
+                })
+                initrankcharts(rankdata,rankname,rankscore)
+            }
+        }else{
+            ElMessage({
+                message: "获取数据失败",
+                type: 'error',
+            })
+        }
+    }catch(error){
+        ElMessage({
+            message: error.message,
+            type: 'error',
+        })
+    }
+}
+
+//获取异常分数的信息
+const fetchabnorinfo=async()=>{
+    try {
+        const response=await request({
+                url: getBaseURL() + 'api/system/evaluate_task/get_abnormal_data/',
+                method: 'post',
+                data:{
+                   task_id:currentTask.value
+                }
+        })
+        if(response.code==2000){
+            let xaxis=[]
+            let origindata=[]
+            let fixdata=[]
+            if(response.data){
+                response.data.forEach(item=>{
+                    xaxis.push(item.evaluate_name+'->'+item.evaluated_name)
+                    origindata.push(item.origin_value)
+                    fixdata.push(item.fix_value)
+                })
+                initabnomalcharts( xaxis,origindata,fixdata)
+            }
+        }
+    }catch(error){
+        ElMessage({
+            message: error.message,
+            type: 'error',
+        })
+    }
+}
+//INIT结果图标
+const initrankcharts=(rankdata,rankname,rankscore)=>{
+    if(legendDom.value){
+        let myChart = echarts.init(legendDom.value);
+        myChart.setOption( {
+        title: {
+          text: '处理后结果RANK'
+        },
+        tooltip: {
+            trigger: 'axis',
+            axisPointer: {
+            type: 'cross',
+            crossStyle: {
+                color: '#999'
+            }
+            }
+        },
+        legend: {
+          data: ['分数','排名']
+        },
+        xAxis: {
+          data: rankname
+        },
+        yAxis: {},
+        series: [
+          {
+            name: '分数',
+            type: 'bar',
+            tooltip: {
+                valueFormatter: function (value) {
+                    return value 
+                }
+            },
+            data: rankscore
+          },
+          {
+            name: '排名',
+            type: 'bar',
+            tooltip: {
+                valueFormatter: function (value) {
+                    return value 
+                }
+            },
+            data: rankdata
+          }
+        ]
+      });
+   }else{
+        ElMessage({
+            showClose: true,
+            message: 'legendDom.value is null',
+            type: 'error',
+        })
+        return;
+    }
+}
+
+const initabnomalcharts=(xaxis,origindata,fixdata)=>{
+    if(abnoramlDom.value){
+        let myChart = echarts.init(abnoramlDom.value);
+        myChart.setOption( {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'cross',
+                    crossStyle: {
+                        color: '#999'
+                    }
+                }
+            },
+            legend: {
+                data: ['Origin', 'Fix']
+            },
+            grid: {
+                left: '3%',
+                right: '4%',
+                bottom: '3%',
+                containLabel: true
+            },
+            xAxis: [
+                {
+                    type: 'value',
+                     
+                },
+                
+            ],
+            yAxis: [
+                {
+                type: 'category',
+                axisTick: {
+                    show: false
+                },
+                data: xaxis
+                }
+            ],
+            series: [
+                {
+                name: 'Origin',
+                type: 'bar',
+                label: {
+                    show: true,
+                    position: 'inside'
+                },
+                itemStyle: {
+                    color: 'red'  // 设置柱状图的颜色为红色
+                },
+                emphasis: {
+                    focus: 'series'
+                },
+                data: origindata
+                },
+                {
+                name: 'Fix',
+                type: 'bar',
+                stack: 'Total',
+                label: {
+                    show: true,
+                },
+                emphasis: {
+                    focus: 'series'
+                },
+                data: fixdata
+                },
+            ]
+      });
+   }else{
+        ElMessage({
+            showClose: true,
+            message: 'legendDom.value is null',
+            type: 'error',
+        })
+        return;
+    }
+}
+
 </script>
 
 <template>
@@ -256,7 +492,7 @@ const generateResult=async()=>{
             <div class="OTheader">
                 
                 <div class="OTheaderBlank">
-                    <el-button type="primary" :icon="Edit" :disabled="!(currentTask.length>0)" @click="dialogVisible=true" >修改任务</el-button>
+                    <el-button type="primary" :icon="Edit" :disabled="!(currentTask.length>0)||OTtaskcontent.task_done===1" @click="dialogVisible=true" >修改任务</el-button>
                 </div>
                 
                 <el-select v-model="Selectedtitle" placeholder="Select" size="large" style="width: 340px">
@@ -316,9 +552,11 @@ const generateResult=async()=>{
                     <el-descriptions-item label="任务标题">{{OTtaskcontent.task_name}}</el-descriptions-item>
                     <el-descriptions-item label="任务创建时间">{{OTtaskcontent.task_create_date.replace('T',' ')}}</el-descriptions-item>
                     <el-descriptions-item label="状态">
-                        <el-tag size="large" type="success" v-if="OTtaskcontent.task_state===2">进行中</el-tag>
-                        <el-tag size="large" type="danger" v-if="OTtaskcontent.task_state===1">未开始</el-tag>
-                        <el-tag size="large" type="info" v-if="OTtaskcontent.task_state===3">已结束</el-tag>
+                        <el-tag size="large" type="success" v-if="OTtaskcontent.task_state===2&&OTtaskcontent.task_done===0">进行中</el-tag>
+                        <el-tag size="large" type="danger" v-if="OTtaskcontent.task_state===1&&OTtaskcontent.task_done===0">未开始</el-tag>
+                        <el-tag size="large" type="info" v-if="OTtaskcontent.task_state===3&&OTtaskcontent.task_done===0">已结束</el-tag>
+                        <el-tag size="large" type="primary" v-if="OTtaskcontent.task_state===3&&OTtaskcontent.task_done===1">已生成结果</el-tag>
+                        <el-tag size="large" type="primary" v-if="OTtaskcontent.task_state===2&&OTtaskcontent.task_done===1">已生成结果</el-tag>
                     </el-descriptions-item>
                 </el-descriptions>
                 <div>
@@ -381,8 +619,19 @@ const generateResult=async()=>{
                         
                     </el-col>
                 </div>
-                <el-collapse>
-                     <el-collapse-item title="详细信息" name="1">
+                <el-collapse v-if="OTtaskcontent.task_done===1">
+                     <el-collapse-item title="详细信息-结果及排名" name="1" @click="">
+                        <div class="chartzone">
+                            <div ref="legendDom" class="legend"  style="width: 800px;height:400px;">
+                            </div>
+                            
+                        </div>
+                    </el-collapse-item>
+                    <el-collapse-item title="详细信息-异常数据" name="2">
+                        <div class="chartzone">
+                            <div ref="abnoramlDom" style="width: 800px;height:600px;">
+                            </div>
+                        </div>
                     </el-collapse-item>
                 </el-collapse>
 
@@ -407,10 +656,10 @@ const generateResult=async()=>{
                     </div>
 
                     <div class="button_item">
-                        <div class="forwardbox"  @click="generateResult" v-if="OTtaskcontent.task_state===3||OTtaskcontent.undo_staff.length===0">
+                        <div class="forwardbox"  @click="generateResult" v-if="(OTtaskcontent.task_state===3||OTtaskcontent.undo_staff.length===0)&&OTtaskcontent.task_done===0">
                             <p class="gT">生成结果</p>
                         </div>
-                        <div class="forwardbox locked" v-if="!(OTtaskcontent.task_state===3||OTtaskcontent.undo_staff.length===0)">
+                        <div class="forwardbox locked" v-if="!((OTtaskcontent.task_state===3||OTtaskcontent.undo_staff.length===0)&&OTtaskcontent.task_done===0)">
                             <p class="gT">生成结果</p>
                         </div>
                     </div>
@@ -534,6 +783,14 @@ const generateResult=async()=>{
 .gT{
     font-size: large;
     font-weight: bold;
+}
+
+.chartzone{
+    display: flex;
+    margin-top: 30px;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
 }
 
 
