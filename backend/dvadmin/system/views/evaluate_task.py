@@ -269,7 +269,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         for abnormal_data in abnormal_datas:
             EvaluateTaskAbnormalData.objects.create(task_id=task_id, evaluate_id=abnormal_data["evaluate_id"], evaluated_id=abnormal_data["evaluated_id"],origin_value=abnormal_data["fix_value"],new_value=abnormal_data["fix_value"])
 
-        Task.objects.get(task_id=task_id).update(task_done=1)
+        Task.objects.filter(task_id=task_id).update(task_done=1)
 
         return DetailResponse(data=[], msg="计算成功")
     
