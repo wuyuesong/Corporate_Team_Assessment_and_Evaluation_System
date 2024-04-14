@@ -79,7 +79,7 @@ def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
                 else:
                     transformed_data[i, j] = non_zero_means[j] - mul*mean_differences_non_zero[j]
                 
-                abnormal_data.append({"evaluate": first_column[i], "evaluated": first_row[j],"origin_value": origin_value,"fix_value": transformed_data[i, j]})
+                abnormal_data.append({"evaluate_id": first_column[i], "evaluated_id": first_row[j],"origin_value": origin_value,"fix_value": transformed_data[i, j]})
     
     # with open('step5_out.txt', 'w') as file:
     #     for i in range(transformed_data.shape[0]):
