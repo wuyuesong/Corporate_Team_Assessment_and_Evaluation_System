@@ -745,10 +745,45 @@ class Task(CoreModel):
     task_type = models.IntegerField(
         choices=TASK_TYPE, default=0, verbose_name="任务类型", null=True, blank=True, help_text="任务类型"
     )
+
+    TASK_DONE = (
+        (0, "未完成"),
+        (1, "完成")
+    )
+    
+    task_done = models.IntegerField(
+        choices=TASK_DONE, default=0, verbose_name="完成情况", null=True, blank=True, help_text="完成情况"
+    )
     
     class Meta:
         db_table = table_prefix + "system_task"
         verbose_name = "任务表"
         verbose_name_plural = verbose_name
         ordering = ("create_datetime",)
-    
+
+
+class EvaluateTaskRank(CoreModel):
+    task_id = models.CharField(max_length=255, verbose_name="任务id", null=True, blank=True, help_text="任务id",default="")
+    evaluated_id = models.CharField(max_length=255, verbose_name="被评价人系统id", null=True, blank=True, help_text="被评价人系统id",default="")
+    evaluated_rank = models.CharField(max_length=255, verbose_name="被评价人排名", null=True, blank=True, help_text="被评价人排名",default="")
+    evaluated_score = models.FloatField(verbose_name="被评价人分数", null=True, blank=True, help_text="被评价人分数")
+
+    class Meta:
+        db_table = table_prefix + "system_evaluate_task_rank"
+        verbose_name = "评价任务排名表"
+        verbose_name_plural = verbose_name
+        ordering = ("create_datetime",)
+
+
+class EvaluateTaskAbnormalData(CoreModel):
+    task_id = models.CharField(max_length=255, verbose_name="任务id", null=True, blank=True, help_text="任务id",default="")
+    evaluate_id = models.CharField(max_length=255, verbose_name="评价人系统id", null=True, blank=True, help_text="评价人系统id",default="")
+    evaluated_id = models.CharField(max_length=255, verbose_name="被评价人系统id", null=True, blank=True, help_text="被评价人系统id",default="")
+    origin_value = models.FloatField(verbose_name="原始分数", null=True, blank=True, help_text="原始分数")
+    fix_value = models.FloatField(verbose_name="修正分数", null=True, blank=True, help_text="修正分数")
+
+    class Meta:
+        db_table = table_prefix + "system_evaluate_task_abnormal_data"
+        verbose_name = "评价任务不正常数据"
+        verbose_name_plural = verbose_name
+        ordering = ("create_datetime",)

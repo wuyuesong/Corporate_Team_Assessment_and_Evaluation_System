@@ -12,7 +12,7 @@ from rest_framework.request import Request
 from django.db import connection
 from django.db.models import Q
 from application import dispatch
-from dvadmin.system.models import Users, Role, Dept, Department, EvaluateTask, Task, Staff
+from dvadmin.system.models import Users, Role, Dept, Department, EvaluateTask, Task, Staff,EvaluateTaskRank, EvaluateTaskAbnormalData
 from dvadmin.system.views.role import RoleSerializer
 from dvadmin.utils.json_response import ErrorResponse, DetailResponse, SuccessResponse
 from dvadmin.utils.serializers import CustomModelSerializer
@@ -212,6 +212,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
                 "task_start_date":task.task_start_date,
                 "task_end_date":task.task_end_date,
                 "task_create_date":task.task_create_date,
+                "task_done":task.task_done,
                 "staff_count":len(all_evaluate),}
         undo_staff = []
         for staff in undo_staff_info:
@@ -261,9 +262,50 @@ class EvaluateTaskViewSet(CustomModelViewSet):
             weight[i] = task.task_weight
 
         mul = 2
-        rank, abnormal_data = calc_score(len(all_evaluate), len(all_evaluated), mul, np.array(all_evaluated), np.array(all_evaluate), scores, weight)
+        ranks, abnormal_datas = calc_score(len(all_evaluate), len(all_evaluated), mul, np.array(all_evaluated), np.array(all_evaluate), scores, weight)
+        for rank in ranks:
+            EvaluateTaskRank.objects.create(task_id=task_id, evaluated_id=rank["id"], evaluated_rank=rank["rank"], evaluated_score=rank["score"])
 
-        return DetailResponse(data=dict(rank_list=rank, abnormal_data=abnormal_data), msg="计算成功")
+        for abnormal_data in abnormal_datas:
+            EvaluateTaskAbnormalData.objects.create(task_id=task_id, evaluate_id=abnormal_data["evaluate_id"], evaluated_id=abnormal_data["evaluated_id"],origin_value=abnormal_data["fix_value"],new_value=abnormal_data["fix_value"])
+
+        Task.objects.get(task_id=task_id).update(task_done=1)
+
+        return DetailResponse(data=[], msg="计算成功")
+    
+    @action(methods=['post'], detail=False, permission_classes=[])
+    def get_rank(self, request: Request):
+        task_id = request.data.get("task_id")
+
+        rank_list = EvaluateTaskRank.objects.filter(task_id=task_id)
+
+        ret= []
+        for rank in rank_list:
+            evaluated_name = Staff.objects.get(staff_id=rank.evaluated_id).staff_name
+            ret.append(dict(evaluated_id=rank.evaluated_id, evaluated_rank=rank.evaluated_rank, evaluated_score=rank.evaluated_score, evaluated_name=evaluated_name))
+
+        return DetailResponse(data=ret, msg="获取成功")
+    
+    @action(methods=['post'], detail=False, permission_classes=[])
+    def get_abnormal_data(self, request: Request):
+        task_id = request.data.get("task_id")
+
+        abnormal_data_list = EvaluateTaskAbnormalData.objects.filter(task_id=task_id)
+
+        ret= []
+        for abnormal_data in abnormal_data_list:
+            evaluated_name = Staff.objects.get(staff_id=abnormal_data.evaluated_id).staff_name
+            evaluate_name = Staff.objects.get(staff_id=abnormal_data.evaluated_id).staff_name
+            ret.append(dict(evaluate_id=abnormal_data.evaluate_id, 
+                            evaluated_id=abnormal_data.evaluated_id, 
+                            origin_value=abnormal_data.origin_value, 
+                            fix_value=abnormal_data.fix_value, 
+                            evaluated_name=evaluated_name,
+                            evaluate_name=evaluate_name,))
+
+        return DetailResponse(data=ret, msg="获取成功")
+    
+
         
 
 

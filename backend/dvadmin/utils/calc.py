@@ -1,5 +1,4 @@
 import filecmp
-import pytest
 from scipy.stats import norm
 import pandas as pd
 import numpy as np
