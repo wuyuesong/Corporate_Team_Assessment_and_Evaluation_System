@@ -19,14 +19,29 @@ const route = useRoute();
 const router = useRouter();
 import { message } from '/@/utils/message';
 import jumploading from '../Animate/jumploading.vue';
-
+import VanillaTilt from 'vanilla-tilt';
   
-
+const main=ref()
+const temp=ref()
+const loginrotaition=ref()
 // 页面加载时
 onMounted(() => {
 	NextLoading.done();
-});
+  VanillaTilt.init(main.value, {
+    "mouse-event-element":temp.value,
+    startX:8,
+    max:8,
+    axis:'x',
+	});
+  VanillaTilt.init(loginrotaition.value, {
+    reverse:true,
+    "mouse-event-element":temp.value,
+    startX:8,
+    max:8,
+    axis:'x',
+	});
 
+});
 
 
 const loginClick = async () => {
@@ -85,16 +100,16 @@ const loading = ref(false)
   <jumploading class="thistop" v-if="true"/>
   <div class="app_container">
     <header>
-      <a class="logo" >
+      <a class="logo"  ref="temp">
       <li-icon type="logo" size="50dp"  color="brand" role="banner">
         <svg width="40" height="32" viewBox="0 0 102 26" fill="none" id="logo">
         </svg>
       </li-icon>
     </a>
     </header>
-    <main class="loginmainpage">
+    <main class="loginmainpage" ref="main">
       <div style="height: 120px; width: 100%"/>
-      <div class="card" v-loading="loading">
+      <div class="card" v-loading="loading" ref="loginrotaition" >
           <div class="organ">
               <div class="headercontent">
                 <h1 class="header__content__heading ">登录</h1>
@@ -104,7 +119,7 @@ const loading = ref(false)
             <div style="height: 10px;"/>
               <form  class="login__form"  novalidate="true"  @submit.prevent="loginClick">
                 <div class="l-1">
-                  <input id="username" v-model="input" name="session_key" type="text" required  autofocus aria-label="账号" autocomplete="off">
+                  <input  id="username" v-model="input" name="session_key" type="text" required  autofocus aria-label="账号" autocomplete="off">
                   <label class="form__label--floating" for="username" aria-hidden="true">账号</label>
                 </div>
                 <div class="l-1">
@@ -135,11 +150,7 @@ const loading = ref(false)
 
 <style>
 
-@font-face {
-  font-family: "钉钉进步体 Regular";font-weight: 400;src: url("//at.alicdn.com/wf/webfont/iSq66waD0Wdh/hJRqEK6c6oM1.woff2") format("woff2"),
-  url("//at.alicdn.com/wf/webfont/iSq66waD0Wdh/it8Mekj0bBph.woff") format("woff");
-  font-display: swap;
-}
+
 
 .app__container {
     display: flex;
