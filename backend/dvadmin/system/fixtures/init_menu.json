@@ -1401,9 +1401,39 @@
         "menu_field": []
     },
     {
+        "name": "管理员权限管理",
+        "icon": "ele-UserFilled",
+        "sort": 4,
+        "is_link": false,
+        "is_catalog": true,
+        "web_path": "/availableManage",
+        "component": "",
+        "component_name": "",
+        "status": true,
+        "cache": false,
+        "visible": true,
+        "parent": null,
+        "children": [
+            {
+                "name": "权限管理",
+                "icon": "ele-Finished",
+                "sort": 1,
+                "is_link": false,
+                "is_catalog": false,
+                "web_path": "/adminava",
+                "component": "system/availableManage/adminava/index",
+                "component_name": "adminava",
+                "status": true,
+                "cache": false,
+                "visible": true,
+                "children": []
+            }
+        ]
+    },
+    {
         "name": "企业信息管理",
         "icon": "ele-Avatar",
-        "sort": 4,
+        "sort": 5,
         "is_link": false,
         "is_catalog": true,
         "web_path": "/evaluate",
@@ -1448,7 +1478,7 @@
     {
         "name": "评测任务管理",
         "icon": "ele-SetUp",
-        "sort": 5,
+        "sort": 6,
         "is_link": false,
         "is_catalog": true,
         "web_path": "/Taskmanage",

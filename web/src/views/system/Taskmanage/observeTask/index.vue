@@ -14,9 +14,10 @@ const currentTask=ref('')
 const Selectedtitle=ref('')
 
 
+const resranktable=ref()
 //图例dom
-const legendDom=ref()
-const abnoramlDom=ref()
+// const legendDom=ref()
+// const abnoramlDom=ref()
 let BTime: Date = new Date();
 let ETime: Date = new Date();
 
@@ -128,9 +129,9 @@ const ObTask=(value)=>{
         starttemptime:'',
         endtemptime:''
     }
-    if(legendDom.value){
-        echarts.init(legendDom.value).clear()
-    }
+    // if(legendDom.value){
+    //     echarts.init(legendDom.value).clear()
+    // }
     fetchTaskpageInfo()
 }
 
@@ -283,6 +284,10 @@ const generateResult=async()=>{
     }
 }
 
+const ranktabledata=ref([])
+
+const itemkey=ref()
+
 //获取结果排名分数的信息
 const fetchrankresinfo=async()=>{
     try {
@@ -295,15 +300,16 @@ const fetchrankresinfo=async()=>{
         })
         if(response.code==2000){
             if(response.data){
-                let rankdata =[]
-                let rankname =[]
-                let rankscore=[]
                 response.data.forEach(ele =>{
-                    rankdata.push(ele.evaluated_rank)
-                    rankname.push(ele.evaluated_name)
-                    rankscore.push(ele.evaluated_score)
+                    ranktabledata.value.push({
+                        rank:ele.evaluated_rank,
+                        name:ele.evaluated_name,
+                        score:ele.evaluated_score,
+                    })
                 })
-                initrankcharts(rankdata,rankname,rankscore)
+                itemkey.value=Math.random()
+                
+                //initrankcharts(rankdata,rankname,rankscore)
             }
         }else{
             ElMessage({
@@ -339,7 +345,7 @@ const fetchabnorinfo=async()=>{
                     origindata.push(item.origin_value)
                     fixdata.push(item.fix_value)
                 })
-                initabnomalcharts( xaxis,origindata,fixdata)
+                //initabnomalcharts( xaxis,origindata,fixdata)
             }
         }
     }catch(error){
@@ -349,140 +355,147 @@ const fetchabnorinfo=async()=>{
         })
     }
 }
-//INIT结果图标
-const initrankcharts=(rankdata,rankname,rankscore)=>{
-    if(legendDom.value){
-        let myChart = echarts.init(legendDom.value);
-        myChart.setOption( {
-        title: {
-          text: '处理后结果RANK'
-        },
-        tooltip: {
-            trigger: 'axis',
-            axisPointer: {
-            type: 'cross',
-            crossStyle: {
-                color: '#999'
-            }
-            }
-        },
-        legend: {
-          data: ['分数','排名']
-        },
-        xAxis: {
-          data: rankname
-        },
-        yAxis: {},
-        series: [
-          {
-            name: '分数',
-            type: 'bar',
-            tooltip: {
-                valueFormatter: function (value) {
-                    return value 
-                }
-            },
-            data: rankscore
-          },
-          {
-            name: '排名',
-            type: 'bar',
-            tooltip: {
-                valueFormatter: function (value) {
-                    return value 
-                }
-            },
-            data: rankdata
-          }
-        ]
-      });
-   }else{
-        ElMessage({
-            showClose: true,
-            message: 'legendDom.value is null',
-            type: 'error',
-        })
-        return;
-    }
-}
 
-const initabnomalcharts=(xaxis,origindata,fixdata)=>{
-    if(abnoramlDom.value){
-        let myChart = echarts.init(abnoramlDom.value);
-        myChart.setOption( {
-            tooltip: {
-                trigger: 'axis',
-                axisPointer: {
-                    type: 'cross',
-                    crossStyle: {
-                        color: '#999'
-                    }
-                }
-            },
-            legend: {
-                data: ['Origin', 'Fix']
-            },
-            grid: {
-                left: '3%',
-                right: '4%',
-                bottom: '3%',
-                containLabel: true
-            },
-            xAxis: [
-                {
-                    type: 'value',
+
+
+// #region 废弃图标改用表格
+// //INIT结果图标
+// const initrankcharts=(rankdata,rankname,rankscore)=>{
+//     if(legendDom.value){
+//         let myChart = echarts.init(legendDom.value);
+//         myChart.setOption( {
+//         title: {
+//           text: '处理后结果RANK'
+//         },
+//         tooltip: {
+//             trigger: 'axis',
+//             axisPointer: {
+//             type: 'cross',
+//             crossStyle: {
+//                 color: '#999'
+//             }
+//             }
+//         },
+//         legend: {
+//           data: ['分数','排名']
+//         },
+//         xAxis: {
+//           data: rankname
+//         },
+//         yAxis: {},
+//         series: [
+//           {
+//             name: '分数',
+//             type: 'bar',
+//             tooltip: {
+//                 valueFormatter: function (value) {
+//                     return value 
+//                 }
+//             },
+//             data: rankscore
+//           },
+//           {
+//             name: '排名',
+//             type: 'bar',
+//             tooltip: {
+//                 valueFormatter: function (value) {
+//                     return value 
+//                 }
+//             },
+//             data: rankdata
+//           }
+//         ]
+//       });
+//    }else{
+//         ElMessage({
+//             showClose: true,
+//             message: 'legendDom.value is null',
+//             type: 'error',
+//         })
+//         return;
+//     }
+// }
+
+// const initabnomalcharts=(xaxis,origindata,fixdata)=>{
+//     if(abnoramlDom.value){
+//         let myChart = echarts.init(abnoramlDom.value);
+//         myChart.setOption( {
+//             tooltip: {
+//                 trigger: 'axis',
+//                 axisPointer: {
+//                     type: 'cross',
+//                     crossStyle: {
+//                         color: '#999'
+//                     }
+//                 }
+//             },
+//             legend: {
+//                 data: ['Origin', 'Fix']
+//             },
+//             grid: {
+//                 left: '3%',
+//                 right: '4%',
+//                 bottom: '3%',
+//                 containLabel: true
+//             },
+//             xAxis: [
+//                 {
+//                     type: 'value',
                      
-                },
+//                 },
                 
-            ],
-            yAxis: [
-                {
-                type: 'category',
-                axisTick: {
-                    show: false
-                },
-                data: xaxis
-                }
-            ],
-            series: [
-                {
-                name: 'Origin',
-                type: 'bar',
-                label: {
-                    show: true,
-                    position: 'inside'
-                },
-                itemStyle: {
-                    color: 'red'  // 设置柱状图的颜色为红色
-                },
-                emphasis: {
-                    focus: 'series'
-                },
-                data: origindata
-                },
-                {
-                name: 'Fix',
-                type: 'bar',
-                stack: 'Total',
-                label: {
-                    show: true,
-                },
-                emphasis: {
-                    focus: 'series'
-                },
-                data: fixdata
-                },
-            ]
-      });
-   }else{
-        ElMessage({
-            showClose: true,
-            message: 'legendDom.value is null',
-            type: 'error',
-        })
-        return;
-    }
-}
+//             ],
+//             yAxis: [
+//                 {
+//                 type: 'category',
+//                 axisTick: {
+//                     show: false
+//                 },
+//                 data: xaxis
+//                 }
+//             ],
+//             series: [
+//                 {
+//                 name: 'Origin',
+//                 type: 'bar',
+//                 label: {
+//                     show: true,
+//                     position: 'inside'
+//                 },
+//                 itemStyle: {
+//                     color: 'red'  // 设置柱状图的颜色为红色
+//                 },
+//                 emphasis: {
+//                     focus: 'series'
+//                 },
+//                 data: origindata
+//                 },
+//                 {
+//                 name: 'Fix',
+//                 type: 'bar',
+//                 stack: 'Total',
+//                 label: {
+//                     show: true,
+//                 },
+//                 emphasis: {
+//                     focus: 'series'
+//                 },
+//                 data: fixdata
+//                 },
+//             ]
+//       });
+//    }else{
+//         ElMessage({
+//             showClose: true,
+//             message: 'legendDom.value is null',
+//             type: 'error',
+//         })
+//         return;
+//     }
+// }
+// #endregion
+
+
 
 </script>
 
@@ -619,18 +632,23 @@ const initabnomalcharts=(xaxis,origindata,fixdata)=>{
                         
                     </el-col>
                 </div>
+               
                 <el-collapse v-if="OTtaskcontent.task_done===1">
-                     <el-collapse-item title="详细信息-结果及排名" name="1" @click="">
+                     <el-collapse-item title="详细信息-结果及排名" name="1">
                         <div class="chartzone">
-                            <div ref="legendDom" class="legend"  style="width: 800px;height:400px;">
-                            </div>
-                            
+
+                            <!-- 使用 :key 解决响应刷新问题 -->
+                            <el-table  ref="resranktable" :data="ranktabledata" :key="itemkey" height="400px" stripe border style="width: 800px; " >
+                                <el-table-column prop="rank" label="排名"  width="160px" />
+                                <el-table-column prop="name" label="姓名" width="400px"  />
+                                <el-table-column prop="score" label="分数"  width="240px" />
+                            </el-table>
                         </div>
                     </el-collapse-item>
                     <el-collapse-item title="详细信息-异常数据" name="2">
                         <div class="chartzone">
-                            <div ref="abnoramlDom" style="width: 800px;height:600px;">
-                            </div>
+                            <!-- <div ref="abnoramlDom" style="width: 800px;height:600px;">
+                            </div> -->
                         </div>
                     </el-collapse-item>
                 </el-collapse>
