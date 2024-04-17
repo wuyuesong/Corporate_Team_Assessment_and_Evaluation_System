@@ -292,7 +292,7 @@ const processtoRequestData=()=>{
  * 
  */
 
-const TaskPreSubmit=async()=>{
+const TaskPreSubmit=async(type:number)=>{
     if (evaluatingGroup.value.length === 0|| griddata.value.length===0) {
         ElMessage({
         showClose: true,
@@ -332,7 +332,8 @@ const TaskPreSubmit=async()=>{
                     task_start_date:startendTime.value[0],
                     task_end_date:startendTime.value[1],
                     evaluate:torequestEvaluate.value,
-                    evaluated:torequestEvaluated.value
+                    evaluated:torequestEvaluated.value,
+                    task_type:type
                 }
         })
         if(response.code==2000){
@@ -361,6 +362,7 @@ const TaskPreSubmit=async()=>{
 
 }
 
+const swiftsubmitstyle=ref(true)
 
 </script>
 
@@ -412,10 +414,6 @@ const TaskPreSubmit=async()=>{
 
 
     <div class="eva_container">
-
-
-
-
         <div class="evaluating_container">
             <div class="evatag">
                 <h4 class="evaluated_title">评价组</h4>
@@ -440,7 +438,6 @@ const TaskPreSubmit=async()=>{
             <div v-for=" (group,index) in evaluatingGroup">
                 <evablock v-model="evaluatingGroup[index]"  @remove="removeChild(index)"></evablock>
             </div>
-
             </el-scrollbar>
             
         </div>
@@ -509,7 +506,15 @@ const TaskPreSubmit=async()=>{
                     <el-button class="evaluatedreset"  @click="reset"  size="large" type="warning" >重置</el-button>
                 </div>
                 <div class="SubmitTaskButton">
-                    <el-button class="evaTaskPresent" :disabled="taskpresentbutton" @click="TaskPreSubmit" size="large" type="danger">发布任务</el-button>
+                    <el-switch
+                        v-model="swiftsubmitstyle"
+                        class="ml-2"
+                        size="large"
+                        :disabled="taskpresentbutton"
+                        style="--el-switch-on-color: crimson; --el-switch-off-color: #ff4949"
+                    />
+                    <el-button v-if="!swiftsubmitstyle" class="evaTaskPresent_relname" :disabled="taskpresentbutton" @click="TaskPreSubmit(1)" size="large" type="danger" style="background: crimson;">发布任务(邮件通知)</el-button>
+                    <el-button v-if="swiftsubmitstyle" class="evaTaskPresent" :disabled="taskpresentbutton" @click="TaskPreSubmit(0)" size="large" type="danger">发布任务(随机通知)</el-button>
                 </div>
             </div>
 
@@ -656,10 +661,15 @@ const TaskPreSubmit=async()=>{
 }
 
 .SubmitTaskButton{
-    margin-left: 250px;
-
+    margin-left: 80px;
+    display: flex;
+    align-items: left;
 }
 .evablock{
     width: 100%;
 }
+.ml-2{
+    margin-right: 20px;
+}
+
 </style>

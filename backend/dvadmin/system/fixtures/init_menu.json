@@ -1401,7 +1401,7 @@
         "menu_field": []
     },
     {
-        "name": "管理员权限管理",
+        "name": "权限管理",
         "icon": "ele-UserFilled",
         "sort": 4,
         "is_link": false,
@@ -1415,9 +1415,23 @@
         "parent": null,
         "children": [
             {
-                "name": "权限管理",
-                "icon": "ele-Finished",
+                "name": "角色管理",
+                "icon": "ele-Mug",
                 "sort": 1,
+                "is_link": false,
+                "is_catalog": false,
+                "web_path": "/roleManage",
+                "component": "system/availableManage/roleManage/index",
+                "component_name": "roleManage",
+                "status": true,
+                "cache": false,
+                "visible": true,
+                "children": []
+            },
+            {
+                "name": "管理员设置",
+                "icon": "ele-Finished",
+                "sort": 2,
                 "is_link": false,
                 "is_catalog": false,
                 "web_path": "/adminava",
@@ -1428,6 +1442,7 @@
                 "visible": true,
                 "children": []
             }
+            
         ]
     },
     {
