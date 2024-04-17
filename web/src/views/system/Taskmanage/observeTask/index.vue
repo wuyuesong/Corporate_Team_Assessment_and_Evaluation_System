@@ -12,7 +12,7 @@ import { maxBy } from 'lodash';
 const OTtasklist =ref([])
 const currentTask=ref('')
 const Selectedtitle=ref('')
-
+const MatrixCanvas=ref()
 
 const resranktable=ref()
 //图例dom
@@ -308,7 +308,7 @@ const fetchrankresinfo=async()=>{
                     })
                 })
                 itemkey.value=Math.random()
-                
+                drawMatrixTable()
                 //initrankcharts(rankdata,rankname,rankscore)
             }
         }else{
@@ -356,6 +356,20 @@ const fetchabnorinfo=async()=>{
     }
 }
 
+
+const drawMatrixTable=()=>{
+    if(MatrixCanvas){
+        let ctx=MatrixCanvas.value.getContext('2d');
+        for(let i=1;i<7;i++){
+            ctx.beginPath()
+            ctx.lineTo(100*i, 0);
+            ctx.lineTo(100*i, 700);
+            ctx.stroke();
+            ctx.closePath()
+        }
+        
+    }
+}
 
 
 // #region 废弃图标改用表格
@@ -647,8 +661,7 @@ const fetchabnorinfo=async()=>{
                     </el-collapse-item>
                     <el-collapse-item title="详细信息-异常数据" name="2">
                         <div class="chartzone">
-                            <!-- <div ref="abnoramlDom" style="width: 800px;height:600px;">
-                            </div> -->
+                            <canvas ref="MatrixCanvas" class="MatrixCanvas" width="700px" height="700px"></canvas>
                         </div>
                     </el-collapse-item>
                 </el-collapse>
@@ -811,6 +824,11 @@ const fetchabnorinfo=async()=>{
     text-align: center;
 }
 
+
+.MatrixCanvas{
+    border: 2px solid rgb(199, 198, 198);
+    border-radius: 15px;
+}
 
 
 

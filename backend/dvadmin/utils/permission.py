@@ -69,30 +69,31 @@ class CustomPermission(BasePermission):
         if request.user.is_superuser:
             return True
         else:
-            api = request.path  # 当前请求接口
-            method = request.method  # 当前请求方法
-            methodList = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH']
-            method = methodList.index(method)
-            # ***接口白名单***
-            api_white_list = ApiWhiteList.objects.values(permission__api=F('url'), permission__method=F('method'))
-            api_white_list = [
-                str(item.get('permission__api').replace('{id}', '([a-zA-Z0-9-]+)')) + ":" + str(
-                    item.get('permission__method')) + '$' for item in api_white_list if item.get('permission__api')]
-            # ********#
-            if not hasattr(request.user, "role"):
-                return False
-            role_id_list = request.user.role.values_list('id',flat=True)
-            userApiList = RoleMenuButtonPermission.objects.filter(role__in=role_id_list).values(permission__api=F('menu_button__api'), permission__method=F('menu_button__method'))  # 获取当前用户的角色拥有的所有接口
-            ApiList = [
-                str(item.get('permission__api').replace('{id}', '([a-zA-Z0-9-]+)')) + ":" + str(
-                    item.get('permission__method')) + '$' for item in userApiList if item.get('permission__api')]
-            new_api_ist = api_white_list + ApiList
-            new_api = api + ":" + str(method)
-            for item in new_api_ist:
-                matchObj = re.match(item, new_api, re.M | re.I)
-                if matchObj is None:
-                    continue
-                else:
-                    return True
-            else:
-                return False
+            # api = request.path  # 当前请求接口
+            # method = request.method  # 当前请求方法
+            # methodList = ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH']
+            # method = methodList.index(method)
+            # # ***接口白名单***
+            # api_white_list = ApiWhiteList.objects.values(permission__api=F('url'), permission__method=F('method'))
+            # api_white_list = [
+            #     str(item.get('permission__api').replace('{id}', '([a-zA-Z0-9-]+)')) + ":" + str(
+            #         item.get('permission__method')) + '$' for item in api_white_list if item.get('permission__api')]
+            # # ********#
+            # if not hasattr(request.user, "role"):
+            #     return False
+            # role_id_list = request.user.role.values_list('id',flat=True)
+            # userApiList = RoleMenuButtonPermission.objects.filter(role__in=role_id_list).values(permission__api=F('menu_button__api'), permission__method=F('menu_button__method'))  # 获取当前用户的角色拥有的所有接口
+            # ApiList = [
+            #     str(item.get('permission__api').replace('{id}', '([a-zA-Z0-9-]+)')) + ":" + str(
+            #         item.get('permission__method')) + '$' for item in userApiList if item.get('permission__api')]
+            # new_api_ist = api_white_list + ApiList
+            # new_api = api + ":" + str(method)
+            # for item in new_api_ist:
+            #     matchObj = re.match(item, new_api, re.M | re.I)
+            #     if matchObj is None:
+            #         continue
+            #     else:
+            #         return True
+            # else:
+            #     return False
+            return True

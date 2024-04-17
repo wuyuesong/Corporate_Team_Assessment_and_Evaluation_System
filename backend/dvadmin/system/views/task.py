@@ -107,7 +107,7 @@ class TaskViewSet(CustomModelViewSet):
     update_serializer_class = TaskUpdateSerializer
     # filter_fields = ["name", "username", "gender", "is_active", "dept", "user_type"]
     filter_fields = [
-        "task_id"
+        "task_id",
         "task_name",
         "task_describe",
         "task_start_date",

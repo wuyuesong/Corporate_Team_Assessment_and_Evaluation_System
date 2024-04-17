@@ -39,7 +39,8 @@ class CustomModelViewSet(ModelViewSet, ImportSerializerMixin, ExportSerializerMi
     update_serializer_class = None
     filter_fields = '__all__'
     search_fields = ()
-    extra_filter_class = [CoreModelFilterBankend,DataLevelPermissionsFilter]
+    # extra_filter_class = [CoreModelFilterBankend,DataLevelPermissionsFilter]
+    extra_filter_class = [CoreModelFilterBankend]
     permission_classes = [CustomPermission]
     import_field_dict = {}
     export_field_label = {}
