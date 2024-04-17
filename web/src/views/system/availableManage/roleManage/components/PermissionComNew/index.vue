@@ -107,7 +107,7 @@ let customDataPermission = ref([]);
 //获取菜单,按钮,权限
 const getMenuBtnPermission = async () => {
   const resMenu = await getRolePremission({role: props.roleId})
-  menuData= ref<MenuDataType[]>([]);
+  let temp= ref<MenuDataType[]>([]);
   resMenu.data.forEach(element => {
     console.log(element)
      if(element.name.includes('系统管理')){
@@ -115,9 +115,10 @@ const getMenuBtnPermission = async () => {
      }else if(element.name.includes('日志管理')){
      }else if(element.name.includes('权限管理')){
      }else{
-        menuData.value.push(element)
+        temp.value.push(element)
      }
   });
+  menuData.value=temp.value
 
 }
 
