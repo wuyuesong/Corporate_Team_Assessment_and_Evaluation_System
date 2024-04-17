@@ -29,81 +29,12 @@
                   <span>{{ item.name }}</span>
                 </el-checkbox>
               </div>
-              <div v-show="!collapseCurrent.includes(mIndex)" @click.stop="null" style="text-align: left;">
-                <el-checkbox v-for="btn in item.btns" :key="btn.value" :label="btn.value" v-model="btn.isCheck">
-                  {{ btn.name }}
-                </el-checkbox>
-              </div>
             </div>
           </template>
-          <div class="pc-collapse-main">
-            <div class="pccm-item">
-              <p>允许对这些数据有以下操作</p>
-              <el-checkbox v-for="(btn,bIndex) in item.btns" :key="bIndex" v-model="btn.isCheck" :label="btn.value">
-                <div class="btn-item">
-                  {{ btn.data_range !== null ? `${btn.name}(${formatDataRange(btn.data_range)})` : btn.name }}
-                  <span v-show="btn.isCheck" @click.stop.prevent="handleSettingClick(item, btn.id)">
-                    <el-icon><Setting/></el-icon>
-                  </span>
-                </div>
-              </el-checkbox>
-            </div>
-
-            <div class="pccm-item" v-if="item.columns&&item.columns.length>0">
-              <p>对这些数据有以下字段权限</p>
-
-              <ul class="columns-list">
-                <li class="columns-head">
-                  <div class="width-txt">
-                    <span>字段</span>
-                  </div>
-
-                  <div v-for="(head,hIndex) in column.header" :key="hIndex" class="width-check">
-                    <el-checkbox :label="head.value" @change="handleColumnChange($event, item, head.value)">
-                      <span>{{ head.label }}</span>
-                    </el-checkbox>
-                  </div>
-                </li>
-
-                <li v-for="(c_item, c_index) in item.columns" :key="c_index" class="columns-item">
-                  <div class="width-txt">{{ c_item.title }}</div>
-                  <div v-for="(col,cIndex) in column.header" :key="cIndex" class="width-check">
-                    <el-checkbox v-model="c_item[col.value]" class="ci-checkout"></el-checkbox>
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </div>
         </el-collapse-item>
       </el-collapse>
 
-      <el-dialog v-model="dialogVisible" title="数据权限配置" width="400px" :close-on-click-modal="false"
-                 :before-close="handleDialogClose">
-        <div class="pc-dialog">
-          <el-select v-model="dataPermission" @change="handlePermissionRangeChange" class="dialog-select"
-                     placeholder="请选择">
-            <el-option v-for="item in dataPermissionRange" :key="item.value" :label="item.label" :value="item.value"/>
-          </el-select>
-          <el-tree-select
-              v-show="dataPermission === 4"
-              node-key="id"
-              v-model="customDataPermission"
-              :props="defaultTreeProps"
-              :data="deptData"
-              multiple
-              check-strictly
-              :render-after-expand="false"
-              show-checkbox
-              class="dialog-tree"
-          />
-        </div>
-        <template #footer>
-          <div>
-            <el-button type="primary" @click="handleDialogConfirm"> 确定</el-button>
-            <el-button @click="handleDialogClose"> 取消</el-button>
-          </div>
-        </template>
-      </el-dialog>
+
     </div>
   </el-drawer>
 </template>
@@ -176,7 +107,18 @@ let customDataPermission = ref([]);
 //获取菜单,按钮,权限
 const getMenuBtnPermission = async () => {
   const resMenu = await getRolePremission({role: props.roleId})
-  menuData.value = resMenu.data
+  menuData= ref<MenuDataType[]>([]);
+  resMenu.data.forEach(element => {
+    console.log(element)
+     if(element.name.includes('系统管理')){
+     }else if(element.name.includes('常规配置')){
+     }else if(element.name.includes('日志管理')){
+     }else if(element.name.includes('权限管理')){
+     }else{
+        menuData.value.push(element)
+     }
+  });
+
 }
 
 const fetchData = async () => {

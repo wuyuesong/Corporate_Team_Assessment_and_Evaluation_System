@@ -153,6 +153,34 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
                         },
                     },
                 },
+                role: {
+                    title: '角色',
+                    search: {
+                        disabled: true,
+                    },
+                    type: 'dict-select',
+                    dict: dict({
+                        url: '/api/system/role/',
+                        value: 'id',
+                        label: 'name',
+                    }),
+                    column: {
+                        minWidth: 100, //最小列宽
+                    },
+                    form: {
+                        rules: [
+                            {
+                                required: true,
+                                message: '必填项',
+                            },
+                        ],
+                        component: {
+                            multiple: true,
+                            filterable: true,
+                            placeholder: '请选择角色',
+                        },
+                    },
+                },
                 mobile: {
                     title: '手机号码',
                     search: {
