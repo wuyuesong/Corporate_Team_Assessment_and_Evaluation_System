@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { onMounted, ref,reactive } from 'vue';
+import { onMounted, ref,reactive, markRaw } from 'vue';
 import dayjs from 'dayjs'
 import { ElMessageBox , ElMessage} from 'element-plus';
 import { request } from '/@/utils/service';
 import { getBaseURL } from '/@/utils/baseUrl';
 import type { Action } from 'element-plus'
-import {Edit} from '@element-plus/icons-vue'
+import {Edit, Refresh} from '@element-plus/icons-vue'
 import * as echarts from 'echarts';
 import { maxBy } from 'lodash';
 
@@ -20,7 +20,7 @@ const resranktable=ref()
 // const abnoramlDom=ref()
 let BTime: Date = new Date();
 let ETime: Date = new Date();
-
+const parammul=ref(2)
 
 const tempTime=ref({
     starttemptime:'',
@@ -96,7 +96,6 @@ const fetchTaskpageInfo=async()=>{
             tempTime.value.endtemptime=OTtaskcontent.value.task_end_date
             if(OTtaskcontent.value.task_done===1){
                 fetchrankresinfo()
-                fetchabnorinfo()
             }
             
         } 
@@ -264,7 +263,8 @@ const generateResult=async()=>{
                 url: getBaseURL() + 'api/system/evaluate_task/task_calc/',
                 method: 'post',
                 data:{
-                   task_id:currentTask.value
+                   task_id:currentTask.value,
+                   mul:parammul.value
                 }
         })
         if(response.code==2000){
@@ -299,16 +299,21 @@ const fetchrankresinfo=async()=>{
                 }
         })
         if(response.code==2000){
+
             if(response.data){
+                let temp=[]
                 response.data.forEach(ele =>{
-                    ranktabledata.value.push({
+                    temp.push({
                         rank:ele.evaluated_rank,
                         name:ele.evaluated_name,
                         score:ele.evaluated_score,
+                        evaluated_id:ele.evaluated_id,
                     })
                 })
+                ranktabledata.value=temp
                 itemkey.value=Math.random()
-                drawMatrixTable()
+                fetchabnorinfo()
+                // drawMatrixTable()
                 //initrankcharts(rankdata,rankname,rankscore)
             }
         }else{
@@ -325,6 +330,7 @@ const fetchrankresinfo=async()=>{
     }
 }
 
+const abnormaltabledata=ref([])
 //获取异常分数的信息
 const fetchabnorinfo=async()=>{
     try {
@@ -336,15 +342,26 @@ const fetchabnorinfo=async()=>{
                 }
         })
         if(response.code==2000){
-            let xaxis=[]
-            let origindata=[]
-            let fixdata=[]
+            let temp=[]
+            let map=new Map()
+            let index=0
             if(response.data){
                 response.data.forEach(item=>{
-                    xaxis.push(item.evaluate_name+'->'+item.evaluated_name)
-                    origindata.push(item.origin_value)
-                    fixdata.push(item.fix_value)
+                    if(map.has(item.evaluate_id)){
+                        temp[map.get(item.evaluate_id)][item.evaluated_id]=item.origin_value+"/"+item.fix_value
+                    }else{
+                        map.set(item.evaluate_id,index++)
+                        temp.push({
+                            name:item.evaluate_name,
+                            evaluate_id:item.evaluate_id
+                        })
+                        temp[map.get(item.evaluate_id)][item.evaluated_id]=item.origin_value+"/"+item.fix_value
+                        
+                    }
                 })
+                console.log(temp)
+                abnormaltabledata.value=temp
+
                 //initabnomalcharts( xaxis,origindata,fixdata)
             }
         }
@@ -357,19 +374,23 @@ const fetchabnorinfo=async()=>{
 }
 
 
-const drawMatrixTable=()=>{
-    if(MatrixCanvas){
-        let ctx=MatrixCanvas.value.getContext('2d');
-        for(let i=1;i<7;i++){
-            ctx.beginPath()
-            ctx.lineTo(100*i, 0);
-            ctx.lineTo(100*i, 700);
-            ctx.stroke();
-            ctx.closePath()
-        }
+// const drawMatrixTable=()=>{
+//     if(MatrixCanvas){
+//         let ctx=MatrixCanvas.value.getContext('2d');
+//         ctx.lineWidth = 0.5;
+//         ctx.font = "10px serif";
+//         let len=ranktabledata.value.length
+//         for(let i=1;i<len+1;i++){
+//             ctx.beginPath()
+//             ctx.fillText("Hello world", (i-1)*(700/len)+10, 10,(700/len));
+//             ctx.lineTo(i*(700/len), 0);
+//             ctx.lineTo(i*(700/len), 700);
+//             ctx.stroke();
+//             ctx.closePath()
+//         }
         
-    }
-}
+//     }
+// }
 
 
 // #region 废弃图标改用表格
@@ -511,6 +532,41 @@ const drawMatrixTable=()=>{
 
 
 
+const openresetRES=()=>{
+    ElMessageBox.confirm(
+        '确认重置任务?',
+        '提示',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        icon:markRaw(Refresh)
+      }).then(async() => {
+        try {
+            const response=await request({
+                    url: getBaseURL() + 'api/system/evaluate_task/reset_taskres/',
+                    method: 'post',
+                    data:{
+                        task_id:currentTask.value
+                    }
+            })
+            if(response.data.code==200){
+                ElMessage({
+                    type: 'success',
+                    message: '重置成功!'
+                });
+            }
+            ObTask(currentTask.value)
+        }catch(error) {
+            ElMessage({
+                    type: 'error',
+                    message: '重置失败!'
+            });
+        }
+        
+      })
+}
+
 </script>
 
 <template>
@@ -584,6 +640,7 @@ const drawMatrixTable=()=>{
                         <el-tag size="large" type="info" v-if="OTtaskcontent.task_state===3&&OTtaskcontent.task_done===0">已结束</el-tag>
                         <el-tag size="large" type="primary" v-if="OTtaskcontent.task_state===3&&OTtaskcontent.task_done===1">已生成结果</el-tag>
                         <el-tag size="large" type="primary" v-if="OTtaskcontent.task_state===2&&OTtaskcontent.task_done===1">已生成结果</el-tag>
+                        <el-button v-if="OTtaskcontent.task_done===1" style="margin-left: 20px;"  @click="openresetRES">重置结果</el-button>
                     </el-descriptions-item>
                 </el-descriptions>
                 <div>
@@ -646,6 +703,10 @@ const drawMatrixTable=()=>{
                         
                     </el-col>
                 </div>
+                <div class="updatemul"  v-if="OTtaskcontent.task_done===0">
+                    <span>偏差倍数(默认为2)</span>
+                    <el-input-number v-model="parammul"  :precison="1" :step="0.1" :min="0"  :max="10"  controls-position="right"  style="width: 150px; margin-left: 20px;"/>
+                </div>
                
                 <el-collapse v-if="OTtaskcontent.task_done===1">
                      <el-collapse-item title="详细信息-结果及排名" name="1">
@@ -661,17 +722,32 @@ const drawMatrixTable=()=>{
                     </el-collapse-item>
                     <el-collapse-item title="详细信息-异常数据" name="2">
                         <div class="chartzone">
-                            <canvas ref="MatrixCanvas" class="MatrixCanvas" width="700px" height="700px"></canvas>
+                        
+                            <el-table :data="abnormaltabledata" border style="width: 1200px; height: 500px;" height="500">
+                                <el-table-column fixed prop="name" label="" width="200px">
+                                    <template #header>
+                                        <div class="group-bias-divide">
+                                            <div class="top">被评价人</div>
+                                            <div class="bottom">评价人</div>
+                                        </div>
+                                        </template>
+                                        <template #default="{ row }">
+                                        <span style="padding-left: 1em;">{{ row.name }}</span>
+                                    </template>
+                                </el-table-column>
+                                <el-table-column v-for="(item,index) in ranktabledata" :key="index" :prop="item.evaluated_id" :label="item.name" width="200px" />
+
+                            </el-table>
                         </div>
                     </el-collapse-item>
                 </el-collapse>
 
                 <div class="refButton">
                     <div class="button_item" >
-                        <div class="backbox" @click="deleteTask" v-if="currentTask.length>0">
+                        <div class="backbox" @click="deleteTask" v-if="currentTask.length>0&&OTtaskcontent.task_done===0">
                             <p class="gT">删除任务</p>
                         </div>
-                        <div class="backbox locked" v-if="!(currentTask.length>0)">
+                        <div class="backbox locked" v-if="!(currentTask.length>0&&OTtaskcontent.task_done===0)">
                             <p class="gT">删除任务</p>
                         </div>
                     </div>
@@ -829,9 +905,41 @@ const drawMatrixTable=()=>{
     border: 2px solid rgb(199, 198, 198);
     border-radius: 15px;
 }
+.updatemul{
+    display: flex;
+    margin-top: 20px;
+    margin-bottom: 20px;
+    align-items: center;
+}
 
-
-
-
-
+</style>
+<style lang="scss" scoped>
+:deep(.group-bias-divide) {
+    .top {
+      text-align: right;
+      padding-right: .5em;
+      box-sizing: border-box;
+    }
+ 
+    .bottom {
+      text-align: left;
+      padding-left: 1em;
+      box-sizing: border-box;
+ 
+      &::before {
+        content: "";
+        position: absolute;
+        width: 1px !important;
+        height: 187px !important;
+        top: auto !important;
+        left: auto !important;
+        bottom: 0 !important;
+        right: 0 !important;
+        background-color: #d6d6d6;
+        display: block;
+        transform: rotate(289deg);
+        transform-origin: bottom;
+      }
+    }
+}
 </style>

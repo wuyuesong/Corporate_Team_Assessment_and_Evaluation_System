@@ -239,6 +239,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
     @action(methods=['post'], detail=False, permission_classes=[])
     def task_calc(self, request: Request):
         task_id = request.data.get("task_id")
+        mul=request.data.get("mul")
         
         task_all = EvaluateTask.objects.filter(task_id=task_id)
 
@@ -260,8 +261,6 @@ class EvaluateTaskViewSet(CustomModelViewSet):
             j = map_evaluated[task.evaluated_id]
             scores[i, j] = task.score
             weight[i] = task.task_weight
-
-        mul = 2
         ranks, abnormal_datas = calc_score(len(all_evaluate), len(all_evaluated), mul, np.array(all_evaluated), np.array(all_evaluate), scores, weight)
         for rank in ranks:
             EvaluateTaskRank.objects.create(task_id=task_id, evaluated_id=rank["id"], evaluated_rank=rank["rank"], evaluated_score=rank["score"])
@@ -305,7 +304,19 @@ class EvaluateTaskViewSet(CustomModelViewSet):
 
         return DetailResponse(data=ret, msg="获取成功")
     
+    @action(methods=['post'], detail=False, permission_classes=[])
+    def reset_taskres(self, request:Request):
+        task_id = request.data.get("task_id")
+        if not task_id:
+            return DetailResponse(msg="task_id不能为空")
+        # 清空rank和abnoraml记录
+        EvaluateTaskRank.objects.filter(task_id=task_id).delete()
+        EvaluateTaskAbnormalData.objects.filter(task_id=task_id).delete()
+        # 并将任务状态设置回0
+        Task.objects.filter(task_id=task_id).update(task_done=0)
+        return DetailResponse(msg="重置成功",data=[])
 
+    
         
 
 
