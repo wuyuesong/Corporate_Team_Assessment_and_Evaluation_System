@@ -135,12 +135,17 @@ def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
     #########################################################################################
 
     #######################################  step10  ######################################## 计算norm.inv后的值
-    sorted_indices = np.argsort(transformed_data, axis=1)
+    sorted_indices_idx = np.argsort(transformed_data, axis=1)
+    sorted_indices_rank = np.empty_like(sorted_indices_idx)
+
+    for i in range(sorted_indices_idx.shape[0]):
+        for j, index in enumerate(sorted_indices_idx[i]):
+            sorted_indices_rank[i, index] = j  
     
     z_score = np.zeros_like(transformed_data)
     for i in range(transformed_data.shape[0]):
         for j in range(transformed_data.shape[1]):
-            z_score[i,j] = norm.ppf(S[i] + T[i]*sorted_indices[i,j], loc=mean, scale=std_dev)
+            z_score[i,j] = norm.ppf(S[i] + T[i]*sorted_indices_rank[i,j], loc=mean, scale=std_dev)
 
     # with open('step10_out.txt', 'w') as file:
     #     for i in range(z_score.shape[0]):
