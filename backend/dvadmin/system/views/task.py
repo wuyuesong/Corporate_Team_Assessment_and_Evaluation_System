@@ -149,10 +149,11 @@ class TaskViewSet(CustomModelViewSet):
         staff_id = request.data.get("staff_id")
         user = request.user
         print(user.staff_id)
-        cur_evaluate_task_id = list(EvaluateTask.objects.filter(evaluate_id=staff_id, grade_complete=0).values_list('task_id', flat=True).distinct().order_by('task_id'))
+        cur_evaluate_task_id = list(EvaluateTask.objects.filter(evaluate_id=staff_id).values_list('task_id', flat=True).distinct().order_by('task_id'))
         task_info = Task.objects.filter(task_id__in=cur_evaluate_task_id)
         ret=[]
         for task in task_info:
+            complete_status = EvaluateTask.objects.get(task_id=task.task_id, evaluate_id=staff_id).complete_status
             ret.append({
                 "task_id":task.task_id,
                 "task_name":task.task_name,
@@ -160,7 +161,8 @@ class TaskViewSet(CustomModelViewSet):
                 "task_start_date":task.task_start_date,
                 "task_end_date":task.task_end_date,
                 "task_create_date":task.task_create_date,
-                "task_type":task.task_type
+                "task_type":task.task_type,
+                "complete_status":complete_status
             })
 
         return DetailResponse(data=ret, msg="获取成功")        
