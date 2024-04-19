@@ -239,7 +239,6 @@ const processtoRequestData=()=>{
     evaluatingGroup.value.forEach(element => {
 
         let total=element.tableData.length;
-        console.log(total)
 
         if(element.task_weight===null){
             totalweight=-1;
@@ -403,7 +402,7 @@ const swiftsubmitstyle=ref(true)
                 range-separator="To"
                 start-placeholder="Start date"
                 end-placeholder="End date"
-                time-format="HH:mm:ss"
+                value-format="YYYY-MM-DD HH:mm:ss"
                 />
             </div>
             

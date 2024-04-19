@@ -353,15 +353,15 @@ const utlsubmitStyle=ref([])
     class="demo-ruleForm"
     >
     <el-table   ref="thistable" :key="loadingData" :data="gridData" :row-class-name="tableRowClassName" :row-style="changestyle">
-      <el-table-column type="index" width="50" />
+      <el-table-column type="index" width="70" />
       <el-table-column property="department" label="部门" width="150" />
       <el-table-column property="office" label="职位" width="200" />
       <el-table-column property="name" label="姓名" width="200" />
       <el-table-column label="得分" width="300">
         <template v-slot:default="{ row }">
               <el-input-number v-model="row.score" controls-position="right" :precision="2" :step="0.01" :min="60" :max="100" @keyup.enter="handlesame(row)" @blur="handlesame(row)" v-if="row.score!==0"/>
-              <el-tag  style="width: 150px;" v-if="row.score===0" effect="dark" size="large">不进行评分</el-tag>
-              <el-button  type="info" style="background-color: cornflowerblue; margin-left: 10px;width: 70px;" @click="handleignore(row)" v-if="row.score!==0">不评分</el-button>
+              <el-tag  style="width: 150px;" v-if="row.score===0" effect="dark" size="large">不了解不予打分</el-tag>
+              <el-button  type="info" style="background-color: cornflowerblue; margin-left: 10px;width: 70px;" @click="handleignore(row)" v-if="row.score!==0">不了解</el-button>
               <el-button type="info" style="background-color:firebrick; margin-left: 10px;width: 70px;" v-if="row.score===0" @click="handlecancelignore(row)">撤销</el-button>
         </template>
       </el-table-column>
