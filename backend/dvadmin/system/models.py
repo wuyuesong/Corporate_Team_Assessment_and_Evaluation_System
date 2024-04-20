@@ -709,7 +709,7 @@ class EvaluateTask(CoreModel):
     evaluate_id = models.CharField(max_length=255, verbose_name="评价人系统id", null=False, blank=False, help_text="评价人系统id",default="")
     task_weight = models.FloatField(verbose_name="任务权重", null=False, blank=False, help_text="任务权重",default=0.0)
     evaluated_id = models.CharField(max_length=255, verbose_name="被评价人系统id", null=False, blank=False, help_text="被评价人系统id",default="")
-    score = models.FloatField(verbose_name="分数", null=True, blank=True, help_text="分数")
+    score = models.FloatField(verbose_name="分数", null=True, blank=True, help_text="分数", default=0)
     
     COMPLETE_CHOICES = (
         (0, "未完成"),
