@@ -195,7 +195,7 @@ const addevaluatinggroup=async()=>{
             if(response.code==2000){
                 const data = await response.data;
                 let flag=true
-                data.forEach(item => {
+                for(const item of data){
                     if(allevaluatemap.value.has(item.staff_id)){
                         flag=false;
                         ElMessage({
@@ -203,12 +203,14 @@ const addevaluatinggroup=async()=>{
                             message: allevaluatemap.value.get(item.staff_id)+'已经存在，请不要重复添加',
                             type: 'error',
                         })
-                    }else{
-                    allevaluatemap.value.set(item.staff_id,item.staff_name)
+                        return 
                     }
-                });
+                }
                 if(flag){
                     evaluatingTabledata.value.push(...data)
+                    evaluatingTabledata.value.forEach(item=>{
+                        allevaluatemap.value.set(item.staff_id,item.staff_name)
+                    })
                 }
             } else{
                 ElMessageBox.alert(response.message)
@@ -393,7 +395,7 @@ const transfertoevaluate=()=>{
     const evaluatingTabledata=griddata.value
     //查找数据中有没有重复，没有加入map 有就报错
     let flag=true;
-    evaluatingTabledata.forEach(item=>{
+    for( const item of evaluatingTabledata){
         if(allevaluatemap.value.has(item.staff_id)){
             flag=false;
             ElMessage({
@@ -401,15 +403,17 @@ const transfertoevaluate=()=>{
                 message: allevaluatemap.value.get(item.staff_id)+'已经存在，请不要重复添加',
                 type: 'error',
             })
-        }else{
-           allevaluatemap.value.set(item.staff_id,item.staff_name)
+            return
         }
-    })
+    }
     if(flag){
         evaluatingGroup.value.push({
             tableData:evaluatingTabledata,
             task_weight:null
         });
+        evaluatingTabledata.forEach(item=>{
+            allevaluatemap.value.set(item.staff_id,item.staff_name)
+        })
     }
 }
 
