@@ -6,6 +6,7 @@ import { ref } from 'vue';
 
 //emit声明
 const emit=defineEmits(['update:modelValue:']);
+
 const {proxy} = getCurrentInstance();
 //props声明
 const model = defineModel({ 
@@ -30,7 +31,10 @@ const weightchange=computed({
 })
 
 const deleteRow = (index: number) => {
-  model.value.tableData.splice(index, 1)
+
+    console.log(model.value.tableData)
+    proxy.$emit('removeallmapone',model.value.tableData[index].staff_id)
+    model.value.tableData.splice(index, 1)
 }
 </script>
 <template>

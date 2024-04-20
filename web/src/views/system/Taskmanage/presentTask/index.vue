@@ -29,7 +29,8 @@ const TaskTitle=ref('');
 const TaskDescription=ref('');
 
 
-
+//使用map查重
+const allevaluatemap=ref(new Map());
 
 //发布任务按钮
 const taskpresentbutton=ref(true);
@@ -178,9 +179,6 @@ const addevaluatinggroup=async()=>{
     loading.value = true;
     const evaluatingTabledata=ref([]);
     const addtarget=reltree.value.treeclick();
- 
-    
-
 
     try {
         // 发送请求并获取数据
@@ -196,13 +194,28 @@ const addevaluatinggroup=async()=>{
             })
             if(response.code==2000){
                 const data = await response.data;
-                evaluatingTabledata.value.push(...data)
+                let flag=true
+                data.forEach(item => {
+                    if(allevaluatemap.value.has(item.staff_id)){
+                        flag=false;
+                        ElMessage({
+                            showClose: true,
+                            message: allevaluatemap.value.get(item.staff_id)+'已经存在，请不要重复添加',
+                            type: 'error',
+                        })
+                    }else{
+                    allevaluatemap.value.set(item.staff_id,item.staff_name)
+                    }
+                });
+                if(flag){
+                    evaluatingTabledata.value.push(...data)
+                }
             } else{
                 ElMessageBox.alert(response.message)
+                return
            }
             
         });
-
         evaluatingGroup.value.push({
             tableData:evaluatingTabledata,
             task_weight:null
@@ -222,11 +235,16 @@ const addevaluatinggroup=async()=>{
     
 }
 
+//子组件给出删除项
+const removeAllMapOne=(staffid)=>{
+    allevaluatemap.value.delete(staffid)
+}
 const removeChild=(index)=>{
+
+    evaluatingGroup.value[index].tableData.forEach(element => {
+        allevaluatemap.value.delete(element.staff_id)
+    });
     evaluatingGroup.value.splice(index, 1);
-    if (evaluatingGroup.value.length === 0) {
-        taskpresentbutton.value=true;
-    } 
 }
 
 
@@ -372,7 +390,27 @@ const swiftsubmitstyle=ref(true)
 
 
 const transfertoevaluate=()=>{
-
+    const evaluatingTabledata=griddata.value
+    //查找数据中有没有重复，没有加入map 有就报错
+    let flag=true;
+    evaluatingTabledata.forEach(item=>{
+        if(allevaluatemap.value.has(item.staff_id)){
+            flag=false;
+            ElMessage({
+                showClose: true,
+                message: allevaluatemap.value.get(item.staff_id)+'已经存在，请不要重复添加',
+                type: 'error',
+            })
+        }else{
+           allevaluatemap.value.set(item.staff_id,item.staff_name)
+        }
+    })
+    if(flag){
+        evaluatingGroup.value.push({
+            tableData:evaluatingTabledata,
+            task_weight:null
+        });
+    }
 }
 
 </script>
@@ -451,8 +489,8 @@ const transfertoevaluate=()=>{
                 </div>
             </el-drawer>
             <el-scrollbar max-height="85vh">
-            <div v-for=" (group,index) in evaluatingGroup">
-                <evablock v-model="evaluatingGroup[index]"  @remove="removeChild(index)"></evablock>
+            <div v-for=" (group,index) in evaluatingGroup"> 
+                <evablock v-model="evaluatingGroup[index]"  @remove="removeChild(index)" @removeallmapone="removeAllMapOne"></evablock>
             </div>
             </el-scrollbar>
             
@@ -464,7 +502,7 @@ const transfertoevaluate=()=>{
             <div style="display: flex;">
             <p class="evaluated_title">被评价组    
             </p>
-            <el-button class="shadow-lg shadow-orange-400/10 ..." @click="transfertoevaluate"  style="background-color: #fc7319;" size="large" :icon="CaretLeft" ><p class="font-mono font-bold antialiased text-slate-50 ... ">移动</p></el-button>
+            <el-button v-if="!judge"  class="shadow-lg shadow-orange-400/10 ..." @click="transfertoevaluate"  style="background-color: #fc7319;" size="large" :icon="CaretLeft" ><p class="font-mono font-bold antialiased text-slate-50 ... ">移动</p></el-button>
                 
             </div>
             
