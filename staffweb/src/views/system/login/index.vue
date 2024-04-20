@@ -148,7 +148,7 @@ const loading = ref(false)
 
 
 
-<style>
+<style scoped>
 
 
 

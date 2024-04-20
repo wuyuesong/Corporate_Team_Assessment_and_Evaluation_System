@@ -9,7 +9,8 @@ const props = defineProps({
   Btime: String,
   Etime: String,
   task_id:String,
-  discribe:String
+  discribe:String,
+  complete_status:String
 });
 const cardstate=ref(true);
 onMounted(() => {
@@ -35,7 +36,7 @@ const handlescore=()=>{
 }
 
 const handleClose = (done: () => void) => {
-  ElMessageBox.confirm('Are you sure to close this dialog?')
+  ElMessageBox.confirm('是否要关闭窗口?')
     .then(() => {
       done()
     })
@@ -48,7 +49,7 @@ const handleClose = (done: () => void) => {
 </script>
 
 <template>
-    <el-card  class="card-item" shadow="always"  v-if="cardstate"  @click="dialogVisible = true">
+    <el-card  class="card-item" shadow="always"  v-if="cardstate&&complete_status=='0'"  @click="dialogVisible = true">
         <template #header>
             <div class="card-header">
                 <h2 class="Title">{{title}}</h2>
@@ -82,12 +83,34 @@ const handleClose = (done: () => void) => {
             
         </div>
     </el-card>
+    <el-card  class="card-outtime" shadow="always"  v-if="cardstate&&complete_status=='1'" >
+        <template #header>
+            <div class="card-header">
+                <h2 class="Title">{{title}}</h2>
+            </div>
+        </template>
+        <div class="decontent">
+            <div>
+                <p>开始时间: {{ Btime?.replace('T','-') }}</p>
+                <p>结束时间: {{ Etime?.replace('T','-') }}</p>
+            </div>
+            <div style="width: 500px;"></div>
+            
+            <div>
+                <p class="cardwarn">已完成</p>
+            </div>
+            
+        </div>
+    </el-card>
     <el-dialog
         v-model="dialogVisible"
         title="打分表"
-        width="1100"
+        width="1500"
         :before-close="handleClose">
-        <cardform :task_id="task_id" :title="title" :discribe="discribe"></cardform>
+        <div>
+            <cardform :task_id="task_id" :title="title" :discribe="discribe"></cardform>
+        </div>
+        
 
     </el-dialog>
 

@@ -69,7 +69,7 @@ const fetchTaskInfo = async() => {
         <div class="container">
           <div class="mainpage">
             <div class="cardpage" v-for=" (task,index) in Tasks" :key="index">
-                <CardItem :title="task.task_name" :Btime="task.task_start_date" :Etime="task.task_end_date" :task_id="task.task_id" :discribe="task.task_describe"/>
+                <CardItem :title="task.task_name" :Btime="task.task_start_date" :Etime="task.task_end_date" :task_id="task.task_id" :discribe="task.task_describe" :complete_status="task.complete_status"/>
             </div>
           </div>
         </div>
