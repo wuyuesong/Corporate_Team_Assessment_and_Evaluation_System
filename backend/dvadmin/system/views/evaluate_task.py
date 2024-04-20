@@ -191,7 +191,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         
         for score in scores:
             evaluated_id = score["evaluated_id"]
-            if submit_type = 1:
+            if submit_type == 1:
                 EvaluateTask.objects.filter(evaluate_id=evaluate_id, task_id=task_id, evaluated_id=evaluated_id).update(score=score["score"], grade_complete=1, grade_date=datetime.now())
             else:
                 EvaluateTask.objects.filter(evaluate_id=evaluate_id, task_id=task_id, evaluated_id=evaluated_id).update(score=score["score"], grade_date=datetime.now())

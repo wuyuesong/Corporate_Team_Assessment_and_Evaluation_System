@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted ,reactive,inject} from 'vue';
-import { ElMessageBox , ElMessage} from 'element-plus';
+import { ElMessageBox , ElMessage } from 'element-plus';
 import { request } from '/@/utils/service';
 import { getBaseURL } from '/@/utils/baseUrl';
 import evablock from '../component/evaluatorBlock.vue'
+import { CaretLeft } from '@element-plus/icons-vue';
 import { successMessage } from '/@/utils/message';
 import relationtree from '../component/tree.vue'
 const refreshView = inject('refreshView')
@@ -50,11 +51,16 @@ const evaluatedrevert=async()=>{
         }
       })
       if(response.code===2000){
-            griddata.value=response.data
+            griddata.value.push(...response.data)
             dialogvisable.value=false;
             judge.value=false;
             loading.value = false;
             evaluatingbutton.value=false;
+
+            //去除重复
+            griddata.value=griddata.value.filter((item:any,index:any)=>{
+                return griddata.value.findIndex((item2:any)=>item2.staff_id===item.staff_id)===index
+            })
       }else{
         loading.value = false;
         ElMessage({
@@ -363,6 +369,12 @@ const TaskPreSubmit=async(type:number)=>{
 
 const swiftsubmitstyle=ref(true)
 
+
+
+const transfertoevaluate=()=>{
+
+}
+
 </script>
 
 
@@ -405,6 +417,11 @@ const swiftsubmitstyle=ref(true)
                 value-format="YYYY-MM-DD HH:mm:ss"
                 />
             </div>
+
+            <div class="SubmitTaskButton" style="margin-top: 100px;">
+                <el-button class="evaTaskPresent_relname" :disabled="taskpresentbutton" @click="TaskPreSubmit(1)" size="large" type="danger" >发布任务(邮件通知)</el-button>
+                <el-button  class="evaTaskPresent" :disabled="taskpresentbutton" @click="TaskPreSubmit(0)" size="large" type="danger">发布任务(随机通知)</el-button>
+            </div>
             
         </div>
 
@@ -444,9 +461,13 @@ const swiftsubmitstyle=ref(true)
             <el-icon><DArrowRight /></el-icon>
         </div>
         <div class="evaluated_container">
-            <p>
-                <h4 class="evaluated_title">被评价组</h4>
+            <div style="display: flex;">
+            <p class="evaluated_title">被评价组    
             </p>
+            <el-button class="shadow-lg shadow-orange-400/10 ..." @click="transfertoevaluate"  style="background-color: #fc7319;" size="large" :icon="CaretLeft" ><p class="font-mono font-bold antialiased text-slate-50 ... ">移动</p></el-button>
+                
+            </div>
+            
             <el-empty v-if="judge" id="emptyElement" description="Empty" style="width: 100%;" @click="dialogvisable=true"/>
             <el-drawer v-model="dialogvisable" title="添加被评价组"  :before-close="handleClose">
                 <div class="Evaadd__content">
@@ -502,19 +523,12 @@ const swiftsubmitstyle=ref(true)
             </el-table>
             <div class="UtlTaskButton" v-if="!judge" >
                 <div>
-                    <el-button class="evaluatedreset"  @click="reset"  size="large" type="warning" >重置</el-button>
+                    <el-button class="transition ease-in-out delay-150 bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 duration-300 ..." @click="reset"  size="large" type="warning" >重置</el-button>
+                    <el-button class="transition ease-in-out delay-150 bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 duration-300 ..." size="large" type="primary" @click="dialogvisable=true">
+                        增加
+                    </el-button>
                 </div>
-                <div class="SubmitTaskButton">
-                    <el-switch
-                        v-model="swiftsubmitstyle"
-                        class="ml-2"
-                        size="large"
-                        :disabled="taskpresentbutton"
-                        style="--el-switch-on-color: crimson; --el-switch-off-color: #ff4949"
-                    />
-                    <el-button v-if="!swiftsubmitstyle" class="evaTaskPresent_relname" :disabled="taskpresentbutton" @click="TaskPreSubmit(1)" size="large" type="danger" style="background: crimson;">发布任务(邮件通知)</el-button>
-                    <el-button v-if="swiftsubmitstyle" class="evaTaskPresent" :disabled="taskpresentbutton" @click="TaskPreSubmit(0)" size="large" type="danger">发布任务(随机通知)</el-button>
-                </div>
+              
             </div>
 
             
@@ -660,9 +674,6 @@ const swiftsubmitstyle=ref(true)
 }
 
 .SubmitTaskButton{
-    margin-left: 80px;
-    display: flex;
-    align-items: left;
 }
 .evablock{
     width: 100%;

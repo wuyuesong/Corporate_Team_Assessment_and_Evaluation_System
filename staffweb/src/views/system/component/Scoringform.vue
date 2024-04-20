@@ -34,12 +34,16 @@ const fetchscoreList= async()=>{
         if(response.code===2000){
             for (let index = 0; index < data.length; index++) {
               const element = data[index];
+              if(element.score===0.0){
+                console.log(element.score);
+                element.score=NaN
+              }
               let item: evaItem = {
                 department: element.evaluated_department,
                 office: element.evaluated_rank,
                 name: element.evaluated_name,
                 ID: element.evaluated_id,
-                score:NaN,             
+                score:element.score,             
                 rank:-1
               };
               gridData.push(item);
@@ -333,7 +337,42 @@ const utlsubmitStyle=ref([])
  */
 const tempsaveTaskcore=async()=>{
   try {
-    
+    utlsubmitStyle.value=[];
+        for(let idx=0;idx<gridData.length;idx++){
+          const{ID,score}=gridData[idx];
+
+          let temp=score
+          if(typeof score === 'object'||isNaN(score)){
+            temp=0;
+          }
+          //@ts-ignore
+          utlsubmitStyle.value.push({
+            evaluated_id:ID,
+            score:temp
+          })
+    }
+    const response = await request({
+          url: getBaseURL() + 'api/system/evaluate_task/submit_evaluate_task/',
+          method: 'post',
+          data:{
+            evaluate_id:Cookies.get('staff_id'),
+            task_id:props.task_id,
+            scores:utlsubmitStyle.value,
+            submit_type:0,
+          }
+        })
+        const data = await response.data;
+        if(response.code===2000){
+          ElMessage({
+            type: 'success',
+            message: "保存成功",
+          })
+        }else{
+          ElMessage({
+          type: 'error',
+          message: response.msg,
+          })
+        }
   } catch (error) {
     
   }
