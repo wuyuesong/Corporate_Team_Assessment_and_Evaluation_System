@@ -153,7 +153,7 @@ class TaskViewSet(CustomModelViewSet):
         task_info = Task.objects.filter(task_id__in=cur_evaluate_task_id)
         ret=[]
         for task in task_info:
-            complete_status = EvaluateTask.objects.filter(task_id=task.task_id, evaluate_id=staff_id).first().complete_status
+            complete_status = EvaluateTask.objects.filter(task_id=task.task_id, evaluate_id=staff_id).first().grade_complete
             ret.append({
                 "task_id":task.task_id,
                 "task_name":task.task_name,
