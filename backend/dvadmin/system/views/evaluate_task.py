@@ -323,6 +323,26 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         # 并将任务状态设置回0
         Task.objects.filter(task_id=task_id).update(task_done=0)
         return DetailResponse(msg="重置成功",data=[])
+    
+
+    @action(methods=['post'], detail=False, permission_classes=[])
+    def get_all_evaluate(self, request: Request):
+        task_id = request.data.get("task_id")
+        all_evaluate_id = list(EvaluateTask.objects.filter(task_id=task_id).values_list('evaluate_id', flat=True).distinct().order_by('evaluate_id'))
+        staff_infos = Staff.objects.filter(staff_id__in=all_evaluate_id)
+
+        ret = []
+        for staff_info in staff_infos:
+            ret.append({
+                "staff_name":staff_info.staff_name,
+                "staff_firm_id":staff_info.staff_id,
+                "staff_department":staff_info.staff_department,
+                "staff_id":staff_info.staff_id
+            })
+
+        return DetailResponse(data=ret, msg="获取成功")
+        
+
 
     
         
