@@ -1,9 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted ,reactive,inject} from 'vue';
-import { ElMessageBox , ElMessage} from 'element-plus';
+import { ElMessageBox , ElMessage } from 'element-plus';
 import { request } from '/@/utils/service';
 import { getBaseURL } from '/@/utils/baseUrl';
 import evablock from '../component/evaluatorBlock.vue'
+import { CaretLeft } from '@element-plus/icons-vue';
 import { successMessage } from '/@/utils/message';
 import relationtree from '../component/tree.vue'
 const refreshView = inject('refreshView')
@@ -28,7 +29,8 @@ const TaskTitle=ref('');
 const TaskDescription=ref('');
 
 
-
+//使用map查重
+const allevaluatemap=ref(new Map());
 
 //发布任务按钮
 const taskpresentbutton=ref(true);
@@ -50,11 +52,16 @@ const evaluatedrevert=async()=>{
         }
       })
       if(response.code===2000){
-            griddata.value=response.data
+            griddata.value.push(...response.data)
             dialogvisable.value=false;
             judge.value=false;
             loading.value = false;
             evaluatingbutton.value=false;
+
+            //去除重复
+            griddata.value=griddata.value.filter((item:any,index:any)=>{
+                return griddata.value.findIndex((item2:any)=>item2.staff_id===item.staff_id)===index
+            })
       }else{
         loading.value = false;
         ElMessage({
@@ -172,9 +179,6 @@ const addevaluatinggroup=async()=>{
     loading.value = true;
     const evaluatingTabledata=ref([]);
     const addtarget=reltree.value.treeclick();
- 
-    
-
 
     try {
         // 发送请求并获取数据
@@ -190,13 +194,30 @@ const addevaluatinggroup=async()=>{
             })
             if(response.code==2000){
                 const data = await response.data;
-                evaluatingTabledata.value.push(...data)
+                let flag=true
+                for(const item of data){
+                    if(allevaluatemap.value.has(item.staff_id)){
+                        flag=false;
+                        ElMessage({
+                            showClose: true,
+                            message: allevaluatemap.value.get(item.staff_id)+'已经存在，请不要重复添加',
+                            type: 'error',
+                        })
+                        return 
+                    }
+                }
+                if(flag){
+                    evaluatingTabledata.value.push(...data)
+                    evaluatingTabledata.value.forEach(item=>{
+                        allevaluatemap.value.set(item.staff_id,item.staff_name)
+                    })
+                }
             } else{
                 ElMessageBox.alert(response.message)
+                return
            }
             
         });
-
         evaluatingGroup.value.push({
             tableData:evaluatingTabledata,
             task_weight:null
@@ -216,11 +237,16 @@ const addevaluatinggroup=async()=>{
     
 }
 
+//子组件给出删除项
+const removeAllMapOne=(staffid)=>{
+    allevaluatemap.value.delete(staffid)
+}
 const removeChild=(index)=>{
+
+    evaluatingGroup.value[index].tableData.forEach(element => {
+        allevaluatemap.value.delete(element.staff_id)
+    });
     evaluatingGroup.value.splice(index, 1);
-    if (evaluatingGroup.value.length === 0) {
-        taskpresentbutton.value=true;
-    } 
 }
 
 
@@ -239,7 +265,6 @@ const processtoRequestData=()=>{
     evaluatingGroup.value.forEach(element => {
 
         let total=element.tableData.length;
-        console.log(total)
 
         if(element.task_weight===null){
             totalweight=-1;
@@ -364,6 +389,34 @@ const TaskPreSubmit=async(type:number)=>{
 
 const swiftsubmitstyle=ref(true)
 
+
+
+const transfertoevaluate=()=>{
+    const evaluatingTabledata=griddata.value
+    //查找数据中有没有重复，没有加入map 有就报错
+    let flag=true;
+    for( const item of evaluatingTabledata){
+        if(allevaluatemap.value.has(item.staff_id)){
+            flag=false;
+            ElMessage({
+                showClose: true,
+                message: allevaluatemap.value.get(item.staff_id)+'已经存在，请不要重复添加',
+                type: 'error',
+            })
+            return
+        }
+    }
+    if(flag){
+        evaluatingGroup.value.push({
+            tableData:evaluatingTabledata,
+            task_weight:null
+        });
+        evaluatingTabledata.forEach(item=>{
+            allevaluatemap.value.set(item.staff_id,item.staff_name)
+        })
+    }
+}
+
 </script>
 
 
@@ -403,8 +456,13 @@ const swiftsubmitstyle=ref(true)
                 range-separator="To"
                 start-placeholder="Start date"
                 end-placeholder="End date"
-                time-format="HH:mm:ss"
+                value-format="YYYY-MM-DD HH:mm:ss"
                 />
+            </div>
+
+            <div class="SubmitTaskButton" style="margin-top: 100px;">
+                <el-button class="evaTaskPresent_relname" :disabled="taskpresentbutton" @click="TaskPreSubmit(1)" size="large" type="danger" >发布任务(邮件通知)</el-button>
+                <el-button  class="evaTaskPresent" :disabled="taskpresentbutton" @click="TaskPreSubmit(0)" size="large" type="danger">发布任务(随机通知)</el-button>
             </div>
             
         </div>
@@ -435,8 +493,8 @@ const swiftsubmitstyle=ref(true)
                 </div>
             </el-drawer>
             <el-scrollbar max-height="85vh">
-            <div v-for=" (group,index) in evaluatingGroup">
-                <evablock v-model="evaluatingGroup[index]"  @remove="removeChild(index)"></evablock>
+            <div v-for=" (group,index) in evaluatingGroup"> 
+                <evablock v-model="evaluatingGroup[index]"  @remove="removeChild(index)" @removeallmapone="removeAllMapOne"></evablock>
             </div>
             </el-scrollbar>
             
@@ -445,9 +503,13 @@ const swiftsubmitstyle=ref(true)
             <el-icon><DArrowRight /></el-icon>
         </div>
         <div class="evaluated_container">
-            <p>
-                <h4 class="evaluated_title">被评价组</h4>
+            <div style="display: flex;">
+            <p class="evaluated_title">被评价组    
             </p>
+            <el-button v-if="!judge"  class="shadow-lg shadow-orange-400/10 ..." @click="transfertoevaluate"  style="background-color: #fc7319;" size="large" :icon="CaretLeft" ><p class="font-mono font-bold antialiased text-slate-50 ... ">移动</p></el-button>
+                
+            </div>
+            
             <el-empty v-if="judge" id="emptyElement" description="Empty" style="width: 100%;" @click="dialogvisable=true"/>
             <el-drawer v-model="dialogvisable" title="添加被评价组"  :before-close="handleClose">
                 <div class="Evaadd__content">
@@ -503,19 +565,12 @@ const swiftsubmitstyle=ref(true)
             </el-table>
             <div class="UtlTaskButton" v-if="!judge" >
                 <div>
-                    <el-button class="evaluatedreset"  @click="reset"  size="large" type="warning" >重置</el-button>
+                    <el-button class="transition ease-in-out delay-150 bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 duration-300 ..." @click="reset"  size="large" type="warning" >重置</el-button>
+                    <el-button class="transition ease-in-out delay-150 bg-blue-500 hover:-translate-y-1 hover:scale-110 hover:bg-indigo-500 duration-300 ..." size="large" type="primary" @click="dialogvisable=true">
+                        增加
+                    </el-button>
                 </div>
-                <div class="SubmitTaskButton">
-                    <el-switch
-                        v-model="swiftsubmitstyle"
-                        class="ml-2"
-                        size="large"
-                        :disabled="taskpresentbutton"
-                        style="--el-switch-on-color: crimson; --el-switch-off-color: #ff4949"
-                    />
-                    <el-button v-if="!swiftsubmitstyle" class="evaTaskPresent_relname" :disabled="taskpresentbutton" @click="TaskPreSubmit(1)" size="large" type="danger" style="background: crimson;">发布任务(邮件通知)</el-button>
-                    <el-button v-if="swiftsubmitstyle" class="evaTaskPresent" :disabled="taskpresentbutton" @click="TaskPreSubmit(0)" size="large" type="danger">发布任务(随机通知)</el-button>
-                </div>
+              
             </div>
 
             
@@ -661,9 +716,6 @@ const swiftsubmitstyle=ref(true)
 }
 
 .SubmitTaskButton{
-    margin-left: 80px;
-    display: flex;
-    align-items: left;
 }
 .evablock{
     width: 100%;

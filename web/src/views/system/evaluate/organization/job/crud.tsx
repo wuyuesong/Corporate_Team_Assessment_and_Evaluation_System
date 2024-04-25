@@ -108,7 +108,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 					},
 				},
 				normal_rank: {
-					title: '用户标准化职级',
+					title: '用户标准化层级',
 					search: {
 						disabled: false,
 					},
@@ -120,7 +120,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						
 						disabled: true,
 						component: {
-							placeholder: '请输入标准化职级',
+							placeholder: '请输入标准化层级',
 						},
 					},
 				},

@@ -6,6 +6,7 @@ import { getBaseURL } from '/@/utils/baseUrl';
 import Cookies from 'js-cookie';
 import type { Action } from 'element-plus'
 import { ElMessageBox ,ElMessage} from 'element-plus'
+import { el } from 'element-plus/es/locale';
 const refreshView = inject('refreshView')
 
 const thistable = ref<HTMLTableElement | null>(null)
@@ -33,12 +34,16 @@ const fetchscoreList= async()=>{
         if(response.code===2000){
             for (let index = 0; index < data.length; index++) {
               const element = data[index];
+              if(element.score===0.0){
+                console.log(element.score);
+                element.score=NaN
+              }
               let item: evaItem = {
                 department: element.evaluated_department,
                 office: element.evaluated_rank,
                 name: element.evaluated_name,
                 ID: element.evaluated_id,
-                score:NaN,             
+                score:element.score,             
                 rank:-1
               };
               gridData.push(item);
@@ -67,8 +72,18 @@ const fetchscoreList= async()=>{
 const dialogVisible = ref(false)
 const formRef = ref<FormInstance | null>(null)
 const errmessage=ref({
-  lastnum:'',
-  nextnum:''
+  same:{
+    name:'',
+    score:''
+  },
+  last:{
+    name:'',
+    score:''
+  },
+  next:{
+    name:'',
+    score:''
+  }
 })
 
 const props = defineProps({
@@ -132,50 +147,58 @@ function changestyle(rows:any){
 }
 
 const handlesame =(row:any)=>{
-
   
+  if(row.score<60||row.score>100){
+    row.score=NaN;
+    row.tips=1;
+    return;
+  }
+  row.tips=0;
   const [num1, num2] = hasDuplicateScores(gridData)
   if(!(num1===num2)){
+    if(num1===row.rowIndex){
+      errmessage.value.same.name=gridData[num2].name.toString();
+      errmessage.value.same.score=gridData[num2].score.toString();
+    }else{
+      errmessage.value.same.name=gridData[num1].name.toString();
+      errmessage.value.same.score=gridData[num1].score.toString();
+    }
     
     let flag:boolean=false;
     let target:number=gridData[num1].score;
-    console.log(target)
     row.score=NaN;
     
     const filteredData = gridData.filter((item, index) => {return !(index=== num1);}).filter(item => !(isNaN(item.score)||typeof item.score === 'object'||item.score===0));
     filteredData.sort((a, b) => b.score-a.score);
-    console.log(filteredData)
-    let min:number=60;
-    let max:number=100;
-    
-    for (const item of filteredData) {
-        if (target > item.score) {
-          console.log(item.score);
-          target = item.score;
-          flag = true;
-          break; // 使用 break 跳出整个循环
-        }
-        max = item.score;
-    }
 
-    if(flag){
-      errmessage.value.lastnum=target.toString();
-      errmessage.value.nextnum=max.toString();
-    }else{
-      errmessage.value.lastnum=min.toString();
-      errmessage.value.nextnum=max.toString();
+    console.log(filteredData)
+    errmessage.value.last.name='无'
+    errmessage.value.last.score='60'
+    errmessage.value.next.name='无'
+    errmessage.value.next.score='100'
+    for (const item of filteredData) {
+        if (target>item.score) {
+          errmessage.value.last.name=item.name.toString()
+          errmessage.value.last.score=item.score.toString()
+          break;
+        }
+        errmessage.value.next.name=item.name.toString()
+        errmessage.value.next.score=item.score.toString()
     }
+    row.tips=2;
     dialogVisible.value = true;
   }
 }
 
 const handleignore = (row:any)=>{
+  row.tips=0;
   row.score=0;
   row.rank=-1;
 
 }
 
 const handlecancelignore=(row:any)=>{
+  row.tips=0;
   row.score=NaN;
   row.rank=-1;
 }
@@ -309,6 +332,51 @@ const utlsubmitStyle=ref([])
 
 
 
+/**
+ * 暂存
+ */
+const tempsaveTaskcore=async()=>{
+  try {
+    utlsubmitStyle.value=[];
+        for(let idx=0;idx<gridData.length;idx++){
+          const{ID,score}=gridData[idx];
+
+          let temp=score
+          if(typeof score === 'object'||isNaN(score)){
+            temp=0;
+          }
+          //@ts-ignore
+          utlsubmitStyle.value.push({
+            evaluated_id:ID,
+            score:temp
+          })
+    }
+    const response = await request({
+          url: getBaseURL() + 'api/system/evaluate_task/submit_evaluate_task/',
+          method: 'post',
+          data:{
+            evaluate_id:Cookies.get('staff_id'),
+            task_id:props.task_id,
+            scores:utlsubmitStyle.value,
+            submit_type:0,
+          }
+        })
+        const data = await response.data;
+        if(response.code===2000){
+          ElMessage({
+            type: 'success',
+            message: "保存成功",
+          })
+        }else{
+          ElMessage({
+          type: 'error',
+          message: response.msg,
+          })
+        }
+  } catch (error) {
+    
+  }
+}
 </script>
 
 
@@ -326,7 +394,7 @@ const utlsubmitStyle=ref([])
       width="500"
       :before-close="handleClose"
     >
-    <span>输入重复，请重新输入 ,{{ errmessage.lastnum }} 和 {{ errmessage.nextnum }}</span>
+    <span>输入重复，请重新输入</span><br>
     <template #footer>
       <div class="dialog-footer">
         <el-button type="primary" @click="dialogVisible = false">
@@ -347,43 +415,63 @@ const utlsubmitStyle=ref([])
     </el-text> -->
     <el-input class="Scorediscription" v-model="$props.discribe" type="textarea"  disabled="true" autosize="true" />
   </div>
+  <el-scrollbar height="450px" >
   <el-form
     ref="formRef"
     label-width="auto"
     class="demo-ruleForm"
     >
     <el-table   ref="thistable" :key="loadingData" :data="gridData" :row-class-name="tableRowClassName" :row-style="changestyle">
-      <el-table-column type="index" width="50" />
+      <el-table-column type="index" width="70" />
       <el-table-column property="department" label="部门" width="150" />
       <el-table-column property="office" label="职位" width="200" />
       <el-table-column property="name" label="姓名" width="200" />
       <el-table-column label="得分" width="300">
         <template v-slot:default="{ row }">
-              <el-input-number v-model="row.score" controls-position="right" :precision="2" :step="0.01" :min="60" :max="100" @keyup.enter="handlesame(row)" @blur="handlesame(row)" v-if="row.score!==0"/>
-              <el-tag  style="width: 150px;" v-if="row.score===0" effect="dark" size="large">不进行评分</el-tag>
-              <el-button  type="info" style="background-color: cornflowerblue; margin-left: 10px;width: 70px;" @click="handleignore(row)" v-if="row.score!==0">不评分</el-button>
-              <el-button type="info" style="background-color:firebrick; margin-left: 10px;width: 70px;" v-if="row.score===0" @click="handlecancelignore(row)">撤销</el-button>
+              <el-input-number v-model="row.score" controls-position="right" :precision="2" :step="0.01" :controls="false"  @keyup.enter="handlesame(row)" @blur="handlesame(row)" v-if="row.score!==0"/>
+              <el-tag  style="width: 150px;" v-if="row.score===0" effect="dark" size="large">不了解不予打分</el-tag>
+              <el-button  type="info" size="large" style="background-color: cornflowerblue; margin-left: 10px;width: 70px;margin-top:5px;margin-bottom:5px;" @click="handleignore(row)" v-if="row.score!==0">不了解</el-button>
+              <el-button type="info"  size="large" style="background-color:firebrick; margin-left: 10px;width: 70px;margin-top:5px;margin-bottom:5px;" v-if="row.score===0" @click="handlecancelignore(row)">撤销</el-button>
         </template>
       </el-table-column>
-    <el-table-column  label="排名" property="rank" />info
+    <el-table-column  label="排名" property="rank" width="100">
+      <template v-slot:default="{ row }">
+        <div class="rankandtips">
+            <p>{{ row.rank }}</p>
+            
+        </div>
+        
+      </template>
+    </el-table-column>
+    <el-table-column width="300">
+      <template v-slot:default="{ row }">
+        <el-alert v-if="row.tips===1" title="分数需要在60和100之间" type="warning" show-icon :closable="false"/>
+        <div v-if="row.tips===2">
+          <el-alert :title="'上一个人：'+errmessage.last.name+'，分值为'+errmessage.last.score" type="warning" show-icon :closable="false"/>
+          <el-alert :title="'与'+ errmessage.same.name+'重复，分值为'+errmessage.same.score" type="error" show-icon :closable="false"/>
+          <el-alert :title="'下一个人：'+errmessage.next.name+'，分值为'+errmessage.next.score" type="warning" show-icon :closable="false"/>
+        </div>
+      </template>
+    </el-table-column>
     </el-table>
   </el-form>
   <div class="submitscored">
-    <el-col :span="12"></el-col>
-    <el-col :span="10"></el-col>
-    <el-col :span="8"><el-button size="large" type="danger" @click="submitTaskcore"> 提交</el-button></el-col>
+    <el-col :span="5"></el-col>
+    <el-col :span="7"><el-button size="large" type="info" @click="tempsaveTaskcore">保存</el-button></el-col>
+    <el-col :span="6"></el-col>
+    <el-col :span="6"><el-button  size="large" type="danger" @click="submitTaskcore">提交</el-button></el-col>
     
   </div>
+  </el-scrollbar>
 </div>
 </template>
 
 
 
-<style>
+<style scoped>
 .el-form{
     display: flex;
     justify-content: center; /* horizontally center */
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
 }
 .el-table{
     display: flex;
@@ -426,4 +514,11 @@ const utlsubmitStyle=ref([])
   font-size: large;
 }
 
+.rankandtips{
+  display: flex;
+  text-align: center;
+  align-items: center;
+  justify-content: center;
+}
 </style>
+

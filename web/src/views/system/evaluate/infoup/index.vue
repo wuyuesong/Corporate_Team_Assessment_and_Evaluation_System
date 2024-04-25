@@ -213,7 +213,7 @@ const ResetInfo = async() => {
                           </svg>
                         </div>
                       </template>
-                      提交员工信息
+                      确认员工信息
                       </el-button>   
                       
                       <el-button id="staffreset" type="warning" :loading="resetloading" @click="handleResetClick" size="large">

@@ -149,9 +149,9 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         task_name = request.data.get("task_name")
         task_describe = request.data.get("task_describe")
         task_start_date = request.data.get("task_start_date")
-        task_start_date = datetime.strptime(task_start_date, '%Y-%m-%dT%H:%M:%S.%fZ')
+        task_start_date = datetime.strptime(task_start_date, '%Y-%m-%d %H:%M:%S')
         task_end_date = request.data.get("task_end_date")
-        task_end_date = datetime.strptime(task_end_date, '%Y-%m-%dT%H:%M:%S.%fZ')
+        task_end_date = datetime.strptime(task_end_date, '%Y-%m-%d %H:%M:%S')
         task_create_date = datetime.now()
         Task(task_id=task_id, task_name=task_name, task_describe=task_describe, task_start_date=task_start_date, task_end_date=task_end_date, task_create_date=task_create_date, task_type=0).save()
         evaluate = request.data.get("evaluate")
@@ -171,10 +171,14 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         task_id = request.data.get("task_id")
         staff_id = request.data.get("staff_id")
         evaluated_id_list = list(EvaluateTask.objects.filter(task_id=task_id, evaluate_id=staff_id).values_list('evaluated_id', flat=True).distinct().order_by('evaluated_id'))
+        evaluated_list = EvaluateTask.objects.filter(task_id=task_id, evaluate_id=staff_id)
         evaluated_queryset = Staff.objects.filter(staff_id__in=evaluated_id_list)
         ret = []
+        score_dict = {}
+        for evaluated in evaluated_list:
+            score_dict[evaluated.evaluated_id] = evaluated.score
         for evaluated in evaluated_queryset:
-            ret.append(dict(evaluated_id=evaluated.staff_id, evaluated_name=evaluated.staff_name, evaluated_rank=evaluated.staff_rank, evaluated_department=evaluated.staff_department))
+            ret.append(dict(evaluated_id=evaluated.staff_id, evaluated_name=evaluated.staff_name, evaluated_rank=evaluated.staff_rank, evaluated_department=evaluated.staff_department, score=score_dict[evaluated.staff_id]))
 
         return DetailResponse(data=ret, msg="查询成功")
     
@@ -183,10 +187,14 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         evaluate_id = request.data.get("evaluate_id")
         task_id = request.data.get("task_id")
         scores = request.data.get("scores")
+        submit_type = request.data.get("submit_type")
         
         for score in scores:
             evaluated_id = score["evaluated_id"]
-            EvaluateTask.objects.filter(evaluate_id=evaluate_id, task_id=task_id, evaluated_id=evaluated_id).update(score=score["score"],grade_complete=1,grade_date=datetime.now())
+            if submit_type == 1:
+                EvaluateTask.objects.filter(evaluate_id=evaluate_id, task_id=task_id, evaluated_id=evaluated_id).update(score=score["score"], grade_complete=1, grade_date=datetime.now())
+            else:
+                EvaluateTask.objects.filter(evaluate_id=evaluate_id, task_id=task_id, evaluated_id=evaluated_id).update(score=score["score"], grade_date=datetime.now())
 
         return DetailResponse(data=[], msg="提交成功")
 
