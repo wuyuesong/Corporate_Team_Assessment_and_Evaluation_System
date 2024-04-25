@@ -98,6 +98,7 @@ const fetchTaskpageInfo=async()=>{
             tempTime.value.endtemptime=OTtaskcontent.value.task_end_date
             if(OTtaskcontent.value.task_done===1){
                 fetchrankresinfo()
+                fetchallevaluate()
             }
             
         } 
@@ -318,6 +319,7 @@ const fetchrankresinfo=async()=>{
                 ranktabledata.value=temp
                 itemkey.value=Math.random()
                 fetchabnorinfo()
+
                 // drawMatrixTable()
                 //initrankcharts(rankdata,rankname,rankscore)
             }
@@ -335,6 +337,40 @@ const fetchrankresinfo=async()=>{
     }
 }
 
+
+const fetchallevaluate=async()=>{
+    try {
+        const response=await request({
+                url: getBaseURL() + 'api/system/evaluate_task/get_all_evaluate/',
+                method: 'post',
+                data:{
+                   task_id:currentTask.value
+                }
+        })
+        if(response.code==2000){
+            if(response.data){
+                let temp=[]
+                let index=0
+                response.data.forEach(ele =>{
+                    map.set(ele.staff_id,index++)
+                    abnormaltemp.push({
+                            name:ele.staff_name,
+                            evaluate_id:ele.staff_id
+                        })
+                })
+            }
+        }
+    }catch(error){
+        ElMessage({
+            message: error.message,
+            type: 'error',
+        })
+    
+    }
+
+}
+let map=new Map()
+let abnormaltemp=[]
 const abnormaltabledata=ref([])
 //获取异常分数的信息
 const fetchabnorinfo=async()=>{
@@ -347,9 +383,7 @@ const fetchabnorinfo=async()=>{
                 }
         })
         if(response.code==2000){
-            let temp=[]
-            let map=new Map()
-            let index=0
+            
             if(response.data){
                 response.data.forEach(item=>{
 
@@ -358,21 +392,11 @@ const fetchabnorinfo=async()=>{
                     item.fix_value=item.fix_value.toFixed(2)
 
                     if(map.has(item.evaluate_id)){
-                        temp[map.get(item.evaluate_id)][item.evaluated_id]=item.origin_value+"/"+item.fix_value
-                    }else{
-                        map.set(item.evaluate_id,index++)
-                        temp.push({
-                            name:item.evaluate_name,
-                            evaluate_id:item.evaluate_id
-                        })
-                        temp[map.get(item.evaluate_id)][item.evaluated_id]=item.origin_value+"/"+item.fix_value
-                        
+                        abnormaltemp[map.get(item.evaluate_id)][item.evaluated_id]=item.origin_value+"/"+item.fix_value
                     }
                 })
-                console.log(temp)
-                abnormaltabledata.value=temp
-
-                //initabnomalcharts( xaxis,origindata,fixdata)
+                abnormaltabledata.value=abnormaltemp
+                abnormaltemp=[]
             }
         }
     }catch(error){
