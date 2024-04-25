@@ -1491,9 +1491,39 @@
         
     },
     {
+        "name": "部门权重问卷管理",
+        "icon": "ele-Tickets",
+        "sort": 6,
+        "is_link": false,
+        "is_catalog": true,
+        "web_path": "/departWeightManage",
+        "component": "",
+        "component_name": "",
+        "status": true,
+        "cache": false,
+        "visible": true,
+        "parent": null,
+        "children": [
+            {
+                "name": "权重问卷发布",
+                "icon": "ele-Reading",
+                "sort": 1,
+                "is_link": false,
+                "is_catalog": false,
+                "web_path": "/presentWeightQnn",
+                "component": "system/departWeightManage/presentWeightQnn/index",
+                "component_name": "presentWeightQnn",
+                "status": true,
+                "cache": false,
+                "visible": true,
+                "children": []
+            }
+        ]
+    },
+    {
         "name": "评测任务管理",
         "icon": "ele-SetUp",
-        "sort": 6,
+        "sort": 7,
         "is_link": false,
         "is_catalog": true,
         "web_path": "/Taskmanage",
