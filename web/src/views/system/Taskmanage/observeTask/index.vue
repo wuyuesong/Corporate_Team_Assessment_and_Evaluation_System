@@ -6,6 +6,8 @@ import { request } from '/@/utils/service';
 import { getBaseURL } from '/@/utils/baseUrl';
 import type { Action } from 'element-plus'
 import {Edit, Refresh} from '@element-plus/icons-vue'
+import { copyFileSync, writeFile, writeFileSync } from 'fs';
+import { utils, write } from 'xlsx';
 import * as echarts from 'echarts';
 import { maxBy } from 'lodash';
 
@@ -303,6 +305,9 @@ const fetchrankresinfo=async()=>{
             if(response.data){
                 let temp=[]
                 response.data.forEach(ele =>{
+
+                    //保留ele.evaluated_score两位小数四舍五入
+                    ele.evaluated_score=ele.evaluated_score.toFixed(2)
                     temp.push({
                         rank:ele.evaluated_rank,
                         name:ele.evaluated_name,
@@ -347,6 +352,11 @@ const fetchabnorinfo=async()=>{
             let index=0
             if(response.data){
                 response.data.forEach(item=>{
+
+                    //保留两位
+                    item.origin_value=item.origin_value.toFixed(2)
+                    item.fix_value=item.fix_value.toFixed(2)
+
                     if(map.has(item.evaluate_id)){
                         temp[map.get(item.evaluate_id)][item.evaluated_id]=item.origin_value+"/"+item.fix_value
                     }else{
@@ -567,6 +577,46 @@ const openresetRES=()=>{
       })
 }
 
+
+//具体详情
+const indexundo=(title)=>{
+    ElMessageBox.alert('<strong style="font-size: 16px;">'+departmentMap.get(title).map(item=>item.staff_name+' --- '+item.staff_firm_id).join('</br>')+'</strong>',
+    title, {
+        confirmButtonText: 'OK',
+        dangerouslyUseHTMLString: true,
+        callback: (action: Action) => {
+        if(action==='confirm'){
+            }
+        },
+    })
+
+}
+
+//导出EXCEL
+const exportExcel=()=>{
+
+    //列名
+    const title=[OTtaskcontent.value.task_name]
+    const headers = ['排名', '姓名','分数','编号'];
+    const dataWithHeaders = [title,headers, ...ranktabledata.value.map(item => Object.values(item))];
+    const ws = utils.aoa_to_sheet(dataWithHeaders);
+    const wb = utils.book_new();
+    utils.book_append_sheet(wb, ws, 'Sheet1');
+
+    // 创建 Blob 对象
+    const blob = new Blob([write(wb, { bookType: 'xlsx', type: 'array' })], { type: 'application/octet-stream' });
+
+    
+    // 创建下载链接
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'output.xlsx';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+}
+
 </script>
 
 <template>
@@ -680,8 +730,8 @@ const openresetRES=()=>{
                                         <p>/{{  OTtaskcontent.staff_count}}</p>
                                     </template>
                                     <template #default>
-                                        <div v-for="item in departmentMap" >
-                                            {{ item[0]}} 还剩 {{item[1].length}}个人尚未完成
+                                        <div v-for="item in departmentMap"  >
+                                            <p class="font-sans text-sky-400/100 text-wrap text-xl hover:text-indigo-800 cursor-pointer ..." @click="indexundo(item[0])">{{ item[0]}} 还剩 {{item[1].length}}个人尚未完成</p>
                                         </div>
                                     </template>
                                 </el-popover>
@@ -719,12 +769,15 @@ const openresetRES=()=>{
                                 <el-table-column prop="score" label="分数"  width="240px" />
                             </el-table>
                         </div>
+                        <el-button size="large" style="font-size: large; font-weight: bold; border-width: 2px;"  @click="exportExcel">
+                            导出excel
+                        </el-button>
                     </el-collapse-item>
                     <el-collapse-item title="详细信息-异常数据" name="2">
                         <div class="chartzone">
                         
                             <el-table :data="abnormaltabledata" border style="width: 1200px; height: 500px;" height="500">
-                                <el-table-column fixed prop="name" label="" width="200px">
+                                <el-table-column fixed prop="name" label="" width="180px">
                                     <template #header>
                                         <div class="group-bias-divide">
                                             <div class="top">被评价人</div>
@@ -934,7 +987,7 @@ const openresetRES=()=>{
         top: auto !important;
         left: auto !important;
         bottom: 0 !important;
-        right: 0 !important;
+        right: 5px !important;
         background-color: #d6d6d6;
         display: block;
         transform: rotate(289deg);
