@@ -1511,7 +1511,7 @@
                 "is_link": false,
                 "is_catalog": false,
                 "web_path": "/presentWeightQnn",
-                "component": "system/departWeightManage/presentWeightQnn/index",
+                "component": "system/departWeighManage/presentWeightQnn/index",
                 "component_name": "presentWeightQnn",
                 "status": true,
                 "cache": false,
