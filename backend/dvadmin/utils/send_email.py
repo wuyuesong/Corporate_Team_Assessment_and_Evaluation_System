@@ -22,10 +22,6 @@ def send_email(task_name, task_description, to_addrs):
     fromNamestr = '"=?utf-8?B?' + fromName64str + '=?=" <' + EMAIL_SENDER + ">"
 
 
-    # 邮件头信息
-    msg['From'] = Header(fromNamestr)  # 发送者
-    subject = '考评任务' # 主题
-    msg['Subject'] = Header(subject, 'utf-8')  # 邮件主题
     smtpobj = smtplib.SMTP_SSL(SMTP_SERVER)  # 创建对象
 
     try:
@@ -42,6 +38,9 @@ def send_email(task_name, task_description, to_addrs):
                     账号：    {to_addr["username"]} \n
                     密码：    {to_addr["password"]} \n
                     ''', 'plain', 'utf-8')
+            msg['From'] = Header(fromNamestr)  # 发送者
+            subject = '考评任务' # 主题
+            msg['Subject'] = Header(subject, 'utf-8')  # 邮件主题
             msg['To'] = Header(to_addr["staff_name"])  # 接收者
             smtpobj.sendmail(EMAIL_SENDER, to_addr["addr"] , msg.as_string())
         print("邮件发送成功")

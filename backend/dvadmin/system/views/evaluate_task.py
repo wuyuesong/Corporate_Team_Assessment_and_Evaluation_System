@@ -167,7 +167,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         # time2 = time.time()
         # print("生成任务耗时：", time2 - time1)
         if task_type == 1:
-            send_email(task_id)
+            self.send_email(task_id)
 
         return DetailResponse(data=dict(task_id=task_id), msg="创建成功")
 
@@ -360,7 +360,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
             to_addrs.append({
                 "staff_name":staff_info.staff_name,
                 "addr":staff_info.staff_email,
-                "usrname": staff_info.username,
+                "username": staff_info.username,
                 "password": staff_info.password
             })
 

@@ -6,6 +6,7 @@ import { request } from '/@/utils/service';
 import { getBaseURL } from '/@/utils/baseUrl';
 import Header from '../component/header.vue'
 import CardItem from '../component/CardItem.vue'
+import QnnItem from '../component/QnnItem.vue'
 import { NextLoading } from '/@/utils/loading';
 import { ElMessageBox , ElMessage} from 'element-plus';
 import Cookies from 'js-cookie';
@@ -15,14 +16,48 @@ const loading = ref(true); // 标记是否正在加载用户信息
 
 // 创建一个响应式的 Tasks 数组 数组为空
 const Tasks = ref([]);
-
+const WeightQnn=ref([{
+  title: '部门权重问卷',
+  task_id: '111111',
+  discribe: '111',
+  complete_status: 0
+}]);
 
 // 页面加载时
 onMounted(() => {
   NextLoading.done();
 	fetchTaskInfo();
-
+  // fetchWeightQnn()
 });
+
+// const fetchWeightQnn=async()=>{
+//   try {
+//         // 发送请求并获取数据
+//         const response = await request({
+//           url: getBaseURL() + 'api/system/weight_qnn/weight_qnn_list/',
+//           method: 'post',
+//           data:{
+//             staff_id:Cookies.get('staff_id')
+//           }
+//         })
+//         const data = await response.data;
+//         if(response.code===2000){
+//             WeightQnn.value=data
+//         }else{
+//           ElMessage({
+//             showClose: true,
+//             message: response.msg,
+//             type: 'error',
+//             })
+//         }
+//     } catch (error) {
+//         ElMessage({
+//         showClose: true,
+//         message: "获取权重问卷失败",
+//         type: 'error',
+//         })
+//     }
+// }
 
 
 const fetchTaskInfo = async() => {
@@ -48,7 +83,7 @@ const fetchTaskInfo = async() => {
     } catch (error) {
         ElMessage({
         showClose: true,
-        message: error.msg,
+        message: "获取任务信息失败",
         type: 'error',
         })
     }
@@ -68,6 +103,9 @@ const fetchTaskInfo = async() => {
       <el-main class="no-padding-main">
         <div class="container">
           <div class="mainpage">
+            <div class="cardpage" v-for=" (qnn,index) in WeightQnn" :key="index">
+                <QnnItem :title="qnn.title"   :task_id="11111111" :discribe="111" :complete_status=0></QnnItem>
+            </div>
             <div class="cardpage" v-for=" (task,index) in Tasks" :key="index">
                 <CardItem :title="task.task_name" :Btime="task.task_start_date" :Etime="task.task_end_date" :task_id="task.task_id" :discribe="task.task_describe" :complete_status="task.complete_status"/>
             </div>
