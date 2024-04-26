@@ -19,6 +19,7 @@ from dvadmin.utils.serializers import CustomModelSerializer
 from dvadmin.utils.validator import CustomUniqueValidator
 from dvadmin.utils.viewset import CustomModelViewSet
 from dvadmin.utils.calc import calc_score
+from dvadmin.utils.send_email import send_email
 import numpy as np
 
 
@@ -341,6 +342,29 @@ class EvaluateTaskViewSet(CustomModelViewSet):
             })
 
         return DetailResponse(data=ret, msg="获取成功")
+    
+
+    @action(methods=['post'], detail=False, permission_classes=[])
+    def send_email(self, request: Request):
+
+        task_id = request.data.get("task_id")
+        task_info = Task.objects.get(task_id=task_id)
+        all_evaluate_id = list(EvaluateTask.objects.filter(task_id=task_id).values_list('evaluate_id', flat=True).distinct().order_by('evaluate_id'))
+        staff_infos = Staff.objects.filter(staff_id__in=all_evaluate_id)
+
+        to_addrs = []
+        ret = []
+        for staff_info in staff_infos:
+            to_addrs.append({
+                "staff_name":staff_info.staff_name,
+                "addr":staff_info.staff_email,
+                "usrname": staff_info.username,
+                "password": staff_info.password
+            })
+
+        send_email(task_name=task_info.task_name, task_description=task_info.task_describe, to_addrs=to_addrs)
+
+        return DetailResponse(data=[], msg="发送成功")
         
 
 
