@@ -56,7 +56,8 @@ const fetchAllTaskList=async()=>{
                 method: 'get',
         })
         if(response.code==2000){
-           OTtasklist.value=response.data
+            //去掉task_type=0的
+           OTtasklist.value=response.data.filter(item => item.task_type !== 1)
         } 
     } catch (error) {
        

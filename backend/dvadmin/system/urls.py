@@ -23,6 +23,7 @@ from dvadmin.system.views.rank import RankViewSet
 from dvadmin.system.views.department import DepartmentViewSet
 from dvadmin.system.views.evaluate_task import EvaluateTaskViewSet
 from dvadmin.system.views.task import TaskViewSet
+from dvadmin.system.views.weight_task import WeightTaskViewSet
 
 system_url = routers.SimpleRouter()
 system_url.register(r'menu', MenuViewSet)
@@ -47,6 +48,7 @@ system_url.register(r'rank', RankViewSet)
 system_url.register(r'department', DepartmentViewSet)
 system_url.register(r'evaluate_task', EvaluateTaskViewSet)
 system_url.register(r'task', TaskViewSet)
+system_url.register(r'weight_task', WeightTaskViewSet)
 
 
 

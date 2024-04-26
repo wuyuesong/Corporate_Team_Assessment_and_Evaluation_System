@@ -1,16 +1,38 @@
 <script setup lang="ts">
-import {Cpu } from '@element-plus/icons-vue'
-
+import { ElMessageBox , ElMessage} from 'element-plus';
+import { request } from '/@/utils/service';
+import { getBaseURL } from '/@/utils/baseUrl';
 import { ref } from 'vue'
 const presenting =ref(true)
 
 
-const presentWeightQnn=()=>{
-    presenting.value=false
-    setTimeout(() => {
-        presenting.value=true
-    }, 2000);
-
+const presentWeightQnn=async()=>{
+    try {
+        const response=await request({
+            url: getBaseURL() +'api/system/weight_task/evaluate_task_create/',
+            method: 'post',
+            data:{
+                task_name:"部门权重问卷",
+                task_describe:"部门权重问卷"
+            }
+        })
+        const data = await response.data;
+        if(response.code===2000){
+            ElMessage({
+                showClose: true,
+                message: "发布成功",
+                type: 'success',
+            })
+        }else{
+            ElMessage({
+                showClose: true,
+                message: response.msg,
+                type: 'error',
+            })
+        }
+    } catch (error) {
+        
+    }
 }
 </script>
 <template>
@@ -25,6 +47,11 @@ const presentWeightQnn=()=>{
                     <button type="button" class=" rounded-lg bg-teal-700 box-content h-16 w-40 " v-if="!presenting" >
                         <p class="font-sans text-xl tracking-wide font-bold ..." >发布中。。。</p>
                     </button>
+                </div>
+            </el-col>
+            <el-col :span="20">
+                <div class="MatrixRes">
+                    
                 </div>
             </el-col>
 

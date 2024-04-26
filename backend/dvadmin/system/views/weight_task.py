@@ -38,13 +38,13 @@ class WeightTaskViewSet(CustomModelViewSet):
         department_all = Department.objects.all()
         department_list = []
         for department in department_all:
-            if department.staff_department.startswith("B"):
+            if department.normal_department.startswith("B"):
                 department_list.append(department.staff_department)
 
         for staff in staff_all:
             normal_department = Department.objects.get(staff_department=staff.staff_department).normal_department
-            normal_rank = Rank.objects.get(staff_department=staff.staff_department, staff_rank=staff.staff_rank)
-            if normal_department.startswith("B") and normal_rank=='1':
+            normal_rank = Rank.objects.get(staff_department=staff.staff_department, staff_rank=staff.staff_rank).normal_rank
+            if normal_department.startswith("B") and int(normal_rank)==1:
                 for department in department_list:
                     WeightTask(task_id=task_id, staff_id=staff.staff_id, evaluate_department=staff.staff_department, evaluated_department=department, weight_complete=0).save()
 

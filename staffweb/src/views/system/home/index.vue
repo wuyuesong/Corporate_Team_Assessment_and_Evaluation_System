@@ -72,7 +72,7 @@ const fetchTaskInfo = async() => {
         })
         const data = await response.data;
         if(response.code===2000){
-            Tasks.value=data
+            Tasks.value=data.filter(item => item.task_type !== 1)
         }else{
           ElMessage({
             showClose: true,

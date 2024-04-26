@@ -55,8 +55,9 @@ const handleClose = (done: () => void) => {
     <el-dialog
         v-model="dialogVisible"
         title="打分表"
-        width="1500"
-        :before-close="handleClose">
+        width="1000"
+        :before-close="handleClose"
+        top="0vh">
         <div>
             <cardform :task_id="task_id" :title="title" :discribe="discribe"></cardform>
         </div>
