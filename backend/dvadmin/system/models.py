@@ -729,6 +729,30 @@ class EvaluateTask(CoreModel):
         verbose_name_plural = verbose_name
         ordering = ("create_datetime",)
 
+class WeightTask(CoreModel):
+    task_id = models.CharField(max_length=255, verbose_name="任务id", null=False, blank=False, help_text="任务id",default="")
+    staff_id = models.CharField(max_length=255, verbose_name="评价人系统id", null=False, blank=False, help_text="评价人系统id",default="")
+    evaluate_department = models.CharField(max_length=255, verbose_name="评价人部门", null=False, blank=False, help_text="评价人部门",default="")
+    evaluated_department = models.CharField(max_length=255, verbose_name="被评价部门", null=False, blank=False, help_text="被评价部门",default="")
+    weight = models.FloatField(verbose_name="权重", null=False, blank=False, help_text="权重",default=0.0)
+
+    COMPLETE_CHOICES = (
+        (0, "未完成"),
+        (1, "完成")
+    )
+    
+    weight_complete = models.IntegerField(
+        choices=COMPLETE_CHOICES, default=0, verbose_name="完成情况", null=True, blank=True, help_text="完成情况"
+    )
+
+
+    class Meta:
+        db_table = table_prefix + "system_weight_task"
+        verbose_name = "权重任务表"
+        verbose_name_plural = verbose_name
+        ordering = ("create_datetime",)
+
+
 class Task(CoreModel):
     task_id = models.CharField(max_length=255, verbose_name="任务id", null=False, blank=False, help_text="任务id",default="")
     task_name = models.CharField(max_length=255, verbose_name="评价任务名称", null=False, blank=False, help_text="评价任务名称",default="")
