@@ -9,7 +9,7 @@ import base64
 from conf.env import *
  
 
-def send_email(task_name, task_description, username, password, to_addrs):
+def send_email(task_name, task_description, to_addrs):
     # 邮箱正文内容，第一个参数为内容，第二个参数为格式(plain 为纯文本)，第三个参数为编码
     
 
