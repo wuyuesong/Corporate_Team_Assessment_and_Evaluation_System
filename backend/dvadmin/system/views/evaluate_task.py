@@ -147,6 +147,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
 
     def evaluate_task_create(self, request: Request):
         task_id = uuid.uuid4()
+        task_type = request.data.get("task_type")
         task_name = request.data.get("task_name")
         task_describe = request.data.get("task_describe")
         task_start_date = request.data.get("task_start_date")
@@ -165,6 +166,9 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         EvaluateTask.objects.bulk_create(tmp_list)
         # time2 = time.time()
         # print("生成任务耗时：", time2 - time1)
+        if task_type == 1:
+            send_email(task_id)
+
         return DetailResponse(data=dict(task_id=task_id), msg="创建成功")
 
     @action(methods=['POST'], detail=False, permission_classes=[])
@@ -344,10 +348,8 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         return DetailResponse(data=ret, msg="获取成功")
     
 
-    @action(methods=['post'], detail=False, permission_classes=[])
-    def send_email(self, request: Request):
+    def send_email(self, task_id):
 
-        task_id = request.data.get("task_id")
         task_info = Task.objects.get(task_id=task_id)
         all_evaluate_id = list(EvaluateTask.objects.filter(task_id=task_id).values_list('evaluate_id', flat=True).distinct().order_by('evaluate_id'))
         staff_infos = Staff.objects.filter(staff_id__in=all_evaluate_id)
@@ -363,8 +365,6 @@ class EvaluateTaskViewSet(CustomModelViewSet):
             })
 
         send_email(task_name=task_info.task_name, task_description=task_info.task_describe, to_addrs=to_addrs)
-
-        return DetailResponse(data=[], msg="发送成功")
         
 
 
