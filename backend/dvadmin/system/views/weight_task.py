@@ -90,7 +90,28 @@ class WeightTaskViewSet(CustomModelViewSet):
     
     @action(methods=['GET'], detail=False, permission_classes=[])
     def weight_task_status(self, request: Request):
-        Task.objects.filter()
+        weight_task_count = Task.objects.filter(task_type=1).count()
+        if weight_task_count == 0:
+            return DetailResponse(data=dict(task_status=-1), msg="获取成功")
+        else:
+            weight_task_done = Task.objects.get(task_type=1).task_done
+            if weight_task_done == 0:
+                department_all = Department.objects.all()
+                department_list = []
+                for department in department_all:
+                    if department.normal_department.startswith("B"):
+                        department_list.append(department.staff_department)
+                
+                ret = []
+                for department in department_list:
+                    completed = WeightTask.objects.filter(evaluate_department=department).first().weight_complete
+                    ret.append(dict(department=department,completed=completed))
+                
+                return DetailResponse(data=dict(task_status=0, completed_list=ret), msg="获取成功")
+
+            else:
+                return DetailResponse(data=dict(task_status=1), msg="获取成功")
+
     
     
     
