@@ -398,6 +398,8 @@ class EvaluateTaskViewSet(CustomModelViewSet):
 
         sorted_data = data[idex, :]
          
+        ws.append([])
+
         for index, data in enumerate(sorted_data):
             if index == 0:
                 ws.append(data)
