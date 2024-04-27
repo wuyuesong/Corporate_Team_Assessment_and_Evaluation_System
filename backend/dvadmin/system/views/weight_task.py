@@ -50,6 +50,22 @@ class WeightTaskViewSet(CustomModelViewSet):
 
 
         return DetailResponse(data=dict(task_id=task_id), msg="创建成功")
+    
+
+    @action(methods=['POST'], detail=False, permission_classes=[])
+    def evaluate_task_info(self, request: Request):
+        task_id = request.data.get("task_id")
+        staff_id = request.data.get("staff_id")
+        evaluate = Staff.objects.get(staff_id=staff_id)
+        department = evaluate.staff_department
+        tasks = WeightTask.objects.filter(staff_id=staff_id, task_id=task_id)
+
+        ret = []
+        for task in tasks:
+            if department != task.evaluated_department:
+                ret.append(dict(evaluated_department=task.evaluated_department,weight=task.weight))
+        
+        return DetailResponse(data=ret, msg="获取成功")
 
         
 
