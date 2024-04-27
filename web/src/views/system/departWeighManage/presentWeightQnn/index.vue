@@ -9,7 +9,7 @@ const presenting =ref(true)
 const presentWeightQnn=async()=>{
     try {
         const response=await request({
-            url: getBaseURL() +'api/system/weight_task/evaluate_task_create/',
+            url: getBaseURL() +'api/system/weight_task/weight_task_create/',
             method: 'post',
             data:{
                 task_name:"部门权重问卷",

@@ -288,7 +288,8 @@ const utlsubmitStyle=ref([])
           data:{
             evaluate_id:Cookies.get('staff_id'),
             task_id:props.task_id,
-            scores:utlsubmitStyle.value
+            scores:utlsubmitStyle.value,
+            submit_type:1,
           }
         })
         const data = await response.data;
