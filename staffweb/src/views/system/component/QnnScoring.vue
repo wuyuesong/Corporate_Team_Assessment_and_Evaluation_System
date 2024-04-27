@@ -15,7 +15,7 @@ onMounted(() => {
     fetchquestionList()
 })
 const items=ref([])
-
+const subscoreloading=ref(false)
 const fetchquestionList=async()=>{
     try {
         const response=await request({
@@ -78,6 +78,77 @@ const QNNsave=async()=>{
   }
 }
 
+const QNNsubmit=()=>{
+  ElMessageBox.confirm(
+    '是否确认提交?',
+    'Warning',
+    {
+      confirmButtonText: 'OK',
+      cancelButtonText: 'Cancel',
+      type: 'warning',
+    }
+    )
+    .then(async() => {
+      subscoreloading.value=true;
+      try {
+        let saveweights: { evaluated_department: any; weight: any; }[] = []
+        items.value.forEach((item)=>{
+            saveweights.push({
+                evaluated_department:item.evaluated_department,
+                weight:item.weight
+            })
+        })
+        const response = await request({
+          url: getBaseURL() + 'api/system/weight_task/submit_weight_task/',
+          method: 'post',
+          data:{
+            staff_id:Cookies.get('staff_id'),
+            task_id:props.task_id,
+            weights:saveweights,
+            submit_type:1,
+          }
+        })
+        const data = await response.data;
+        if(response.code===2000){
+          subscoreloading.value=false;
+          ElMessageBox.alert('Success', '成功提交', {
+            confirmButtonText: 'OK',
+            callback: (action: Action) => {
+              location.reload()
+            },
+          })
+        }else{
+          ElMessage({
+          type: 'error',
+          message: response.msg,
+          })
+          subscoreloading.value=false;
+        }
+
+        
+      } catch (error) {
+        ElMessage({
+        type: 'error',
+        message: "提交错误",
+        })
+        subscoreloading.value=false;
+      }
+      
+
+
+
+      
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'info',
+        message: 'Submit canceled',
+      })
+    })
+}
+
+
+
 
 //percentage等于items的总分数
 
@@ -112,7 +183,7 @@ const props = defineProps({
 
 <template>
 
-    <div>
+    <div v-loading="subscoreloading">
         <!-- 问卷头（保持不动） -->
         <div class="qnnhead">
             <p class="text-3xl tracking-widest text-blue-500 ...">{{ title }}</p>

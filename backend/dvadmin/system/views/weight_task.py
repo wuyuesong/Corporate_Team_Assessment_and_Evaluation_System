@@ -78,12 +78,10 @@ class WeightTaskViewSet(CustomModelViewSet):
         
         for weight in weights:
             evaluated_department = weight["evaluated_department"]
-            if submit_type == 1:
-                WeightTask.objects.filter(staff_id=staff_id, task_id=task_id, evaluated_department=evaluated_department).update(weight=weight["weight"], weight_complete=1)
-            else:
-                WeightTask.objects.filter(staff_id=staff_id, task_id=task_id, evaluated_department=evaluated_department).update(weight=weight["weight"])
+            WeightTask.objects.filter(staff_id=staff_id, task_id=task_id, evaluated_department=evaluated_department).update(weight=weight["weight"])
             
         if submit_type == 1:
+            WeightTask.objects.filter(staff_id=staff_id, task_id=task_id).update(weight_complete=1)
             return DetailResponse(data=[], msg="提交成功")
         else:  
             return DetailResponse(data=[], msg="保存成功")
