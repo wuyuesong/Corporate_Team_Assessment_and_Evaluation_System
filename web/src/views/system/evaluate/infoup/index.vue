@@ -241,7 +241,9 @@ const random_inform=async()=>{
                             <b>组织人员信息</b>
                     </div>
                     <fs-crud ref="crudRef" v-bind="crudBinding" > </fs-crud>
-                    <div style="padding: 10px;">
+                    <div style="padding: 10px; display: flex;">
+        
+                      <el-col :span="20">
                       <el-button id="staffsubmit" type="danger" :loading="subloading" @click="handleSubmmitClick" size="large">
                       <template #loading>
                         <div class="custom-loading">
@@ -285,8 +287,8 @@ const random_inform=async()=>{
                       </template>
                       重置
                       </el-button>  
-
-                      <el-button  @click="email_inform" size="large" type="danger" >邮件通知</el-button>
+                      </el-col>
+                      <el-button style="padding-left: 40px;"  @click="email_inform" size="large" type="danger" >邮件通知</el-button>
                       <el-button  @click="random_inform" size="large" type="danger" >随机抽取</el-button>
                       
 
