@@ -9,7 +9,7 @@ import base64
 from conf.env import *
  
 
-def send_email(task_name, task_description, to_addrs):
+def send_email(to_addrs):
     # 邮箱正文内容，第一个参数为内容，第二个参数为格式(plain 为纯文本)，第三个参数为编码
     
 
@@ -32,8 +32,6 @@ def send_email(task_name, task_description, to_addrs):
         # 发送邮件
         for to_addr in to_addrs:
             msg = MIMEText(f'''您的公司邀请您参加考评任务\n 
-                    任务名称：{task_name}\n
-                    任务描述：{task_description}\n
                     以下是您的账号和密码：\n
                     账号：    {to_addr["username"]} \n
                     密码：    {to_addr["password"]} \n
