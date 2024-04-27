@@ -9,7 +9,7 @@ from rest_framework.request import Request
 from django.db import connection
 from django.db.models import Q
 from application import dispatch
-from dvadmin.system.models import Users, Role, Dept, Department, Task, EvaluateTask
+from dvadmin.system.models import Users, Role, Dept, Department, Task, EvaluateTask, WeightTask
 from dvadmin.system.views.role import RoleSerializer
 from dvadmin.utils.json_response import ErrorResponse, DetailResponse, SuccessResponse
 from dvadmin.utils.serializers import CustomModelSerializer
@@ -150,20 +150,33 @@ class TaskViewSet(CustomModelViewSet):
         user = request.user
         print(user.staff_id)
         cur_evaluate_task_id = list(EvaluateTask.objects.filter(evaluate_id=staff_id).values_list('task_id', flat=True).distinct().order_by('task_id'))
+        cur_weight_task_id = list(WeightTask.objects.filter(evaluate_id=staff_id).values_list('task_id', flat=True).distinct().order_by('task_id'))
+
         task_info = Task.objects.filter(task_id__in=cur_evaluate_task_id)
         ret=[]
         for task in task_info:
-            complete_status = EvaluateTask.objects.filter(task_id=task.task_id, evaluate_id=staff_id).first().grade_complete
-            ret.append({
-                "task_id":task.task_id,
-                "task_name":task.task_name,
-                "task_describe":task.task_describe,
-                "task_start_date":task.task_start_date,
-                "task_end_date":task.task_end_date,
-                "task_create_date":task.task_create_date,
-                "task_type":task.task_type,
-                "complete_status":complete_status
-            })
+            if task.task_type == 0:
+                complete_status = EvaluateTask.objects.filter(task_id=task.task_id, evaluate_id=staff_id).first().grade_complete
+                ret.append({
+                    "task_id":task.task_id,
+                    "task_name":task.task_name,
+                    "task_describe":task.task_describe,
+                    "task_start_date":task.task_start_date,
+                    "task_end_date":task.task_end_date,
+                    "task_create_date":task.task_create_date,
+                    "task_type":task.task_type,
+                    "complete_status":complete_status
+                })
+            elif task.task_type == 1:
+                complete_status = WeightTask.objects.filter(task_id=task.task_id, evaluate_id=staff_id).first().grade_complete
+                ret.append({
+                    "task_id":task.task_id,
+                    "task_name":task.task_name,
+                    "task_describe":task.task_describe,
+                    "task_create_date":task.task_create_date,
+                    "task_type":task.task_type,
+                    "complete_status":complete_status
+                })
 
         return DetailResponse(data=ret, msg="获取成功")        
     
