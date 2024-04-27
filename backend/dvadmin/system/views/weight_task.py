@@ -114,7 +114,61 @@ class WeightTaskViewSet(CustomModelViewSet):
 
             else:
                 return DetailResponse(data=dict(task_status=1), msg="获取成功")
-            
+
+    @action(methods=['GET'], detail=False, permission_classes=[])
+    def get_weight_matrix(self, request: Request):
+        department_all = Department.objects.all()
+        department_list = []
+        for department in department_all:
+            if department.normal_department.startswith("B"):
+                department_list.append(department.staff_department)
+
+        ret = {}
+        for department in department_list:
+            ret[department] = {}
+
+        weight_task_all = WeightTask.objects.all()
+
+        for weight_task in weight_task_all:
+            ret[weight_task.evaluate_department][weight_task.evaluated_department] = weight_task.weight
+
+        return DetailResponse(data=ret, msg="获取成功")
+    
+    @action(methods=['GET'], detail=False, permission_classes=[])
+    def reset_weight_task(self, request: Request):
+        Task.objects.filter(task_type=1).delete()
+        WeightTask.objects.all().delete()
+
+        return DetailResponse(data=[], msg="删除成功")
+    
+    # @action(methods=['GET'], detail=False, permission_classes=[])
+    # def weight_task_status(self, request: Request):
+    #     task_id = Task.objects.get(task_type=1).task_id
+    #     all_evaluate = list(WeightTask.objects.filter(task_id=task_id).values_list('evaluate_department', flat=True).distinct().order_by('evaluate_department'))
+    #     all_evaluated = list(WeightTask.objects.filter(task_id=task_id).values_list('evaluated_department', flat=True).distinct().order_by('evaluated_department'))
+
+    #     map_evaluate = {}
+    #     map_evaluated = {}
+    #     for index, evaluate_id in enumerate(all_evaluate):
+    #         map_evaluate[evaluate_id] = index
+        
+    #     for index, evaluated_id in enumerate(all_evaluated):
+    #         map_evaluated[evaluated_id] = index
+
+    #     weights = np.zeros((len(all_evaluate), len(all_evaluated)))
+
+    #     task_all = WeightTask.objects.all()
+    #     for task in task_all:
+    #         i = map_evaluate[task.evaluate_id]
+    #         j = map_evaluated[task.evaluated_id]
+    #         weights[i, j] = task.weight
+
+    #     ret_weights = calc_relation(task.weight)
+
+    #     for evaluate in all_evaluate：
+    #         for 
+                
+
     
      
 
