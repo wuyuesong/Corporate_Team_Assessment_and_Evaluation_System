@@ -77,13 +77,11 @@ const handleClose = (done: () => void) => {
             </div>
             <div style="width: 500px;"></div>
             
-            <div>
-                <p class="cardwarn">不在时间范围内</p>
-            </div>
+    
             
         </div>
     </el-card>
-    <el-card  class="card-outtime" shadow="always"  v-if="cardstate&&complete_status=='1'" >
+    <el-card  class="card-already" shadow="always"  v-if="cardstate&&complete_status=='1'" >
         <template #header>
             <div class="card-header">
                 <h2 class="Title">{{title}}</h2>
@@ -95,11 +93,6 @@ const handleClose = (done: () => void) => {
                 <p>结束时间: {{ Etime?.replace('T','-') }}</p>
             </div>
             <div style="width: 500px;"></div>
-            
-            <div>
-                <p class="cardwarn">已完成</p>
-            </div>
-            
         </div>
     </el-card>
     <el-dialog
@@ -148,8 +141,58 @@ const handleClose = (done: () => void) => {
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     border-radius: 20px; 
     height: 160px;
+    position: relative;
+}
+.card-outtime::after {
+    content: "不在时间范围内";
+    position: absolute;
+    top: 10%;
+    left: 60%;
+    color: red;  /* 设置文字颜色 */
+    font-size: 1.4em;  /* 设置文字大小 */
+    font-weight: bold;
+    text-align: center;  /* 让文字居中显示 */
+    border: 4px solid red;  /* 添加这一行，创建一个红色的边框 */
+    border-radius: 50%;  /* 添加这一行，使得边框成为圆形 */
+    width: 130px;  /* 设置伪元素的宽度，这将决定圆形边框的大小 */
+    height: 130px;  /* 设置伪元素的高度，这将决定圆形边框的大小 */
+    line-height: 120px;  /* 使得文字垂直居中，这个值应该和 .card-outtime 的 height 属性值相同 */
+    opacity: 0.6;
+    z-index: 1;
 }
 
+
+.card-already{
+    padding: 10px;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    margin-left: 50px;
+    margin-right: 50px;
+    
+    background-image: linear-gradient(rgba(210, 209, 209, 0.6), rgba(210, 209, 209, 0.6)),
+                    url('../../../assets/cardbg.jpg');
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 20px; 
+    height: 160px;
+    position: relative;
+}
+.card-already::after {
+    content: "已完成";
+    position: absolute;
+    top: 10%;
+    left: 60%;
+    color: rgb(2, 167, 150);  /* 设置文字颜色 */
+    font-size: 2em;  /* 设置文字大小 */
+    font-weight: bold;
+    text-align: center;  /* 让文字居中显示 */
+    border: 4px solid rgb(2, 167, 150);  /* 添加这一行，创建一个红色的边框 */
+    border-radius: 50%;  /* 添加这一行，使得边框成为圆形 */
+    width: 130px;  /* 设置伪元素的宽度，这将决定圆形边框的大小 */
+    height: 130px;  /* 设置伪元素的高度，这将决定圆形边框的大小 */
+    line-height: 120px;  /* 使得文字垂直居中，这个值应该和 .card-outtime 的 height 属性值相同 */
+    opacity: 0.6;
+    z-index: 1;
+}
 
 .card-item:hover {
     background-image: linear-gradient(rgba(195, 195, 195, 0.4), rgba(195, 195, 195, 0.4)),

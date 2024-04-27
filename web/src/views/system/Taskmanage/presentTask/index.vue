@@ -461,8 +461,7 @@ const transfertoevaluate=()=>{
             </div>
 
             <div class="SubmitTaskButton" style="margin-top: 100px;">
-                <el-button class="evaTaskPresent_relname" :disabled="taskpresentbutton" @click="TaskPreSubmit(1)" size="large" type="danger" >发布任务(邮件通知)</el-button>
-                <el-button  class="evaTaskPresent" :disabled="taskpresentbutton" @click="TaskPreSubmit(0)" size="large" type="danger">发布任务(匿名通知)</el-button>
+                <el-button class="evaTaskPresent_relname" :disabled="taskpresentbutton" @click="TaskPreSubmit(0)" size="large" type="danger" >发布任务</el-button>
             </div>
             
         </div>
@@ -722,6 +721,11 @@ const transfertoevaluate=()=>{
 }
 .ml-2{
     margin-right: 20px;
+}
+
+
+.evaTaskPresent_relname {
+    width: 200px;  
 }
 
 </style>
