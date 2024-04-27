@@ -28,7 +28,7 @@ class WeightTaskViewSet(CustomModelViewSet):
     queryset = WeightTask.objects.all()
 
     @action(methods=['POST'], detail=False, permission_classes=[])
-    def evaluate_task_create(self, request: Request):
+    def weight_task_create(self, request: Request):
         task_id = uuid.uuid4()
         task_name = request.data.get("task_name")
         task_describe = request.data.get("task_describe")
@@ -53,7 +53,7 @@ class WeightTaskViewSet(CustomModelViewSet):
     
 
     @action(methods=['POST'], detail=False, permission_classes=[])
-    def evaluate_task_info(self, request: Request):
+    def weight_task_info(self, request: Request):
         task_id = request.data.get("task_id")
         staff_id = request.data.get("staff_id")
         evaluate = Staff.objects.get(staff_id=staff_id)
@@ -66,6 +66,27 @@ class WeightTaskViewSet(CustomModelViewSet):
                 ret.append(dict(evaluated_department=task.evaluated_department,weight=task.weight))
         
         return DetailResponse(data=ret, msg="获取成功")
+    
+
+
+    @action(methods=['POST'], detail=False, permission_classes=[])
+    def submit_weight_task(self, request: Request):
+        staff_id = request.data.get("staff_id")
+        task_id = request.data.get("task_id")
+        scores = request.data.get("scores")
+        submit_type = request.data.get("submit_type")
+        
+        for score in scores:
+            evaluated_department = score["evaluated_department"]
+            if submit_type == 1:
+                EvaluateTask.objects.filter(staff_id=staff_id, task_id=task_id, evaluated_id=evaluated_department).update(score=score["score"], grade_complete=1, grade_date=datetime.now())
+            else:
+                EvaluateTask.objects.filter(staff_id=staff_id, task_id=task_id, evaluated_id=evaluated_department).update(score=score["score"], grade_date=datetime.now())
+
+        return DetailResponse(data=[], msg="提交成功")
+    
+    
+    
 
         
 
