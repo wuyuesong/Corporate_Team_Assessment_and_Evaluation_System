@@ -73,15 +73,15 @@ class WeightTaskViewSet(CustomModelViewSet):
     def submit_weight_task(self, request: Request):
         staff_id = request.data.get("staff_id")
         task_id = request.data.get("task_id")
-        scores = request.data.get("scores")
+        weights = request.data.get("weights")
         submit_type = request.data.get("submit_type")
         
-        for score in scores:
-            evaluated_department = score["evaluated_department"]
+        for weight in weights:
+            evaluated_department = weight["evaluated_department"]
             if submit_type == 1:
-                EvaluateTask.objects.filter(staff_id=staff_id, task_id=task_id, evaluated_id=evaluated_department).update(score=score["score"], grade_complete=1, grade_date=datetime.now())
+                EvaluateTask.objects.filter(staff_id=staff_id, task_id=task_id, evaluated_id=evaluated_department).update(weight=weight["weight"], grade_complete=1, grade_date=datetime.now())
             else:
-                EvaluateTask.objects.filter(staff_id=staff_id, task_id=task_id, evaluated_id=evaluated_department).update(score=score["score"], grade_date=datetime.now())
+                EvaluateTask.objects.filter(staff_id=staff_id, task_id=task_id, evaluated_id=evaluated_department).update(weight=weight["weight"], grade_date=datetime.now())
 
         return DetailResponse(data=[], msg="提交成功")
     
