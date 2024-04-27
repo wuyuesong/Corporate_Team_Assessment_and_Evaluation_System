@@ -12,10 +12,16 @@ def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
     non_zero_counts_col = np.count_nonzero(range_data, axis=0)
 
     #####################################  step1  ######################################### 归一化
-    max_value = np.max(range_data)
-    min_value = np.min(range_data[range_data != 0])
+    transformed_data = np.zeros_like(range_data)
 
-    transformed_data = (100 - 60) / (max_value - min_value) * (range_data - min_value) + 60
+    for i in range(transformed_data.shape[0]):
+        max_value = np.max(range_data[i])
+        min_value = np.min(range_data[i][range_data[i] != 0])
+        for j in range(transformed_data.shape[1]):
+            if range_data[i][j] == 0:
+                transformed_data[i, j] = 0
+            else:
+                transformed_data[i, j] = (100 - 60) / (max_value - min_value) * (range_data[i, j] - min_value) + 60
 
     # with open('step1_out.txt', 'w') as file:
     #     for i in range(transformed_data.shape[0]):
@@ -43,7 +49,11 @@ def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
     #####################################  step3  ######################################### 标准差
 
     # 计算每一列元素与该列非零平均值的差的绝对值
-    absolute_differences_non_zero = np.where(non_zero_counts_col > 0, np.abs(transformed_data - non_zero_means), 0)
+    absolute_differences_non_zero = np.zeros_like(transformed_data)
+    for i in range(transformed_data.shape[0]):
+        for j in range(transformed_data.shape[1]):
+            if transformed_data[i, j] != 0:
+                absolute_differences_non_zero[i, j] = np.abs(transformed_data[i, j] - non_zero_means[j])
 
     # 只考虑非零元素的平均差
     sum_absolute_non_zero_col = np.sum(absolute_differences_non_zero, axis=0)
@@ -58,7 +68,10 @@ def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
     deviation_multiple = np.zeros_like(transformed_data)
     for i in range(transformed_data.shape[0]):
         for j in range(transformed_data.shape[1]):
-            deviation_multiple[i, j] = np.abs(transformed_data[i, j] - non_zero_means[j]) / mean_differences_non_zero[j]
+            if transformed_data[i, j] == 0:
+                deviation_multiple[i, j] = 0
+            else:
+                deviation_multiple[i, j] = np.abs(transformed_data[i, j] - non_zero_means[j]) / mean_differences_non_zero[j]
 
     # with open('step4_out.txt', 'w') as file:
     #     for i in range(deviation_multiple.shape[0]):
@@ -90,14 +103,9 @@ def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
     #########################################################################################
 
     #######################################  step6  ######################################### 计算中位数
-    # 将numpy数组转换为pandas的DataFrame
-    df = pd.DataFrame(transformed_data)
-
-    # 计算每一行的中位数
-    medians = df.median(axis=1)
-
-    # 将结果转换回numpy数组
-    medians_np = medians.to_numpy()
+    medians = np.zeros(transformed_data.shape[0], dtype=float)
+    for i in range(transformed_data.shape[0]):
+        medians[i] = np.median(transformed_data[i][np.nonzero(transformed_data[i])])
 
     # with open('step6_out.txt', 'w') as file:
     #     for num in medians_np:
@@ -106,12 +114,26 @@ def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
 
 
     #######################################  step7  ######################################### 计算中位数偏差
-    average_value = np.mean(medians_np)
-    median_bias = medians_np - average_value
+    average_value = np.mean(medians)
+    median_bias = medians - average_value
+
 
     # with open('step7_out.txt', 'w') as file:
     #     for num in median_bias:
     #             file.write(str(round(num, 5)) + '\n')
+
+    max_val = np.max(median_bias)
+    min_val = np.min(median_bias)
+
+    if max_val > 7.5:
+        for index, value in enumerate(median_bias):
+            if value > 0:
+                median_bias[index] = (7.5/max_val) * value
+
+    if min_val < -7.5:
+        for index, value in enumerate(median_bias):
+            if value < 0:
+                median_bias[index] = (-7.5/min_val) * value
     #########################################################################################
 
     #######################################  step8  ######################################### 计算左侧偏移S
@@ -135,17 +157,23 @@ def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
     #########################################################################################
 
     #######################################  step10  ######################################## 计算norm.inv后的值
-    sorted_indices_idx = np.argsort(transformed_data, axis=1)
+    transformed_data_none = np.where(transformed_data == 0, np.nan, transformed_data)
+
+
+    sorted_indices_idx = np.argsort(transformed_data_none, axis=1)
     sorted_indices_rank = np.empty_like(sorted_indices_idx)
 
     for i in range(sorted_indices_idx.shape[0]):
         for j, index in enumerate(sorted_indices_idx[i]):
             sorted_indices_rank[i, index] = j  
-    
+
     z_score = np.zeros_like(transformed_data)
     for i in range(transformed_data.shape[0]):
         for j in range(transformed_data.shape[1]):
-            z_score[i,j] = norm.ppf(S[i] + T[i]*sorted_indices_rank[i,j], loc=mean, scale=std_dev)
+            if(transformed_data[i, j] != 0):
+                z_score[i,j] = norm.ppf(S[i] + T[i]*sorted_indices_rank[i,j], loc=mean, scale=std_dev)
+            else:
+                sorted_indices_rank[i][j] = -1
 
     # with open('step10_out.txt', 'w') as file:
     #     for i in range(z_score.shape[0]):
@@ -155,15 +183,12 @@ def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
     ##########################################################################################
 
     #######################################  step11  ######################################## 计算归一化数组
-    # 计算整个数组的最大值
-    overall_max = np.max(z_score)
-
-    # 计算整个数组的最小值
-    overall_min = np.min(z_score)
 
     for i in range(z_score.shape[0]):
-        for j in range(z_score.shape[1]):
-            z_score[i,j] = 40 / (overall_max - overall_min) * (z_score[i, j] - overall_min) + 60
+        max_value = np.max(z_score[i])
+        min_value = np.min(z_score[i][z_score[i] != 0])
+        index = np.nonzero(z_score[i])
+        z_score[i][index] = 40 / (max_value - min_value) * (z_score[i][index] - min_value) + 60
 
     # with open('step11_out.txt', 'w') as file:
     #     for i in range(z_score.shape[0]):
@@ -175,8 +200,14 @@ def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
     #######################################  step12  #########################################   最终排名
     dot_product = np.zeros_like(first_row)
     for i in range(z_score.shape[1]):
-        column = z_score[:, i]
-        dot_product[i] = np.dot(column, weight/100)
+
+        index = np.nonzero(z_score[:,i])
+        column = z_score[:, i][index]
+        weight_index = weight[index]
+        sum_weight = np.sum(weight_index)
+        weight_index = weight_index/sum_weight
+
+        dot_product[i] = np.dot(column, weight_index/100)
 
     dot_product = dot_product.astype(float)
     sorted_indices = np.argsort(-dot_product)
