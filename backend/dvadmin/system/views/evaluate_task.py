@@ -397,20 +397,17 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         idex=np.lexsort([data[:,4], data[:,3], data[:,2]])
 
         sorted_data = data[idex, :]
-         
-<<<<<<< HEAD
-        ws.append([])
+        data[4] = ''.join(data[4])
 
-        for index, data in enumerate(sorted_data):
-=======
+
+        ws.append(["名称","账号", "部门","职级", "任务"])
         for index, data in enumerate(sorted_data.tolist()):
->>>>>>> 235c6618e752e962582625ef441bd0add3f2ec6f
             if index == 0:
-                ws.append(data[:4])
+                ws.append(data)
             else:
                 if sorted_data[index][2] != sorted_data[index-1][2] or sorted_data[index][3] != sorted_data[index-1][3] or sorted_data[index][4] != sorted_data[index-1][4]:
                     ws.append([])
-                ws.append(data[:4])
+                ws.append(data)
             
         row = len(all_evaluate_id) + 5
         column = 7
