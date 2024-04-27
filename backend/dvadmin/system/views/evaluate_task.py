@@ -173,10 +173,6 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         EvaluateTask.objects.bulk_create(tmp_list)
         # time2 = time.time()
         # print("生成任务耗时：", time2 - time1)
-        if task_type == 1:
-            self.send_email(task_id)
-        elif task_type == 0:
-            self.generate_excel(task_id)
 
         return DetailResponse(data=dict(task_id=task_id), msg="创建成功")
 
