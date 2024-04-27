@@ -79,11 +79,17 @@ class WeightTaskViewSet(CustomModelViewSet):
         for weight in weights:
             evaluated_department = weight["evaluated_department"]
             if submit_type == 1:
-                EvaluateTask.objects.filter(staff_id=staff_id, task_id=task_id, evaluated_id=evaluated_department).update(weight=weight["weight"], grade_complete=1, grade_date=datetime.now())
+                WeightTask.objects.filter(staff_id=staff_id, task_id=task_id, evaluated_id=evaluated_department).update(weight=weight["weight"], weight_complete=1)
+                return DetailResponse(data=[], msg="提交成功")
             else:
-                EvaluateTask.objects.filter(staff_id=staff_id, task_id=task_id, evaluated_id=evaluated_department).update(weight=weight["weight"], grade_date=datetime.now())
+                WeightTask.objects.filter(staff_id=staff_id, task_id=task_id, evaluated_id=evaluated_department).update(weight=weight["weight"])
+                return DetailResponse(data=[], msg="保存成功")
 
-        return DetailResponse(data=[], msg="提交成功")
+        
+    
+    @action(methods=['GET'], detail=False, permission_classes=[])
+    def weight_task_status(self, request: Request):
+        Task.objects.filter()
     
     
     
