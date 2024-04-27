@@ -22,6 +22,13 @@ from dvadmin.utils.calc import calc_score
 from dvadmin.utils.send_email import send_email
 import numpy as np
 
+from django.http import HttpResponse
+from openpyxl import Workbook
+from openpyxl.worksheet.datavalidation import DataValidation
+from openpyxl.utils import get_column_letter, quote_sheetname
+from openpyxl.worksheet.table import Table, TableStyleInfo
+from urllib.parse import quote
+
 
 
 class EvaluateTaskSerializer(CustomModelSerializer):
@@ -168,6 +175,8 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         # print("生成任务耗时：", time2 - time1)
         if task_type == 1:
             self.send_email(task_id)
+        elif task_type == 0:
+            self.generate_excel(task_id)
 
         return DetailResponse(data=dict(task_id=task_id), msg="创建成功")
 
@@ -348,10 +357,9 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         return DetailResponse(data=ret, msg="获取成功")
     
 
-    def send_email(self, task_id):
-
-        task_info = Task.objects.get(task_id=task_id)
-        all_evaluate_id = list(EvaluateTask.objects.filter(task_id=task_id).values_list('evaluate_id', flat=True).distinct().order_by('evaluate_id'))
+    @action(methods=['get'], detail=False, permission_classes=[])
+    def send_email(self, request: Request):
+        all_evaluate_id = list(EvaluateTask.objects.all().values_list('evaluate_id', flat=True).distinct().order_by('evaluate_id'))
         staff_infos = Staff.objects.filter(staff_id__in=all_evaluate_id)
 
         to_addrs = []
@@ -364,7 +372,48 @@ class EvaluateTaskViewSet(CustomModelViewSet):
                 "password": staff_info.password
             })
 
-        send_email(task_name=task_info.task_name, task_description=task_info.task_describe, to_addrs=to_addrs)
+        send_email(to_addrs=to_addrs)
+        
+        return DetailResponse(data=[], msg="发送成功")
+    
+    @action(methods=['get'], detail=False, permission_classes=[])
+    def generate_excel(self, request: Request):
+        response = HttpResponse(content_type="application/msexcel")
+        response["Access-Control-Expose-Headers"] = f"Content-Disposition"
+        response["content-disposition"] = f'attachment;filename={quote(str(f"导出员工账号密码.xlsx"))}'
+        wb = Workbook()
+        ws1 = wb.create_sheet("data", 1)
+        ws1.sheet_state = "hidden"
+        ws = wb.active
+
+        all_evaluate_id = list(EvaluateTask.objects.all().values_list('evaluate_id', flat=True).distinct().order_by('evaluate_id'))
+        staff_infos = Staff.objects.filter(staff_id__in=all_evaluate_id)
+
+        data = np.zeros((len(all_evaluate_id), 5))
+
+        for index, staff in enumerate(staff_infos):
+            data[index][0] = staff.staff_id
+            data[index][1] = staff.password
+            data[index][2] = staff.staff_department
+            data[index][3] = staff.staff_rank
+            data[index][4] = list(EvaluateTask.objects.filter(evaluate_id=staff.staff_id).values_list('task_id', flat=True).distinct().order_by('task_id'))
+
+        idex=np.lexsort([data[:,4], data[:,3], data[:,2]])
+
+        sorted_data = data[idex, :]
+         
+        for index, data in enumerate(sorted_data):
+            if index == 0:
+                ws.append(data)
+            else:
+                if sorted_data[index][2] != sorted_data[index-1][2] or sorted_data[index][3] != sorted_data[index-1][3] or sorted_data[index][4] != sorted_data[index-1][4]:
+                    ws.append([])
+                ws.append(data)
+            
+        tab = Table(displayName="Table")  # 名称管理器
+        ws.add_table(tab)
+        wb.save(response)
+        return response
         
 
 
