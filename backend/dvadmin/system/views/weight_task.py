@@ -141,32 +141,36 @@ class WeightTaskViewSet(CustomModelViewSet):
 
         return DetailResponse(data=[], msg="删除成功")
     
-    # @action(methods=['GET'], detail=False, permission_classes=[])
-    # def weight_task_status(self, request: Request):
-    #     task_id = Task.objects.get(task_type=1).task_id
-    #     all_evaluate = list(WeightTask.objects.filter(task_id=task_id).values_list('evaluate_department', flat=True).distinct().order_by('evaluate_department'))
-    #     all_evaluated = list(WeightTask.objects.filter(task_id=task_id).values_list('evaluated_department', flat=True).distinct().order_by('evaluated_department'))
+    @action(methods=['GET'], detail=False, permission_classes=[])
+    def cal_weight_task(self, request: Request):
+        Task.objects.get(task_type=1).update(task_done=1)
+        task_id = Task.objects.get(task_type=1).task_id
+        all_evaluate = list(WeightTask.objects.filter(task_id=task_id).values_list('evaluate_department', flat=True).distinct().order_by('evaluate_department'))
+        all_evaluated = list(WeightTask.objects.filter(task_id=task_id).values_list('evaluated_department', flat=True).distinct().order_by('evaluated_department'))
 
-    #     map_evaluate = {}
-    #     map_evaluated = {}
-    #     for index, evaluate_id in enumerate(all_evaluate):
-    #         map_evaluate[evaluate_id] = index
+        map_evaluate = {}
+        map_evaluated = {}
+        for index, evaluate_id in enumerate(all_evaluate):
+            map_evaluate[evaluate_id] = index
         
-    #     for index, evaluated_id in enumerate(all_evaluated):
-    #         map_evaluated[evaluated_id] = index
+        for index, evaluated_id in enumerate(all_evaluated):
+            map_evaluated[evaluated_id] = index
 
-    #     weights = np.zeros((len(all_evaluate), len(all_evaluated)))
+        weights = np.zeros((len(all_evaluate), len(all_evaluated)))
 
-    #     task_all = WeightTask.objects.all()
-    #     for task in task_all:
-    #         i = map_evaluate[task.evaluate_id]
-    #         j = map_evaluated[task.evaluated_id]
-    #         weights[i, j] = task.weight
+        task_all = WeightTask.objects.all()
+        for task in task_all:
+            i = map_evaluate[task.evaluate_id]
+            j = map_evaluated[task.evaluated_id]
+            weights[i, j] = task.weight
 
-    #     ret_weights = calc_relation(task.weight)
+        ret_weights = calc_relation(task.weight)
 
-    #     for evaluate in all_evaluate：
-    #         for 
+        for evaluate in all_evaluate:
+            for evaluated in all_evaluated:
+                WeightTask.objects.filter(evaluate_department=evaluate, evaluated_department=evaluated).update(weight=ret_weights[map_evaluate[evaluate]][map_evaluated[evaluated]])
+        
+        return DetailResponse(data=[], msg="计算成功")
                 
 
     
