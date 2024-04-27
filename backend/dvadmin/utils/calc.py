@@ -197,3 +197,18 @@ def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
         rank.append({"rank": i + 1, "id": first_row[sorted_indices[i]], "score": dot_product[sorted_indices[i]]})
 
     return rank, abnormal_data
+
+def calc_relation(relation):
+    relation = relation.astype(np.float64)
+    column_sums = np.sum(relation, axis=0)
+    all_sum = np.sum(column_sums)
+    importance_list = column_sums/all_sum
+    im_relation = np.zeros_like(relation)
+    for i in range(relation.shape[0]):
+        im_relation[i, :] = relation[i, :] * importance_list[i]
+    relation_normal = np.zeros_like(relation)
+    column_sums2 = np.sum(im_relation, axis=0)
+    for i in range(im_relation.shape[1]):
+        relation_normal[:, i] = 100 / column_sums2[i] * im_relation[:, i]
+
+    return relation_normal

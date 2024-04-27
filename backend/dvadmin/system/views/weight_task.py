@@ -18,7 +18,7 @@ from dvadmin.utils.json_response import ErrorResponse, DetailResponse, SuccessRe
 from dvadmin.utils.serializers import CustomModelSerializer
 from dvadmin.utils.validator import CustomUniqueValidator
 from dvadmin.utils.viewset import CustomModelViewSet
-from dvadmin.utils.calc import calc_score
+from dvadmin.utils.calc import calc_score, calc_relation
 from dvadmin.utils.send_email import send_email
 import numpy as np
 
@@ -104,13 +104,17 @@ class WeightTaskViewSet(CustomModelViewSet):
                 
                 ret = []
                 for department in department_list:
-                    completed = WeightTask.objects.filter(evaluate_department=department).first().weight_complete
-                    ret.append(dict(department=department,completed=completed))
+                    if WeightTask.objects.filter(evaluate_department=department).count() != 0:
+                        completed = WeightTask.objects.filter(evaluate_department=department).first().weight_complete
+                        ret.append(dict(department=department,completed=completed))
                 
                 return DetailResponse(data=dict(task_status=0, completed_list=ret), msg="获取成功")
 
             else:
                 return DetailResponse(data=dict(task_status=1), msg="获取成功")
+            
+    
+     
 
     
     
