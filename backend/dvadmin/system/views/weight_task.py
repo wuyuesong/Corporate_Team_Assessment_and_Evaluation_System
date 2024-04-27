@@ -141,7 +141,7 @@ class WeightTaskViewSet(CustomModelViewSet):
     
     @action(methods=['GET'], detail=False, permission_classes=[])
     def cal_weight_task(self, request: Request):
-        Task.objects.get(task_type=1).update(task_done=1)
+        Task.objects.get(task_type=1).task_done=1
         task_id = Task.objects.get(task_type=1).task_id
         all_evaluate = list(WeightTask.objects.filter(task_id=task_id).values_list('evaluate_department', flat=True).distinct().order_by('evaluate_department'))
         all_evaluated = list(WeightTask.objects.filter(task_id=task_id).values_list('evaluated_department', flat=True).distinct().order_by('evaluated_department'))
@@ -158,11 +158,11 @@ class WeightTaskViewSet(CustomModelViewSet):
 
         task_all = WeightTask.objects.all()
         for task in task_all:
-            i = map_evaluate[task.evaluate_id]
-            j = map_evaluated[task.evaluated_id]
+            i = map_evaluate[task.evaluate_department]
+            j = map_evaluated[task.evaluated_department]
             weights[i, j] = task.weight
 
-        ret_weights = calc_relation(task.weight)
+        ret_weights = calc_relation(weights)
 
         for evaluate in all_evaluate:
             for evaluated in all_evaluated:

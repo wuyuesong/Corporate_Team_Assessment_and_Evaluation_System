@@ -17,6 +17,7 @@ const uploadRef = ref()
 const refreshView = inject('refreshView')
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Eleme } from '@element-plus/icons-vue'
+import { response } from '/@/utils/tools';
 // 页面打开后获取列表数据
 onMounted(() => {
 	crudExpose.doRefresh();
@@ -181,6 +182,53 @@ const ResetInfo = async() => {
 
         });
 };
+
+
+//通知接口
+const email_inform=async()=>{
+  try{
+    const res = await request({
+      url: getBaseURL() + 'api/system/evaluate_task/send_email/',
+      method: 'get',
+    })
+    if(res.code==2000){
+      ElMessage({
+        showClose: true,
+        message: "通知成功",
+        type: 'success',
+    })
+    }else{
+      ElMessage({
+        showClose: true,
+        message: "通知失败",
+        type: 'error',
+    })}
+  }catch(error){
+    ElMessage({
+      showClose: true,
+      message: "通知失败",
+      type: 'error',
+  })
+  
+}
+}
+
+
+const random_inform=async()=>{
+  try{
+    downloadFile({
+								url: getBaseURL() + 'api/system/evaluate_task/generate_excel',
+								params: {},
+								method: 'get'
+							})
+  }catch(error){
+    ElMessage({
+      showClose: true,
+      message: "通知失败",
+      type: 'error',
+  })
+}
+}
 </script>
 
 
@@ -236,7 +284,12 @@ const ResetInfo = async() => {
                         </div>
                       </template>
                       重置
-                      </el-button>     
+                      </el-button>  
+
+                      <el-button  @click="email_inform" size="large" type="danger" >邮件通知</el-button>
+                      <el-button  @click="random_inform" size="large" type="danger" >随机抽取</el-button>
+                      
+
                     </div>
                     
             </div>

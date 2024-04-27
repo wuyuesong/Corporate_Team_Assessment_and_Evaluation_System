@@ -389,28 +389,30 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         all_evaluate_id = list(EvaluateTask.objects.all().values_list('evaluate_id', flat=True).distinct().order_by('evaluate_id'))
         staff_infos = Staff.objects.filter(staff_id__in=all_evaluate_id)
 
-        data = np.zeros((len(all_evaluate_id), 5))
+        data = np.empty((len(all_evaluate_id), 5), dtype=object)
 
         for index, staff in enumerate(staff_infos):
-            data[index][0] = staff.staff_id
-            data[index][1] = staff.password
-            data[index][2] = staff.staff_department
-            data[index][3] = staff.staff_rank
-            data[index][4] = list(EvaluateTask.objects.filter(evaluate_id=staff.staff_id).values_list('task_id', flat=True).distinct().order_by('task_id'))
+            data[index, 0] = staff.staff_id
+            data[index, 1] = staff.password
+            data[index, 2] = staff.staff_department
+            data[index, 3] = staff.staff_rank
+            data[index, 4] = list(EvaluateTask.objects.filter(evaluate_id=staff.staff_id).values_list('task_id', flat=True).distinct().order_by('task_id'))
 
         idex=np.lexsort([data[:,4], data[:,3], data[:,2]])
 
         sorted_data = data[idex, :]
          
-        for index, data in enumerate(sorted_data):
+        for index, data in enumerate(sorted_data.tolist()):
             if index == 0:
-                ws.append(data)
+                ws.append(data[:4])
             else:
                 if sorted_data[index][2] != sorted_data[index-1][2] or sorted_data[index][3] != sorted_data[index-1][3] or sorted_data[index][4] != sorted_data[index-1][4]:
                     ws.append([])
-                ws.append(data)
+                ws.append(data[:4])
             
-        tab = Table(displayName="Table")  # 名称管理器
+        row = len(all_evaluate_id) + 5
+        column = 7
+        tab = Table(displayName="Table", ref=f"A1:{get_column_letter(row)}{column}")  # 名称管理器
         ws.add_table(tab)
         wb.save(response)
         return response
