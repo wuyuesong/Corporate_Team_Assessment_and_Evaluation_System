@@ -56,14 +56,14 @@ const props = defineProps({
         <div class="qnnhead">
             <p class="text-3xl tracking-widest text-blue-500 ...">{{ title }}</p>
             
-            <el-input class="Scorediscription" style="margin-top: 20px;" type="textarea"  disabled="true" autosize="true" />
+            <el-input class="Scorediscription" v-model="$props.discribe" style="margin-top: 20px;" type="textarea"  disabled="true" autosize="true" />
         </div>
 
         <el-scrollbar height="420px" >
             <div class="qnnbody">
                 <div v-for=" (item,idx) in items">
                     <p style="margin-bottom: 20px;margin-top: 20px;" class="text-xl italic ">{{ (idx+1)+"."+item.question }}</p>
-                    <el-slider v-model="item.score" show-input></el-slider>
+                    <el-slider v-model="item.score" show-input :show-input-controls="false"></el-slider>
                 </div>
             </div>
         </el-scrollbar>
@@ -102,5 +102,9 @@ const props = defineProps({
     justify-content: center;
     text-align: center;
     flex-direction: column;
+}
+
+.Scorediscription{
+  font-size: large;
 }
 </style>

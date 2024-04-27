@@ -150,9 +150,11 @@ class TaskViewSet(CustomModelViewSet):
         user = request.user
         print(user.staff_id)
         cur_evaluate_task_id = list(EvaluateTask.objects.filter(evaluate_id=staff_id).values_list('task_id', flat=True).distinct().order_by('task_id'))
-        cur_weight_task_id = list(WeightTask.objects.filter(evaluate_id=staff_id).values_list('task_id', flat=True).distinct().order_by('task_id'))
+        cur_weight_task_id = list(WeightTask.objects.filter(staff_id=staff_id).values_list('task_id', flat=True).distinct().order_by('task_id'))
 
-        task_info = Task.objects.filter(task_id__in=cur_evaluate_task_id)
+        task_id_list = cur_evaluate_task_id + cur_weight_task_id
+        task_info = Task.objects.filter(task_id__in=task_id_list)
+
         ret=[]
         for task in task_info:
             if task.task_type == 0:
@@ -168,7 +170,7 @@ class TaskViewSet(CustomModelViewSet):
                     "complete_status":complete_status
                 })
             elif task.task_type == 1:
-                complete_status = WeightTask.objects.filter(task_id=task.task_id, evaluate_id=staff_id).first().grade_complete
+                complete_status = WeightTask.objects.filter(task_id=task.task_id, staff_id=staff_id).first().weight_complete
                 ret.append({
                     "task_id":task.task_id,
                     "task_name":task.task_name,

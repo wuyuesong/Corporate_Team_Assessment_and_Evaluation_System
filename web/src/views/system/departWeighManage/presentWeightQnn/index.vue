@@ -48,6 +48,10 @@ const presentWeightQnn=async()=>{
                         <p class="font-sans text-xl tracking-wide font-bold ..." >发布中。。。</p>
                     </button>
                 </div>
+
+                <div class="progressstep">
+                    
+                </div>
             </el-col>
             <el-col :span="20">
                 <div class="MatrixRes">
