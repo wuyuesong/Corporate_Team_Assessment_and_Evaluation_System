@@ -392,22 +392,21 @@ class EvaluateTaskViewSet(CustomModelViewSet):
             data[index, 1] = staff.password
             data[index, 2] = staff.staff_department
             data[index, 3] = staff.staff_rank
-            data[index, 4] = list(EvaluateTask.objects.filter(evaluate_id=staff.staff_id).values_list('task_id', flat=True).distinct().order_by('task_id'))
+            data[index, 4] = ' '.join(list(EvaluateTask.objects.filter(evaluate_id=staff.staff_id).values_list('task_id', flat=True).distinct().order_by('task_id')))
 
         idex=np.lexsort([data[:,4], data[:,3], data[:,2]])
 
         sorted_data = data[idex, :]
-        data[4] = ''.join(data[4])
 
 
-        ws.append(["名称","账号", "部门","职级", "任务"])
+        ws.append(["账号","密码", "部门","职级"])
         for index, data in enumerate(sorted_data.tolist()):
             if index == 0:
-                ws.append(data)
+                ws.append(data[:4])
             else:
                 if sorted_data[index][2] != sorted_data[index-1][2] or sorted_data[index][3] != sorted_data[index-1][3] or sorted_data[index][4] != sorted_data[index-1][4]:
                     ws.append([])
-                ws.append(data)
+                ws.append(data[:4])
             
         row = len(all_evaluate_id) + 5
         column = 7

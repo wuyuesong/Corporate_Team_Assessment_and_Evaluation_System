@@ -288,7 +288,7 @@ const random_inform=async()=>{
                       重置
                       </el-button>  
                       </el-col>
-                      <el-button style="padding-left: 40px;"  @click="email_inform" size="large" type="danger" >邮件通知</el-button>
+                      <el-button style="margin-left: 20px;"  @click="email_inform" size="large" type="danger" >邮件通知</el-button>
                       <el-button  @click="random_inform" size="large" type="danger" >随机抽取</el-button>
                       
 
