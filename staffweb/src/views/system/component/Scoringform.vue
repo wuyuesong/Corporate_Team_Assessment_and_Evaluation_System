@@ -155,8 +155,11 @@ const handlesame =(row:any)=>{
   }
   row.tips=0;
   const [num1, num2] = hasDuplicateScores(gridData)
-  if(!(num1===num2)){
-    if(num1===row.rowIndex){
+  if(!(num1===num2)){ 
+
+    console.log(gridData[num1].ID,row.ID);
+    if(gridData[num1].ID===row.ID){
+     
       errmessage.value.same.name=gridData[num2].name.toString();
       errmessage.value.same.score=gridData[num2].score.toString();
     }else{
