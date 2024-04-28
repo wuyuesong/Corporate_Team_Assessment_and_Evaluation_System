@@ -92,7 +92,8 @@ def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
                 else:
                     transformed_data[i, j] = non_zero_means[j] - mul*mean_differences_non_zero[j]
                 
-                abnormal_data.append({"evaluate_id": first_column[i], "evaluated_id": first_row[j],"origin_value": origin_value,"fix_value": transformed_data[i, j]})
+                # abnormal_data.append({"evaluate_id": first_column[i], "evaluated_id": first_row[j],"origin_value": origin_value,"fix_value": transformed_data[i, j]})
+                abnormal_data.append({"evaluate_id": first_column[i], "evaluated_id": first_row[j],"origin_value": origin_value,"fix_value": non_zero_means[j]})
     
     # with open('step5_out.txt', 'w') as file:
     #     for i in range(transformed_data.shape[0]):
@@ -207,7 +208,7 @@ def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
         sum_weight = np.sum(weight_index)
         weight_index = weight_index/sum_weight
 
-        dot_product[i] = np.dot(column, weight_index/100)
+        dot_product[i] = np.dot(column, weight_index)
 
     dot_product = dot_product.astype(float)
     sorted_indices = np.argsort(-dot_product)
