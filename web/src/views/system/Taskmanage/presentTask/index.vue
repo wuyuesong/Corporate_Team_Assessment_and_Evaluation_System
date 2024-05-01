@@ -19,7 +19,8 @@ const dialogvisable=ref(false);
 const addDrawvisable=ref(false);
 const judge=ref(true);
 const evaluatingbutton=ref(true);
-
+//单选框变量
+const noticeradio = ref('1')
 
 //起止时间响应变量
 const startendTime=ref('');
@@ -358,7 +359,9 @@ const TaskPreSubmit=async(type:number)=>{
                     task_end_date:startendTime.value[1],
                     evaluate:torequestEvaluate.value,
                     evaluated:torequestEvaluated.value,
-                    task_type:type
+                    task_type:type,
+                    //TODO参数待定
+                    //task_notice:noticeradio.value,
                 }
         })
         if(response.code==2000){
@@ -459,8 +462,13 @@ const transfertoevaluate=()=>{
                 value-format="YYYY-MM-DD HH:mm:ss"
                 />
             </div>
-
-            <div class="SubmitTaskButton" style="margin-top: 100px;">
+            <div class="SubmitTaskButton" style="margin-top: 70px;">
+                <div class="mb-2 text-sm">
+                    <el-radio-group v-model="noticeradio">
+                        <el-radio value="1" size="large" border>邮件通知</el-radio>
+                        <el-radio value="2" size="large" border>匿名通知</el-radio>
+                    </el-radio-group>
+                </div>
                 <el-button class="evaTaskPresent_relname" :disabled="taskpresentbutton" @click="TaskPreSubmit(0)" size="large" type="danger" >发布任务</el-button>
             </div>
             
@@ -725,7 +733,7 @@ const transfertoevaluate=()=>{
 
 
 .evaTaskPresent_relname {
-    width: 200px;  
+    width: 255px;  
 }
 
 </style>

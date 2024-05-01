@@ -156,8 +156,6 @@ const handlesame =(row:any)=>{
   row.tips=0;
   const [num1, num2] = hasDuplicateScores(gridData)
   if(!(num1===num2)){ 
-
-    console.log(gridData[num1].ID,row.ID);
     if(gridData[num1].ID===row.ID){
      
       errmessage.value.same.name=gridData[num2].name.toString();
@@ -170,7 +168,6 @@ const handlesame =(row:any)=>{
     let flag:boolean=false;
     let target:number=gridData[num1].score;
     row.score=NaN;
-    
     const filteredData = gridData.filter((item, index) => {return !(index=== num1);}).filter(item => !(isNaN(item.score)||typeof item.score === 'object'||item.score===0));
     filteredData.sort((a, b) => b.score-a.score);
 

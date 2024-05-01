@@ -16,6 +16,8 @@ onMounted(() => {
 const matrixStatus=ref()
 const departmentlist=ref()
 const feachMatrixRes=async()=>{
+    matrixStatus.value={}
+    departmentlist.value=[]
     try {
         const response=await request({
             url: getBaseURL() +'api/system/weight_task/get_weight_matrix/',
@@ -41,6 +43,9 @@ const feachMatrixRes=async()=>{
 const processList=ref([])
 const processData=ref()
 const featchMatrixQnn=async()=>{
+    //将processList清空 
+    processList.value=[]
+    processData.value={}
     try {
         const response=await request({
             url: getBaseURL() +'api/system/weight_task/weight_task_status/',
@@ -88,6 +93,8 @@ const presentWeightQnn=async()=>{
             })
             presenting.value=0
             processData.value.task_status=0
+            featchMatrixQnn()
+            feachMatrixRes()
         }else{
             ElMessage({
                 showClose: true,
@@ -118,6 +125,8 @@ const gobackQnn=()=>{
                         type: 'success',
                     })
                     presenting.value=-1
+                    featchMatrixQnn()
+                    feachMatrixRes()
                 }else{
                     ElMessage({
                         showClose: true,
@@ -160,7 +169,8 @@ const submitcal=async()=>{
                 type: 'success',
             })
             //刷新
-            location.reload()
+            featchMatrixQnn()
+            feachMatrixRes()
         }else{
             ElMessage({
                 showClose: true,
@@ -172,15 +182,15 @@ const submitcal=async()=>{
         
     }
 }
-const checkSubmitres=ref(true)
+const checkSubmitres=ref(false)
 const checkSubmit=()=>{
     for ( let item in processList.value){
         if(item.completed===0){
-            checkSubmitres.value=true
+            checkSubmitres.value=false
             return
         }
     }
-    checkSubmitres.value=false
+    checkSubmitres.value=true
     return
 }
 </script>
@@ -227,7 +237,7 @@ const checkSubmit=()=>{
                     <tbody>
                         <tr v-for="(item,index) in departmentlist" :key="index">
                             <td class="border border-slate-400 w-36 text-xl">{{ item }}</td>
-                            <td v-for="(item1,index1) in departmentlist" :key="index1" class="border border-slate-400 w-36 text-xl">{{ matrixStatus[item][item1].toFixed(2) }}</td>
+                            <td v-for="(item1,index1) in departmentlist" :key="index1" class="border border-slate-400 w-36 text-xl"> {{matrixStatus[item][item1] !== undefined && matrixStatus[item][item1] !== null && typeof matrixStatus[item][item1] === 'number' ? matrixStatus[item][item1].toFixed(2) : matrixStatus[item][item1] }}</td>
                         </tr>
                     </tbody>
                     

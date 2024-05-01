@@ -1561,6 +1561,20 @@
                 "cache": false,
                 "visible": true,
                 "children": []
+            },
+            {
+                "name": "通知管理",
+                "icon": "ele-Notification",
+                "sort": 3,
+                "is_link": false,
+                "is_catalog": false,
+                "web_path": "/noticeTask",
+                "component": "system/Taskmanage/noticeTask/index",
+                "component_name": "noticeTask",
+                "status": true,
+                "cache": false,
+                "visible": true,
+                "children": []
             }
         ]
     }
