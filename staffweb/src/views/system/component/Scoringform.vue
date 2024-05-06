@@ -148,6 +148,7 @@ function changestyle(rows:any){
 
 const handlesame =(row:any)=>{
   
+  
   if(row.score<60||row.score>100){
     row.score=NaN;
     row.tips=1;
@@ -157,7 +158,6 @@ const handlesame =(row:any)=>{
   const [num1, num2] = hasDuplicateScores(gridData)
   if(!(num1===num2)){ 
     if(gridData[num1].ID===row.ID){
-     
       errmessage.value.same.name=gridData[num2].name.toString();
       errmessage.value.same.score=gridData[num2].score.toString();
     }else{
@@ -170,8 +170,6 @@ const handlesame =(row:any)=>{
     row.score=NaN;
     const filteredData = gridData.filter((item, index) => {return !(index=== num1);}).filter(item => !(isNaN(item.score)||typeof item.score === 'object'||item.score===0));
     filteredData.sort((a, b) => b.score-a.score);
-
-    console.log(filteredData)
     errmessage.value.last.name='无'
     errmessage.value.last.score='60'
     errmessage.value.next.name='无'
@@ -186,6 +184,7 @@ const handlesame =(row:any)=>{
         errmessage.value.next.score=item.score.toString()
     }
     row.tips=2;
+    console.log(row.tips,errmessage.value)
     dialogVisible.value = true;
   }
 }
@@ -378,6 +377,11 @@ const tempsaveTaskcore=async()=>{
     
   }
 }
+
+
+const handleenter=(row:any,event)=>{
+  event.target.blur();
+}
 </script>
 
 
@@ -429,7 +433,7 @@ const tempsaveTaskcore=async()=>{
       <el-table-column property="name" label="姓名" width="200" />
       <el-table-column label="得分" width="300">
         <template v-slot:default="{ row }">
-              <el-input-number v-model="row.score" controls-position="right" :precision="2" :step="0.01" :controls="false"  @keyup.enter="handlesame(row)" @blur="handlesame(row)" v-if="row.score!==0"/>
+              <el-input-number v-model="row.score" controls-position="right" :precision="2" :step="0.01" :controls="false"  @keyup.enter.native="handleenter(row,$event)" @blur="handlesame(row)" v-if="row.score!==0"/>
               <el-tag  style="width: 150px;" v-if="row.score===0" effect="dark" size="large">不了解不予打分</el-tag>
               <el-button  type="info" size="large" style="background-color: cornflowerblue; margin-left: 10px;width: 70px;margin-top:5px;margin-bottom:5px;" @click="handleignore(row)" v-if="row.score!==0">不了解</el-button>
               <el-button type="info"  size="large" style="background-color:firebrick; margin-left: 10px;width: 70px;margin-top:5px;margin-bottom:5px;" v-if="row.score===0" @click="handlecancelignore(row)">撤销</el-button>
@@ -446,8 +450,8 @@ const tempsaveTaskcore=async()=>{
     </el-table-column>
     <el-table-column width="300">
       <template v-slot:default="{ row }">
-        <el-alert v-if="row.tips===1" title="分数需要在60和100之间" type="warning" show-icon :closable="false"/>
-        <div v-if="row.tips===2">
+        <el-alert :key="1" v-if="row.tips === 1" title="分数需要在60和100之间" type="warning" show-icon :closable="false"/>
+        <div :key="2" v-show="row.tips === 2">
           <el-alert :title="'上一个人：'+errmessage.last.name+'，分值为'+errmessage.last.score" type="warning" show-icon :closable="false"/>
           <el-alert :title="'与'+ errmessage.same.name+'重复，分值为'+errmessage.same.score" type="error" show-icon :closable="false"/>
           <el-alert :title="'下一个人：'+errmessage.next.name+'，分值为'+errmessage.next.score" type="warning" show-icon :closable="false"/>
