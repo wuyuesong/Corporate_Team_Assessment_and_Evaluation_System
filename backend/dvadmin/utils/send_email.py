@@ -24,6 +24,7 @@ def send_email(to_addrs):
 
     smtpobj = smtplib.SMTP_SSL(SMTP_SERVER)  # 创建对象
 
+    failed_list = []
     try:
         # 建立连接--qq邮箱服务和端口号（可百度查询）
         smtpobj.connect(SMTP_SERVER, 465)
@@ -40,10 +41,16 @@ def send_email(to_addrs):
             subject = '考评任务' # 主题
             msg['Subject'] = Header(subject, 'utf-8')  # 邮件主题
             msg['To'] = Header(to_addr["staff_name"])  # 接收者
-            smtpobj.sendmail(EMAIL_SENDER, to_addr["addr"] , msg.as_string())
+            try:
+                smtpobj.sendmail(EMAIL_SENDER, to_addr["addr"] , msg.as_string())
+            except Exception  as e:
+                failed_list.append(to_addr)
+                
         print("邮件发送成功")
     except smtplib.SMTPException as e:
         print("无法发送邮件: ", e)
     finally:
         # 关闭服务器
         smtpobj.quit()
+
+    return failed_list
