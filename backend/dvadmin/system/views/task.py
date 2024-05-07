@@ -195,7 +195,8 @@ class TaskViewSet(CustomModelViewSet):
                 "task_start_date":task.task_start_date,
                 "task_end_date":task.task_end_date,
                 "task_create_date":task.task_create_date,
-                "task_type":task.task_type
+                "task_type":task.task_type,
+                "inform_type": task.inform_type
             })
 
         return DetailResponse(data=ret, msg="获取成功")    
@@ -215,6 +216,9 @@ class TaskViewSet(CustomModelViewSet):
         
         if 'task_end_date' in request.data:
             Task.objects.filter(task_id=task_id).update(task_end_date=request.data.get("task_end_date"))
+
+        if 'inform_type' in request.data:
+            Task.objects.filter(task_id=task_id).update(task_end_date=request.data.get("inform_type"))
 
         return DetailResponse(data=[], msg="修改成功")  
 

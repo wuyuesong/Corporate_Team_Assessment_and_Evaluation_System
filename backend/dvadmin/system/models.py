@@ -778,10 +778,31 @@ class Task(CoreModel):
     task_done = models.IntegerField(
         choices=TASK_DONE, default=0, verbose_name="完成情况", null=True, blank=True, help_text="完成情况"
     )
+
+
+    INFORM_TYPE = (
+        (0, "不通知"),
+        (1, "邮件通知"),
+        (2, "抽签通知")
+    )
     
+    inform_type = models.IntegerField(
+        choices=INFORM_TYPE, default=0, verbose_name="通知方式", null=True, blank=True, help_text="通知方式"
+    )
     class Meta:
         db_table = table_prefix + "system_task"
         verbose_name = "任务表"
+        verbose_name_plural = verbose_name
+        ordering = ("create_datetime",)
+
+class Failed_email(CoreModel):
+    staff_name = models.CharField(max_length=255, verbose_name="评价人姓名", null=True, blank=True, help_text="评价人姓名",default="")
+    addr = models.CharField(max_length=255, verbose_name="评价人邮件地址", null=True, blank=True, help_text="评价人邮件地址",default="")
+    username = models.CharField(max_length=255, verbose_name="评价人系统id", null=True, blank=True, help_text="评价人系统id",default="")
+
+    class Meta:
+        db_table = table_prefix + "failed_email"
+        verbose_name = "失败邮件表"
         verbose_name_plural = verbose_name
         ordering = ("create_datetime",)
 

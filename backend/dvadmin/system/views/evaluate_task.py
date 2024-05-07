@@ -12,7 +12,7 @@ from rest_framework.request import Request
 from django.db import connection
 from django.db.models import Q
 from application import dispatch
-from dvadmin.system.models import Users, Role, Dept, Department, EvaluateTask, Task, Staff,EvaluateTaskRank, EvaluateTaskAbnormalData
+from dvadmin.system.models import Users, Role, Dept, Department, EvaluateTask, Task, Staff,EvaluateTaskRank, EvaluateTaskAbnormalData, Failed_email
 from dvadmin.system.views.role import RoleSerializer
 from dvadmin.utils.json_response import ErrorResponse, DetailResponse, SuccessResponse
 from dvadmin.utils.serializers import CustomModelSerializer
@@ -162,7 +162,8 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         task_end_date = request.data.get("task_end_date")
         task_end_date = datetime.strptime(task_end_date, '%Y-%m-%d %H:%M:%S')
         task_create_date = datetime.now()
-        Task(task_id=task_id, task_name=task_name, task_describe=task_describe, task_start_date=task_start_date, task_end_date=task_end_date, task_create_date=task_create_date, task_type=0).save()
+        inform_type = request.data.get("inform_type")
+        Task(task_id=task_id, task_name=task_name, task_describe=task_describe, task_start_date=task_start_date, task_end_date=task_end_date, task_create_date=task_create_date, task_type=0, inform_type=inform_type).save()
         evaluate = request.data.get("evaluate")
         evaluated = request.data.get("evaluated")
         # time1 = time.time()
@@ -355,7 +356,8 @@ class EvaluateTaskViewSet(CustomModelViewSet):
 
     @action(methods=['get'], detail=False, permission_classes=[])
     def send_email(self, request: Request):
-        all_evaluate_id = list(EvaluateTask.objects.all().values_list('evaluate_id', flat=True).distinct().order_by('evaluate_id'))
+        all_email_info_task = list(Task.objects.filter(inform_type=1).values_list('task_id', flat=True).distinct().order_by('task_id'))
+        all_evaluate_id = list(EvaluateTask.objects.filter(task_id__in=all_email_info_task).values_list('evaluate_id', flat=True).distinct().order_by('evaluate_id'))
         staff_infos = Staff.objects.filter(staff_id__in=all_evaluate_id)
 
         to_addrs = []
@@ -368,9 +370,22 @@ class EvaluateTaskViewSet(CustomModelViewSet):
                 "password": staff_info.password
             })
 
-        send_email(to_addrs=to_addrs)
-        
-        return DetailResponse(data=[], msg="发送成功")
+        failed_list = send_email(to_addrs=to_addrs)
+
+        tmp_list = []
+        ret_list = []
+        Failed_email.objects.all().delete()
+        for failed in failed_list:
+            ret_list.append(dict(staff_name=failed.staff_name, addr=failed.addr, username=failed.username))
+            tmp_list.append(Failed_email(staff_name=failed.staff_name, addr=failed.addr, username=failed.username))
+            
+        Failed_email.objects.bulk_create(tmp_list)
+
+        if len(tmp_list) == 0:
+            DetailResponse(data=[], msg="发送成功")
+        else:
+            ErrorResponse(data=ret_list, msg="列表中人员发送失败")
+            
     
     @action(methods=['get'], detail=False, permission_classes=[])
     def generate_excel(self, request: Request):
@@ -414,6 +429,19 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         ws.add_table(tab)
         wb.save(response)
         return response
+    
+
+    @action(methods=['get'], detail=False, permission_classes=[])
+    def get_failed_email_list(self, request: Request):
+        
+        ret = []
+        failed_email_all = Failed_email.objects.all()
+
+        for failed_email in failed_email_all:
+            ret.append(dict(staff_name=failed_email.staff_name, addr=failed_email.addr, username=failed_email.username))
+
+        DetailResponse(data=ret, msg="获取成功")
+
         
 
 
