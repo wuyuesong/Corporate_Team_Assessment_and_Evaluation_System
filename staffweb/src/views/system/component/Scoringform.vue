@@ -35,7 +35,6 @@ const fetchscoreList= async()=>{
             for (let index = 0; index < data.length; index++) {
               const element = data[index];
               if(element.score===0.0){
-                console.log(element.score);
                 element.score=NaN
               }
               let item: evaItem = {
@@ -103,6 +102,7 @@ interface evaItem{
   ID:String,          //ID
   score:number,
   rank:number,
+  tips:number
 }
 
 
@@ -154,7 +154,12 @@ const handlesame =(row:any)=>{
     row.tips=1;
     return;
   }
+
   row.tips=0;
+  //将所有的tips置为0
+  gridData.forEach(item => {
+    item.tips = 0;
+  });
   const [num1, num2] = hasDuplicateScores(gridData)
   if(!(num1===num2)){ 
     if(gridData[num1].ID===row.ID){
@@ -184,7 +189,6 @@ const handlesame =(row:any)=>{
         errmessage.value.next.score=item.score.toString()
     }
     row.tips=2;
-    console.log(row.tips,errmessage.value)
     dialogVisible.value = true;
   }
 }
@@ -443,13 +447,13 @@ const handleenter=(row:any,event)=>{
       <template v-slot:default="{ row }">
         <div class="rankandtips">
             <p>{{ row.rank }}</p>
-            
         </div>
         
       </template>
     </el-table-column>
     <el-table-column width="300">
       <template v-slot:default="{ row }">
+        <div :key="0" v-if="row.tips === 0"></div>
         <el-alert :key="1" v-if="row.tips === 1" title="分数需要在60和100之间" type="warning" show-icon :closable="false"/>
         <div :key="2" v-show="row.tips === 2">
           <el-alert :title="'上一个人：'+errmessage.last.name+'，分值为'+errmessage.last.score" type="warning" show-icon :closable="false"/>

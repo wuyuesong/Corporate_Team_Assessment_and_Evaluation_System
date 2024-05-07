@@ -360,8 +360,8 @@ const TaskPreSubmit=async(type:number)=>{
                     evaluate:torequestEvaluate.value,
                     evaluated:torequestEvaluated.value,
                     task_type:type,
-                    //TODO参数待定
-                    //task_notice:noticeradio.value,
+                    //已完成
+                    inform_type:noticeradio.value,
                 }
         })
         if(response.code==2000){

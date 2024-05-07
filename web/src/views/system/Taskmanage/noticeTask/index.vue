@@ -1,9 +1,49 @@
 <script setup lang="ts">
 import { request, downloadFile } from '/@/utils/service';
-import {inject,ref} from "vue";
+import {inject,onMounted,ref} from "vue";
 import type { Action } from 'element-plus'
 import { getBaseURL } from '/@/utils/baseUrl';
 import { ElMessage, ElMessageBox } from 'element-plus'
+
+onMounted(() => {
+    //初始化
+    featchTaskList()
+})
+
+
+const taskEmailList=ref([])
+const taskRandomList=ref([])
+const featchTaskList = async () => {
+    try {
+        const res = await request({
+            url: getBaseURL() + 'api/system/task/task_list_all/',
+            method: 'get',
+        })
+        if (res.code == 2000) {
+            for (let i = 0; i < res.data.length; i++) {
+                if (res.data[i].inform_type == 1) {
+                    taskEmailList.value.push(res.data[i])
+                } else if(res.data[i].inform_type == 2) {
+                    taskRandomList.value.push(res.data[i])
+                }
+            }
+        } else {
+            ElMessage({
+                showClose: true,
+                message: "获取任务列表失败",
+                type: 'error',
+            })
+        }
+    } catch (error) {
+        ElMessage({
+            showClose: true,
+            message: "获取任务列表失败",
+            type: 'error',
+        })
+    }
+}
+
+
 //通知接口
 const email_inform=async()=>{
   try{

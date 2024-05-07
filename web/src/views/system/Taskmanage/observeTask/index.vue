@@ -10,6 +10,7 @@ import { copyFileSync, writeFile, writeFileSync } from 'fs';
 import { utils, write } from 'xlsx';
 import * as echarts from 'echarts';
 import { maxBy } from 'lodash';
+import { info } from 'console';
 
 const OTtasklist =ref([])
 const currentTask=ref('')
@@ -26,7 +27,7 @@ const parammul=ref(2)
 
 const tempTime=ref({
     starttemptime:'',
-    endtemptime:''
+    endtemptime:'',
 })
 const dialogVisible=ref(false);
 const departmentMap = reactive( new Map());
@@ -39,7 +40,8 @@ const OTtaskcontent=ref({
     task_state:0,
     undo_staff:[],
     staff_count:0,
-    task_done:0
+    task_done:0,
+    info_type:0
 })
 const overloading=ref(false)
 
@@ -66,9 +68,6 @@ const fetchAllTaskList=async()=>{
 
 const fetchTaskpageInfo=async()=>{
     try {
-
-
-
         const response=await request({
                 url: getBaseURL() + 'api/system/evaluate_task/task_info/',
                 method: 'post',
@@ -97,6 +96,8 @@ const fetchTaskpageInfo=async()=>{
             }
             tempTime.value.starttemptime=OTtaskcontent.value.task_start_date
             tempTime.value.endtemptime=OTtaskcontent.value.task_end_date
+
+            console.log(OTtaskcontent.value)
             if(OTtaskcontent.value.task_done===1){
                 fetchrankresinfo()
                 fetchallevaluate()
@@ -126,7 +127,8 @@ const ObTask=(value)=>{
         task_state:0,
         undo_staff:[],
         staff_count:0,
-        task_done:0
+        task_done:0,
+        info_type:0
     }
     tempTime.value={
         starttemptime:'',
@@ -225,6 +227,8 @@ const handleDialogClose=()=>{
 
 const confirmsEditTask=async()=>{
     try {
+        console.log(typeof tempTime.value.starttemptime); // 应该打印 "string"
+        console.log(typeof tempTime.value.endtemptime); // 应该打印 "string"
         const response=await request({
                 url: getBaseURL() + 'api/system/task/modify_task/',
                 method: 'post',
@@ -234,6 +238,7 @@ const confirmsEditTask=async()=>{
                     task_describe:OTtaskcontent.value.task_describe,
                     task_start_date:tempTime.value.starttemptime,
                     task_end_date:tempTime.value.endtemptime,
+                    inform_type:OTtaskcontent.value.info_type
                 }
         })
         if(response.code==2000){
@@ -687,6 +692,14 @@ const exportExcel=()=>{
                             placeholder="选择日期时间"
                             value-format="YYYY-MM-DD HH:mm:ss "
                             ></el-date-picker>
+                    </el-form-item>
+                    <el-form-item label="任务标题">
+                        <div class="mb-2 text-sm">
+                        <el-radio-group v-model="OTtaskcontent.info_type">
+                            <el-radio value="1" size="large" border>邮件通知</el-radio>
+                            <el-radio value="2" size="large" border>匿名通知</el-radio>
+                        </el-radio-group>
+                </div>
                     </el-form-item>
                     <el-form-item label="任务描述">
                         <el-input
