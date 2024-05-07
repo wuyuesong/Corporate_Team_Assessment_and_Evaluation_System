@@ -232,6 +232,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
                 "task_end_date":task.task_end_date,
                 "task_create_date":task.task_create_date,
                 "task_done":task.task_done,
+                "info_type":task.inform_type,
                 "staff_count":len(all_evaluate),}
         undo_staff = []
         for staff in undo_staff_info:
