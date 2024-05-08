@@ -442,7 +442,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         for failed_email in failed_email_all:
             ret.append(dict(staff_name=failed_email.staff_name, addr=failed_email.addr, username=failed_email.username))
 
-        DetailResponse(data=ret, msg="获取成功")
+        return DetailResponse(data=ret, msg="获取成功")
 
         
 

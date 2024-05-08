@@ -625,10 +625,48 @@ const indexundo=(title)=>{
 //导出EXCEL
 const exportExcel=()=>{
 
+
+    
     //列名
     const title=[OTtaskcontent.value.task_name]
     const headers = ['排名', '姓名','分数','编号'];
     const dataWithHeaders = [title,headers, ...ranktabledata.value.map(item => Object.values(item))];
+    const ws = utils.aoa_to_sheet(dataWithHeaders);
+    const wb = utils.book_new();
+    utils.book_append_sheet(wb, ws, 'Sheet1');
+
+    // 创建 Blob 对象
+    const blob = new Blob([write(wb, { bookType: 'xlsx', type: 'array' })], { type: 'application/octet-stream' });
+
+    
+    // 创建下载链接
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'output.xlsx';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+}
+
+const exportExpExcel=()=>{
+    //列名
+    const title=[OTtaskcontent.value.task_name]
+    const headers = ['评价人/被评价人', ...ranktabledata.value.map(item => item.name)];
+    let abnomaltabledata=[]
+    abnormaltabledata.value.forEach(item=>{
+        let temp=[]
+        temp.push(item.name)
+        for(let i=0;i<ranktabledata.value.length;i++){
+            if(!item[ranktabledata.value[i].evaluated_id]){
+                temp.push(' ')
+            }else{
+                temp.push(item[ranktabledata.value[i].evaluated_id])
+            }
+        }
+        abnomaltabledata.push(temp)
+    })
+    const dataWithHeaders = [title,headers, ...abnomaltabledata];
     const ws = utils.aoa_to_sheet(dataWithHeaders);
     const wb = utils.book_new();
     utils.book_append_sheet(wb, ws, 'Sheet1');
@@ -730,9 +768,15 @@ const exportExcel=()=>{
                         <el-tag size="large" type="primary" v-if="OTtaskcontent.task_state===2&&OTtaskcontent.task_done===1">已生成结果</el-tag>
                         <el-button v-if="OTtaskcontent.task_done===1" style="margin-left: 20px;"  @click="openresetRES">重置结果</el-button>
                     </el-descriptions-item>
+                    <el-descriptions-item label="任务描述"></el-descriptions-item>
+                    <el-descriptions-item label="任务发布状态">
+                        <el-tag size="large" type="primary" v-if="OTtaskcontent.info_type===0">未确认通知</el-tag>
+                        <el-tag size="large" type="primary" v-if="OTtaskcontent.info_type===1">邮件通知</el-tag>
+                        <el-tag size="large" type="primary" v-if="OTtaskcontent.info_type===2">匿名通知</el-tag>
+
+                    </el-descriptions-item>
                 </el-descriptions>
                 <div>
-                <p>任务描述</p>
                 <el-input
                     v-model="OTtaskcontent.task_describe"
                     maxlength="300"
@@ -768,8 +812,11 @@ const exportExcel=()=>{
                                         <p>/{{  OTtaskcontent.staff_count}}</p>
                                     </template>
                                     <template #default>
-                                        <div v-for="item in departmentMap"  >
+                                        <div v-for="item in departmentMap"  v-if="OTtaskcontent.info_type===1">
                                             <p class="font-sans text-sky-400/100 text-wrap text-xl hover:text-indigo-800 cursor-pointer ..." @click="indexundo(item[0])">{{ item[0]}} 还剩 {{item[1].length}}个人尚未完成</p>
+                                        </div>
+                                        <div v-for="item in departmentMap"  v-if="OTtaskcontent.info_type!==1">
+                                            <p class="font-sans text-sky-400/100 text-wrap text-xl  cursor-pointer ...">{{ item[0]}} 还剩 {{item[1].length}}个人尚未完成</p>
                                         </div>
                                     </template>
                                 </el-popover>
@@ -830,6 +877,9 @@ const exportExcel=()=>{
 
                             </el-table>
                         </div>
+                        <el-button size="large" style="font-size: large; font-weight: bold; border-width: 2px; margin-top: 10px;"  @click="exportExpExcel">
+                            导出excel
+                        </el-button>
                     </el-collapse-item>
                 </el-collapse>
 
