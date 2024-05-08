@@ -382,10 +382,11 @@ class EvaluateTaskViewSet(CustomModelViewSet):
             
         Failed_email.objects.bulk_create(tmp_list)
 
-        if len(tmp_list) == 0:
-            DetailResponse(data=[], msg="发送成功")
-        else:
-            ErrorResponse(data=ret_list, msg="列表中人员发送失败")
+        return DetailResponse(data=[], msg="发送中...")
+        # if len(tmp_list) == 0:
+        #     DetailResponse(data=[], msg="发送成功")
+        # else:
+        #     ErrorResponse(data=ret_list, msg="列表中人员发送失败")
             
     
     @action(methods=['get'], detail=False, permission_classes=[])

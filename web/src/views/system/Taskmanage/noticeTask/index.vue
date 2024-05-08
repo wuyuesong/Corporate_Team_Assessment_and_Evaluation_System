@@ -94,14 +94,21 @@ const random_inform=async()=>{
 <template>
 <div style="height: 88vh;">
     <el-row>
-        <el-col :span="4">
+        <el-col :span="3">
             <div class="email_notice">
                 <el-button  @click="email_inform" size="large" type="danger" >邮件通知</el-button>
             </div>
         </el-col>
-        <el-col :span="7">
-            <div class="random_notice">
-                
+        <el-col :span="8">
+            <div class="infolist">
+                <h1 class="font-serif text-2xl antialiased font-bold " style="margin-bottom:10px;">实名任务列表</h1>
+                <el-scrollbar max-height="800px">
+                <div class="list_item" v-for="item in taskEmailList">
+                    <p class="font-mono text-xl font-semibold" >{{ item.task_name }}</p>
+                    <p class="font-mono text-base font-semibold" >{{ "任务标识:"+item.task_id }}</p>
+                    <p class="font-mono text-base font-semibold" >{{ "创建时间:"+item.task_create_date.replace('T',' ') }}</p>
+                </div>
+                </el-scrollbar>
             </div>
         </el-col>
         <el-col :span="1">
@@ -110,8 +117,15 @@ const random_inform=async()=>{
             </div>
         </el-col>
         <el-col :span="8">
-            <div class="random_notice">
-                
+            <div class="infolist">
+                <h1 class="font-serif text-2xl antialiased font-bold" style="margin-bottom:10px;">匿名任务列表</h1>
+                <el-scrollbar max-height="800px">
+                <div class="list_item" v-for="item in taskRandomList">
+                    <p class="font-mono text-xl font-semibold" >{{ item.task_name }}</p>
+                    <p class="font-mono text-base font-semibold" >{{ "任务标识:"+item.task_id }}</p>
+                    <p class="font-mono text-base font-semibold" >{{ "创建时间:"+item.task_create_date.replace('T',' ') }}</p>
+                </div>
+                </el-scrollbar>
             </div>
         </el-col>
         <el-col :span="4">
@@ -160,6 +174,29 @@ const random_inform=async()=>{
     height: 100%;
     background-image: linear-gradient(black 50%, transparent 50%);
     background-size: 100% 4px;
+    
+}
+.infolist{
+    height: 88vh;
+    background-color: #f0f0f0;
+    border-radius: 10px;
+    padding: 10px;
+    padding-top: 20px;
+    margin: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.list_item{
+    display: block;
+    align-items: center;
+    justify-content: center;
+    height: 70px;
+    margin: 10px;
+    padding: 5px;
+    background-color: rgb(254, 243, 205);
+    color: var(--el-color-primary);
+    border-radius: 5px;
     
 }
 </style>

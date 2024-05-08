@@ -4,6 +4,7 @@ from email.mime.text import MIMEText
 # 构建邮件头
 from email.header import Header
 import base64
+import time
  
 
 from conf.env import *
@@ -41,10 +42,17 @@ def send_email(to_addrs):
             subject = '考评任务' # 主题
             msg['Subject'] = Header(subject, 'utf-8')  # 邮件主题
             msg['To'] = Header(to_addr["staff_name"])  # 接收者
+            time1 = time.time()
             try:
-                smtpobj.sendmail(EMAIL_SENDER, to_addr["addr"] , msg.as_string())
-            except Exception  as e:
+                
+                tmp = smtpobj.sendmail(EMAIL_SENDER, to_addr["addr"] , msg.as_string())
+                time2 = time.time()
+                print("成功时间：", time2-time1)
+                print(tmp)
+                print(to_addr["addr"])
+            except smtplib.SMTPException as e:
                 failed_list.append(to_addr)
+                print("失败时间：", time.time()-time1)
                 
         print("邮件发送成功")
     except smtplib.SMTPException as e:

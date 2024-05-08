@@ -218,7 +218,7 @@ class TaskViewSet(CustomModelViewSet):
             Task.objects.filter(task_id=task_id).update(task_end_date=request.data.get("task_end_date"))
 
         if 'inform_type' in request.data:
-            Task.objects.filter(task_id=task_id).update(task_end_date=request.data.get("inform_type"))
+            Task.objects.filter(task_id=task_id).update(inform_type=request.data.get("inform_type"))
 
         return DetailResponse(data=[], msg="修改成功")  
 
