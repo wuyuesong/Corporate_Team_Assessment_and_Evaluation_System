@@ -2,6 +2,7 @@
 /backend/.idea
 .idea
 
+docker_env/
 .history/
 .vscode/
 web/package-lock.json
