@@ -18,7 +18,7 @@ const taskRandomList=ref([])
 const featchTaskList = async () => {
     try {
         const res = await request({
-            url: getBaseURL() + 'api/system/task/task_list_all/',
+            url:  'api/system/task/task_list_all/',
             method: 'get',
         })
         if (res.code == 2000) {
@@ -51,7 +51,7 @@ const email_inform=async()=>{
   try{
     email_inform_loading.value=true
     const res = await request({
-      url: getBaseURL() + 'api/system/evaluate_task/send_email/',
+      url: 'api/system/evaluate_task/send_email/',
       method: 'get',
     })
     if(res.code==2000){
@@ -84,7 +84,7 @@ const random_inform=async()=>{
   try{
     random_inform_loading.value=true
     downloadFile({
-					url: getBaseURL() + 'api/system/evaluate_task/generate_excel',
+					url: 'api/system/evaluate_task/generate_excel/',
 					params: {},
 					method: 'get'
     })
@@ -104,7 +104,7 @@ const fetchexceptionlist=async()=>{
   try{
     exceptionDrawer.value=true
     const res = await request({
-      url: getBaseURL() + 'api/system/evaluate_task/get_failed_email_list/',
+      url: 'api/system/evaluate_task/get_failed_email_list/',
       method: 'get',
     })
     if(res.code==2000){

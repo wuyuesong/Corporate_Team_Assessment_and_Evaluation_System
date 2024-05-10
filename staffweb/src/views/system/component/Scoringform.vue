@@ -22,7 +22,7 @@ const fetchscoreList= async()=>{
   try {
         // 发送请求并获取数据
         const response = await request({
-          url: getBaseURL() + 'api/system/evaluate_task/evaluate_task_info/',
+          url: 'api/system/evaluate_task/evaluate_task_info/',
           method: 'post',
           data:{
             staff_id:Cookies.get('staff_id'),
@@ -286,7 +286,7 @@ const utlsubmitStyle=ref([])
             })
         }
         const response = await request({
-          url: getBaseURL() + 'api/system/evaluate_task/submit_evaluate_task/',
+          url: 'api/system/evaluate_task/submit_evaluate_task/',
           method: 'post',
           data:{
             evaluate_id:Cookies.get('staff_id'),
@@ -356,7 +356,7 @@ const tempsaveTaskcore=async()=>{
           })
     }
     const response = await request({
-          url: getBaseURL() + 'api/system/evaluate_task/submit_evaluate_task/',
+          url: 'api/system/evaluate_task/submit_evaluate_task/',
           method: 'post',
           data:{
             evaluate_id:Cookies.get('staff_id'),

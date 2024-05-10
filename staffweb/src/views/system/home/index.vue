@@ -30,7 +30,7 @@ const fetchTaskInfo = async() => {
   try {
         // 发送请求并获取数据
         const response = await request({
-          url: getBaseURL() + 'api/system/task/task_list/',
+          url: 'api/system/task/task_list/',
           method: 'post',
           data:{
             staff_id:Cookies.get('staff_id')

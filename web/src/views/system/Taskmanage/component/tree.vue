@@ -20,7 +20,7 @@ const fetchAddingTreeInfo=async()=>{
     try {
         // 发送请求并获取数据
         const response = await request({
-        url: getBaseURL() + 'api/system/rank/tree_rank_list/',
+        url: 'api/system/rank/tree_rank_list/',
         method: 'get',})
         const data = await response.data;
         // 更新选项列表

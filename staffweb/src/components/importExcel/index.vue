@@ -66,7 +66,7 @@ let props = defineProps({
         // 设置上传的请求头部
         headers: { Authorization: 'JWT ' + Session.get('token') },
         // 上传的地址
-        url: getBaseURL() + 'api/system/file/'
+        url:  'api/system/file/'
       }
     }
   },

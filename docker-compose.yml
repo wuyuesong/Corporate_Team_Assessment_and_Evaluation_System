@@ -17,6 +17,23 @@ services:
     networks:
       - network
 
+  dvadmin3-staffweb:
+    container_name: dvadmin3-staffweb
+    ports:
+      - "8090:8090"
+    build:
+      context: ./
+      dockerfile: ./docker_env/staffweb/Dockerfile
+    environment:
+      TZ: Asia/Shanghai
+    volumes:
+      - ./docker_env/nginx/mystaffweb.conf:/etc/nginx/conf.d/my.conf
+    expose:
+      - "8090"
+    restart: always
+    networks:
+      - network
+
   dvadmin3-django:
     build:
       context: .

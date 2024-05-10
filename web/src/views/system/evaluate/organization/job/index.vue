@@ -32,7 +32,7 @@ let props = defineProps({
         // 设置上传的请求头部
         headers: { Authorization: 'JWT ' + Session.get('token') },
         // 上传的地址
-        url: getBaseURL() + 'api/system/file/'
+        url: 'api/system/file/'
       }
     }
   },
@@ -51,7 +51,7 @@ const handleFileSuccess=function (response:any, file:any, fileList:any) {
   uploadRef.value.clearFiles()
   // 是否更新已经存在的用户数据
   return request({
-    url: getBaseURL() + 'api/system/rank/import_data/',
+    url: 'api/system/rank/import_data/',
     method: 'post',
     data: {
       url: response.data.url

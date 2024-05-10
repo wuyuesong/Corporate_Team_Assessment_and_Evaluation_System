@@ -40,7 +40,7 @@ let props = defineProps({
         // 设置上传的请求头部
         headers: { Authorization: 'JWT ' + Session.get('token') },
         // 上传的地址
-        url: getBaseURL() + 'api/system/file/'
+        url: 'api/system/file/'
       }
     }
   },
@@ -58,7 +58,7 @@ const handleFileSuccess=function (response:any, file:any, fileList:any) {
   uploadRef.value.clearFiles()
   // 是否更新已经存在的用户数据
   return request({
-    url: getBaseURL() + 'api/system/staff/import_data/',
+    url: 'api/system/staff/import_data/',
     method: 'post',
     data: {
       url: response.data.url
@@ -80,7 +80,7 @@ const handleFileSuccess=function (response:any, file:any, fileList:any) {
 // 定义一个处理点击事件的函数
 const handleDLClick = () => {
   downloadFile({
-    url: getBaseURL() + 'api/system/staff/import_data/',
+    url: 'api/system/staff/import_data/',
     params: {},
     method: 'get'
   })
@@ -134,7 +134,7 @@ const handleResetClick = () => {
 const SubmmitInfo = async() => {
       subloading.value = true; // 开始加载状态
       request({
-        url: getBaseURL() + 'api/system/staff/generate_account/',
+        url: 'api/system/staff/generate_account/',
         method: 'get',
         data: {
         }
@@ -161,7 +161,7 @@ const SubmmitInfo = async() => {
 const ResetInfo = async() => {
       resetloading.value = true; // 开始加载状态
        request({
-          url: getBaseURL() + 'api/system/staff/delete_all/',
+          url: 'api/system/staff/delete_all/',
          method: 'get',
        }).then((response:any) => {
          if(response.code==2000){

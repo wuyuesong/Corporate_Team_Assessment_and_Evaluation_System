@@ -20,7 +20,7 @@ const feachMatrixRes=async()=>{
     departmentlist.value=[]
     try {
         const response=await request({
-            url: getBaseURL() +'api/system/weight_task/get_weight_matrix/',
+            url: 'api/system/weight_task/get_weight_matrix/',
             method: 'get',
         })
         const data = await response.data;
@@ -48,7 +48,7 @@ const featchMatrixQnn=async()=>{
     processData.value={}
     try {
         const response=await request({
-            url: getBaseURL() +'api/system/weight_task/weight_task_status/',
+            url: 'api/system/weight_task/weight_task_status/',
             method: 'get',
         })
         const data = await response.data;
@@ -77,7 +77,7 @@ const featchMatrixQnn=async()=>{
 const presentWeightQnn=async()=>{
     try {
         const response=await request({
-            url: getBaseURL() +'api/system/weight_task/weight_task_create/',
+            url: 'api/system/weight_task/weight_task_create/',
             method: 'post',
             data:{
                 task_name:"部门权重问卷",
@@ -115,7 +115,7 @@ const gobackQnn=()=>{
       }).then(() => {
         try {
             request({
-                url: getBaseURL() +'api/system/weight_task/reset_weight_task/',
+                url: 'api/system/weight_task/reset_weight_task/',
                 method: 'get',
             }).then((response)=>{
                 if(response.code===2000){
@@ -158,7 +158,7 @@ const computecolor=(item)=>{
 const submitcal=async()=>{
     try {
         const response=await request({
-            url: getBaseURL() +'api/system/weight_task/cal_weight_task/',
+            url: 'api/system/weight_task/cal_weight_task/',
             method: 'get',
         })
         const data = await response.data;

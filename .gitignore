@@ -1,8 +1,7 @@
 /backend/venv
 /backend/.idea
 .idea
-
-docker_env/
+/docker_env/mysql
 .history/
 .vscode/
 web/package-lock.json

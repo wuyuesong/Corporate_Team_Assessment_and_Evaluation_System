@@ -19,7 +19,7 @@ const subscoreloading=ref(false)
 const fetchquestionList=async()=>{
     try {
         const response=await request({
-            url: getBaseURL() +'api/system/weight_task/weight_task_info/',
+            url: 'api/system/weight_task/weight_task_info/',
             method: 'post',
             data:{
                 staff_id:Cookies.get('staff_id'),
@@ -52,7 +52,7 @@ const QNNsave=async()=>{
         })
     })
     const response = await request({
-          url: getBaseURL() + 'api/system/weight_task/submit_weight_task/',
+          url: 'api/system/weight_task/submit_weight_task/',
           method: 'post',
           data:{
             staff_id:Cookies.get('staff_id'),
@@ -99,7 +99,7 @@ const QNNsubmit=()=>{
             })
         })
         const response = await request({
-          url: getBaseURL() + 'api/system/weight_task/submit_weight_task/',
+          url: 'api/system/weight_task/submit_weight_task/',
           method: 'post',
           data:{
             staff_id:Cookies.get('staff_id'),

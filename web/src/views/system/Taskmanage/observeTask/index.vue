@@ -54,7 +54,7 @@ onMounted(()=>{
 const fetchAllTaskList=async()=>{
     try {
         const response=await request({
-                url: getBaseURL() + 'api/system/task/task_list_all/',
+                url: 'api/system/task/task_list_all/',
                 method: 'get',
         })
         if(response.code==2000){
@@ -69,7 +69,7 @@ const fetchAllTaskList=async()=>{
 const fetchTaskpageInfo=async()=>{
     try {
         const response=await request({
-                url: getBaseURL() + 'api/system/evaluate_task/task_info/',
+                url: 'api/system/evaluate_task/task_info/',
                 method: 'post',
                 data:{
                     task_id:currentTask.value
@@ -198,7 +198,7 @@ const deleteTask=()=>{
 const confirmdeleteTask = async()=>{
     try {
         const response=await request({
-                url: getBaseURL() + 'api/system/evaluate_task/task_delete_single/',
+                url: 'api/system/evaluate_task/task_delete_single/',
                 method: 'post',
                 data:{
                     task_id:currentTask.value
@@ -230,7 +230,7 @@ const confirmsEditTask=async()=>{
         console.log(typeof tempTime.value.starttemptime); // 应该打印 "string"
         console.log(typeof tempTime.value.endtemptime); // 应该打印 "string"
         const response=await request({
-                url: getBaseURL() + 'api/system/task/modify_task/',
+                url: 'api/system/task/modify_task/',
                 method: 'post',
                 data:{
                     task_id:currentTask.value,
@@ -269,7 +269,7 @@ const confirmsEditTask=async()=>{
 const generateResult=async()=>{
     try {
         const response=await request({
-                url: getBaseURL() + 'api/system/evaluate_task/task_calc/',
+                url: 'api/system/evaluate_task/task_calc/',
                 method: 'post',
                 data:{
                    task_id:currentTask.value,
@@ -301,7 +301,7 @@ const itemkey=ref()
 const fetchrankresinfo=async()=>{
     try {
         const response=await request({
-                url: getBaseURL() + 'api/system/evaluate_task/get_rank/',
+                url: 'api/system/evaluate_task/get_rank/',
                 method: 'post',
                 data:{
                    task_id:currentTask.value
@@ -347,7 +347,7 @@ const fetchrankresinfo=async()=>{
 const fetchallevaluate=async()=>{
     try {
         const response=await request({
-                url: getBaseURL() + 'api/system/evaluate_task/get_all_evaluate/',
+                url: 'api/system/evaluate_task/get_all_evaluate/',
                 method: 'post',
                 data:{
                    task_id:currentTask.value
@@ -382,7 +382,7 @@ const abnormaltabledata=ref([])
 const fetchabnorinfo=async()=>{
     try {
         const response=await request({
-                url: getBaseURL() + 'api/system/evaluate_task/get_abnormal_data/',
+                url: 'api/system/evaluate_task/get_abnormal_data/',
                 method: 'post',
                 data:{
                    task_id:currentTask.value
@@ -584,7 +584,7 @@ const openresetRES=()=>{
       }).then(async() => {
         try {
             const response=await request({
-                    url: getBaseURL() + 'api/system/evaluate_task/reset_taskres/',
+                    url:  'api/system/evaluate_task/reset_taskres/',
                     method: 'post',
                     data:{
                         task_id:currentTask.value

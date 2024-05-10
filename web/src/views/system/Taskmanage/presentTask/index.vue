@@ -43,7 +43,7 @@ const evaluatedrevert=async()=>{
     .then(async () => {
       loading.value = true;
       const response=await request({
-        url: getBaseURL() + 'api/system/staff/',
+        url: 'api/system/staff/',
         method: 'get',
         params:{
             staff_department:form.department,
@@ -117,7 +117,7 @@ const fetchDepatOptions = async () => {
     try {
         // 发送请求并获取数据
         const response = await request({
-        url: getBaseURL() + 'api/system/department/',
+        url: 'api/system/department/',
         method: 'get',})
         const data = await response.data;
         // 更新选项列表
@@ -136,7 +136,7 @@ const fetchRankOptions = async () => {
     try {
         // 发送请求并获取数据
         const response = await request({
-        url: getBaseURL() + 'api/system/rank/unique_rank_list',
+        url: 'api/system/rank/unique_rank_list/',
         method: 'get',})
         const data = await response.data;
         // 更新选项列表
@@ -185,7 +185,7 @@ const addevaluatinggroup=async()=>{
         // 发送请求并获取数据
         addtarget.forEach(async targetelement => {
             const response=await request({
-                url: getBaseURL() + 'api/system/staff/',
+                url:  'api/system/staff/',
                 method: 'get',
                 params:{
                     staff_department:targetelement.staff_department,
@@ -350,7 +350,7 @@ const TaskPreSubmit=async(type:number)=>{
     pageloading.value=true;
     try {
         const response=await request({
-                url: getBaseURL() + 'api/system/evaluate_task/evaluate_task_create/',
+                url: 'api/system/evaluate_task/evaluate_task_create/',
                 method: 'post',
                 data:{
                     task_name: TaskTitle.value,
