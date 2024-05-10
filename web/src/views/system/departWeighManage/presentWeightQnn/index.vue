@@ -27,7 +27,6 @@ const feachMatrixRes=async()=>{
         if(response.code===2000){
             matrixStatus.value=data
             departmentlist.value = Object.keys(matrixStatus.value);
-            checkSubmit()
         }else{
             ElMessage({
                 showClose: true,
@@ -59,10 +58,13 @@ const featchMatrixQnn=async()=>{
             if(data.task_status===-1){
                 presenting.value=-1
             }else if(data.task_status===0){
-                presenting.value=-0
+                presenting.value=0
             }else{
                 presenting.value=1
             }
+
+            checkSubmit()
+            console.log(!(checkSubmitres.value))
         }else{
             ElMessage({
                 showClose: true,
@@ -182,15 +184,16 @@ const submitcal=async()=>{
         
     }
 }
-const checkSubmitres=ref(false)
+const checkSubmitres=ref(true)
 const checkSubmit=()=>{
+    console.log(processList.value)
     for ( let item in processList.value){
-        if(item.completed===0){
+        //获取item
+        if(processList.value[item].completed === 0){
             checkSubmitres.value=false
             return
         }
     }
-    checkSubmitres.value=true
     return
 }
 </script>
@@ -211,7 +214,7 @@ const checkSubmit=()=>{
                     </button>
                     <el-button-group style="margin-top: 20px;">
                         <el-button   plain size="large" @click="gobackQnn"><el-icon><RefreshLeft/></el-icon>撤销</el-button>
-                        <el-button size="large" :disabled="checkSubmitres" @click="submitcal">计算<el-icon class="el-icon--right" ><Histogram/></el-icon></el-button>
+                        <el-button size="large" key="1" :disabled="(!checkSubmitres)||presenting===1" @click="submitcal">计算<el-icon class="el-icon--right" ><Histogram/></el-icon></el-button>
                     </el-button-group>
                     <el-scrollbar height="500px" style="margin-top: 10px;">
                     <el-timeline style="margin: 10px;">
