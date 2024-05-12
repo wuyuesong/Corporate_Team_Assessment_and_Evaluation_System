@@ -1,3 +1,8 @@
+"""
+@author: wuyuesong
+@Remark: 职级管理
+"""
+
 import hashlib
 import string
 
@@ -136,16 +141,20 @@ class RankViewSet(CustomModelViewSet):
         "staff_department": "用户部门"
     }
 
+    # 删除所有职级
     def Rank_delete_all(self, request: Request):
         Rank_all = Rank.objects.all()
         Rank_all.delete()
         return DetailResponse(data=[], msg="删除成功")
     
+    # 获取所有职级
     def unique_rank_list(self, request: Request):
         unique_rank = list(Rank.objects.order_by('staff_rank').values_list('staff_rank', flat=True).distinct().order_by('staff_rank'))
         dist_unique_rank = [dict(name=rank,id=value) for value,rank in enumerate(unique_rank, start=1)]
         return DetailResponse(data=dist_unique_rank, msg="获取成功")
     
+
+    # 以树形结构的方式获取职级
     def tree_rank_list(self, request: Request):
         chinese_numerals = {
             0: '零', 1: '一', 2: '二', 3: '三', 4: '四',

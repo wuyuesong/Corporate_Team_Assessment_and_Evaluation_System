@@ -1,3 +1,7 @@
+"""
+@author: wuyuesong
+@Remark: 权重任务管理
+"""
 import hashlib
 import uuid
 import time
@@ -27,6 +31,7 @@ class WeightTaskViewSet(CustomModelViewSet):
 
     queryset = WeightTask.objects.all()
 
+    # 创建权重任务
     @action(methods=['POST'], detail=False, permission_classes=[])
     def weight_task_create(self, request: Request):
         task_id = uuid.uuid4()
@@ -52,6 +57,7 @@ class WeightTaskViewSet(CustomModelViewSet):
         return DetailResponse(data=dict(task_id=task_id), msg="创建成功")
     
 
+    # 特定权重任务的信息，主要包含所有需要评价的部门
     @action(methods=['POST'], detail=False, permission_classes=[])
     def weight_task_info(self, request: Request):
         task_id = request.data.get("task_id")
@@ -68,7 +74,7 @@ class WeightTaskViewSet(CustomModelViewSet):
         return DetailResponse(data=ret, msg="获取成功")
     
 
-
+    # 客户端提交权重任务的结果
     @action(methods=['POST'], detail=False, permission_classes=[])
     def submit_weight_task(self, request: Request):
         staff_id = request.data.get("staff_id")
@@ -87,7 +93,7 @@ class WeightTaskViewSet(CustomModelViewSet):
             return DetailResponse(data=[], msg="保存成功")
 
         
-    
+    # 获取权重任务的状态，-1当前还没有权重任务，0表示有权重任务但是还未进行结果计算，1表示有权重任务并且已经进行了结果计算
     @action(methods=['GET'], detail=False, permission_classes=[])
     def weight_task_status(self, request: Request):
         weight_task_count = Task.objects.filter(task_type=1).count()
@@ -113,6 +119,7 @@ class WeightTaskViewSet(CustomModelViewSet):
             else:
                 return DetailResponse(data=dict(task_status=1), msg="获取成功")
 
+    # 获取权重任务的矩阵
     @action(methods=['GET'], detail=False, permission_classes=[])
     def get_weight_matrix(self, request: Request):
         department_all = Department.objects.all()
@@ -132,6 +139,7 @@ class WeightTaskViewSet(CustomModelViewSet):
 
         return DetailResponse(data=ret, msg="获取成功")
     
+    # 删除权重任务
     @action(methods=['GET'], detail=False, permission_classes=[])
     def reset_weight_task(self, request: Request):
         Task.objects.filter(task_type=1).delete()
@@ -139,6 +147,7 @@ class WeightTaskViewSet(CustomModelViewSet):
 
         return DetailResponse(data=[], msg="删除成功")
     
+    # 计算权重任务的结果
     @action(methods=['GET'], detail=False, permission_classes=[])
     def cal_weight_task(self, request: Request):
         task = Task.objects.get(task_type=1)

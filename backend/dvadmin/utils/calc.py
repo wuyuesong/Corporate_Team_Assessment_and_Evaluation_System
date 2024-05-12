@@ -1,3 +1,7 @@
+"""
+@author: wuyuesong
+@Remark: 计算工具类
+"""
 import filecmp
 from scipy.stats import norm
 import pandas as pd
@@ -5,7 +9,7 @@ import numpy as np
 import math
 
 
-
+# 用于计算评价任务的最终得分
 def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
 
     non_zero_counts_row = np.count_nonzero(range_data, axis=1)
@@ -230,6 +234,7 @@ def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
 
     return rank, abnormal_data
 
+# 用于计算部门相关权重
 def calc_relation(relation):
     relation = relation.astype(np.float64)
     column_sums = np.sum(relation, axis=0)

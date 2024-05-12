@@ -138,12 +138,14 @@ class TaskViewSet(CustomModelViewSet):
         "task_create_date":"任务创建时间",
     }
     
+    # 删除所有任务
     def task_delete_all(self, request: Request):
         Task_all = Task.objects.all()
         Task_all.delete()
         return DetailResponse(data=[], msg="删除成功")
     
 
+    # 获取登录账号所有任务列表
     @action(methods=['POST'], detail=False, permission_classes=[])
     def task_list(self, request: Request):
         staff_id = request.data.get("staff_id")
@@ -182,7 +184,7 @@ class TaskViewSet(CustomModelViewSet):
 
         return DetailResponse(data=ret, msg="获取成功")        
     
-    
+    # 获取所有任务的列表，与前面不同，这里是所有人的任务
     @action(methods=['GET'], detail=False, permission_classes=[])
     def task_list_all(self, request: Request):
         Task_all = Task.objects.all()
@@ -201,7 +203,7 @@ class TaskViewSet(CustomModelViewSet):
 
         return DetailResponse(data=ret, msg="获取成功")    
     
-
+    # 修改某个任务的信息，包含任务名称，任务描述，任务开始时间，任务结束时间，通知方式
     @action(methods=['POST'], detail=False, permission_classes=[])
     def modify_task(self, request: Request):
         task_id = request.data.get("task_id")

@@ -1,3 +1,8 @@
+"""
+@author: wuyuesong
+@Remark: 邮件发送工具类
+"""
+
 import smtplib
 # email 用于构建邮件内容
 from email.mime.text import MIMEText

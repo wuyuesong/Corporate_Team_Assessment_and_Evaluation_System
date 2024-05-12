@@ -1,3 +1,7 @@
+"""
+@author: wuyuesong
+@Remark: 评价任务管理
+"""
 import hashlib
 import uuid
 import time
@@ -152,6 +156,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         "grade_date":"评价时间"
     }
 
+    # 创建评价任务
     def evaluate_task_create(self, request: Request):
         task_id = uuid.uuid4()
         task_type = request.data.get("task_type")
@@ -177,6 +182,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
 
         return DetailResponse(data=dict(task_id=task_id), msg="创建成功")
 
+    # 返回当前评价任务的所有评价人
     @action(methods=['POST'], detail=False, permission_classes=[])
     def evaluate_task_info(self, request: Request):
         task_id = request.data.get("task_id")
@@ -193,6 +199,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
 
         return DetailResponse(data=ret, msg="查询成功")
     
+    # 提交评价任务
     @action(methods=['POST'], detail=False, permission_classes=[])
     def submit_evaluate_task(self, request: Request):
         evaluate_id = request.data.get("evaluate_id")
@@ -209,13 +216,13 @@ class EvaluateTaskViewSet(CustomModelViewSet):
 
         return DetailResponse(data=[], msg="提交成功")
 
-
+    # 删除所有评价任务
     def evaluate_task_delete_all(self, request: Request):
         EvaluateTask_all = EvaluateTask.objects.all()
         EvaluateTask_all.delete()
         return DetailResponse(data=[], msg="删除成功")
     
-
+    # 返回评价任务的基本信息，包括任务id，任务名称，任务描述，任务开始时间，任务结束时间，任务创建时间，通知类型，评价人总人数，未完成评价人
     @action(methods=['POST'], detail=False, permission_classes=[])
     def task_info(self, request: Request):
         task_id = request.data.get("task_id")
@@ -246,7 +253,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
 
         return DetailResponse(data=ret, msg="获取成功")     
     
-
+    # 删除某个评价任务
     @action(methods=['post'], detail=False, permission_classes=[])
     def task_delete_single(self, request: Request):
         task_id = request.data.get("task_id")
@@ -256,6 +263,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         evaluateTask_all.delete()
         return DetailResponse(data=[], msg="删除成功")
     
+    # 评价任务的最终结果计算
     @action(methods=['post'], detail=False, permission_classes=[])
     def task_calc(self, request: Request):
         task_id = request.data.get("task_id")
@@ -292,6 +300,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
 
         return DetailResponse(data=[], msg="计算成功")
     
+    # 获取评价任务的最终排名
     @action(methods=['post'], detail=False, permission_classes=[])
     def get_rank(self, request: Request):
         task_id = request.data.get("task_id")
@@ -305,6 +314,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
 
         return DetailResponse(data=ret, msg="获取成功")
     
+    # 获取评价任务的非正常数据
     @action(methods=['post'], detail=False, permission_classes=[])
     def get_abnormal_data(self, request: Request):
         task_id = request.data.get("task_id")
@@ -324,6 +334,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
 
         return DetailResponse(data=ret, msg="获取成功")
     
+    # 重置已经生成结果的任务
     @action(methods=['post'], detail=False, permission_classes=[])
     def reset_taskres(self, request:Request):
         task_id = request.data.get("task_id")
@@ -336,7 +347,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         Task.objects.filter(task_id=task_id).update(task_done=0)
         return DetailResponse(msg="重置成功",data=[])
     
-
+    # 获取评价任务的所有评价人
     @action(methods=['post'], detail=False, permission_classes=[])
     def get_all_evaluate(self, request: Request):
         task_id = request.data.get("task_id")
@@ -354,7 +365,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
 
         return DetailResponse(data=ret, msg="获取成功")
     
-
+    # 发送邮件通知
     @action(methods=['get'], detail=False, permission_classes=[])
     def send_email(self, request: Request):
         all_email_info_task = list(Task.objects.filter(inform_type=1).values_list('task_id', flat=True).distinct().order_by('task_id'))
@@ -388,7 +399,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         # else:
         #     ErrorResponse(data=ret_list, msg="列表中人员发送失败")
             
-    
+    # 生成excel表
     @action(methods=['get'], detail=False, permission_classes=[])
     def generate_excel(self, request: Request):
         response = HttpResponse(content_type="application/msexcel")
@@ -432,7 +443,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         wb.save(response)
         return response
     
-
+    # 获取发送邮件失败的列表
     @action(methods=['get'], detail=False, permission_classes=[])
     def get_failed_email_list(self, request: Request):
         
