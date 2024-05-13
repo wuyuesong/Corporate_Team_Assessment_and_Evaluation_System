@@ -30,6 +30,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 				editRequest,
 				delRequest,
 			},
+	
 			toolbar:{
 				show:false
 			},
@@ -71,7 +72,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 					type: 'dict-tree',
 					dict: dict({
                         isTree: true,
-                        url: '/api/system/department',
+                        url: '/api/system/department/',
                         label: 'staff_department',
 						value: 'staff_department'
                     }),
@@ -107,7 +108,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 					},
 				},
 				normal_rank: {
-					title: '用户标准化职级',
+					title: '用户标准化层级',
 					search: {
 						disabled: false,
 					},
@@ -119,7 +120,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						
 						disabled: true,
 						component: {
-							placeholder: '请输入标准化职级',
+							placeholder: '请输入标准化层级',
 						},
 					},
 				},

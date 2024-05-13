@@ -17,6 +17,7 @@ const uploadRef = ref()
 const refreshView = inject('refreshView')
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Eleme } from '@element-plus/icons-vue'
+import { response } from '/@/utils/tools';
 // 页面打开后获取列表数据
 onMounted(() => {
 	crudExpose.doRefresh();
@@ -39,7 +40,7 @@ let props = defineProps({
         // 设置上传的请求头部
         headers: { Authorization: 'JWT ' + Session.get('token') },
         // 上传的地址
-        url: getBaseURL() + 'api/system/file/'
+        url: 'api/system/file/'
       }
     }
   },
@@ -57,7 +58,7 @@ const handleFileSuccess=function (response:any, file:any, fileList:any) {
   uploadRef.value.clearFiles()
   // 是否更新已经存在的用户数据
   return request({
-    url: getBaseURL() + 'api/system/staff/import_data/',
+    url: 'api/system/staff/import_data/',
     method: 'post',
     data: {
       url: response.data.url
@@ -79,7 +80,7 @@ const handleFileSuccess=function (response:any, file:any, fileList:any) {
 // 定义一个处理点击事件的函数
 const handleDLClick = () => {
   downloadFile({
-    url: getBaseURL() + 'api/system/staff/import_data/',
+    url: 'api/system/staff/import_data/',
     params: {},
     method: 'get'
   })
@@ -133,7 +134,7 @@ const handleResetClick = () => {
 const SubmmitInfo = async() => {
       subloading.value = true; // 开始加载状态
       request({
-        url: getBaseURL() + 'api/system/staff/generate_account/',
+        url: 'api/system/staff/generate_account/',
         method: 'get',
         data: {
         }
@@ -160,7 +161,7 @@ const SubmmitInfo = async() => {
 const ResetInfo = async() => {
       resetloading.value = true; // 开始加载状态
        request({
-          url: getBaseURL() + 'api/system/staff/delete_all/',
+          url: 'api/system/staff/delete_all/',
          method: 'get',
        }).then((response:any) => {
          if(response.code==2000){
@@ -181,6 +182,9 @@ const ResetInfo = async() => {
 
         });
 };
+
+
+
 </script>
 
 
@@ -193,7 +197,9 @@ const ResetInfo = async() => {
                             <b>组织人员信息</b>
                     </div>
                     <fs-crud ref="crudRef" v-bind="crudBinding" > </fs-crud>
-                    <div style="padding: 10px;">
+                    <div style="padding: 10px; display: flex;">
+        
+                      <el-col :span="20">
                       <el-button id="staffsubmit" type="danger" :loading="subloading" @click="handleSubmmitClick" size="large">
                       <template #loading>
                         <div class="custom-loading">
@@ -213,7 +219,7 @@ const ResetInfo = async() => {
                           </svg>
                         </div>
                       </template>
-                      提交员工信息
+                      确认员工信息
                       </el-button>   
                       
                       <el-button id="staffreset" type="warning" :loading="resetloading" @click="handleResetClick" size="large">
@@ -236,7 +242,11 @@ const ResetInfo = async() => {
                         </div>
                       </template>
                       重置
-                      </el-button>     
+                      </el-button>  
+                      </el-col>
+                     
+                      
+
                     </div>
                     
             </div>

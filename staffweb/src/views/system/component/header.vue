@@ -5,6 +5,7 @@ import screenfull from 'screenfull';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 const { locale, t } = useI18n();
+import Cookies from 'js-cookie';
 
 
 const  handleCommand= (path: string) => {
@@ -49,7 +50,7 @@ const  handleCommand= (path: string) => {
     <div class="toolbar" >
         <div class="ava">
             <div class="avatar"></div>
-            <span style="color: #CCD8E2; font-weight: bold;">用户</span>
+            <span style="color: #CCD8E2; font-weight: bold;">用户{{ Cookies.get('staff_id') }}</span>
         </div>
         <div class="setting">
             <el-dropdown trigger="click"  @command="handleCommand">

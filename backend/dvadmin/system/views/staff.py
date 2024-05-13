@@ -301,26 +301,7 @@ class StaffViewSet(CustomModelViewSet):
     export_serializer_class = ExportStaffProfileSerializer
     # 导入
     import_serializer_class = StaffProfileImportSerializer
-    # import_field_dict = {
-    #     "username": "登录账号",
-    #     "name": "用户名称",
-    #     "email": "用户邮箱",
-    #     "mobile": "手机号码",
-    #     "gender": {
-    #         "title": "用户性别",
-    #         "choices": {
-    #             "data": {"未知": 2, "男": 1, "女": 0},
-    #         }
-    #     },
-    #     "is_active": {
-    #         "title": "帐号状态",
-    #         "choices": {
-    #             "data": {"启用": True, "禁用": False},
-    #         }
-    #     },
-    #     "dept": {"title": "部门", "choices": {"queryset": Dept.objects.filter(status=True), "values_name": "name"}},
-    #     "role": {"title": "角色", "choices": {"queryset": Role.objects.filter(status=True), "values_name": "name"}},
-    # }
+
     import_field_dict = {
         # "staff_department": {"title": "单位名称", "choices": {"queryset": Department.objects.all(), "values_name": "staff_department"}},
         "staff_department": "单位名称",
@@ -341,6 +322,7 @@ class StaffViewSet(CustomModelViewSet):
         "staff_email": "员工邮箱"
     }
 
+    #删除所有员工信息
     def staff_delete_all(self, request: Request):
         Staff_all = Staff.objects.all()
         Staff_all.delete()
@@ -350,6 +332,7 @@ class StaffViewSet(CustomModelViewSet):
         
         return DetailResponse(data=[], msg="删除成功")
     
+    # 生成账号接口
     # 加上锁，如果期间有报错，则回退，不然再次录入时主键会重复
     @transaction.atomic
     def generate_account(self, request: Request):
@@ -373,6 +356,7 @@ class StaffViewSet(CustomModelViewSet):
             staff.save()
         return DetailResponse(data=[], msg="创建账号成功")
     
+    # 已弃用
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data, request=request)
         serializer.is_valid(raise_exception=True)

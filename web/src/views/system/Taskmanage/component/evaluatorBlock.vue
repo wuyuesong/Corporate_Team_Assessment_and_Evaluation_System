@@ -6,6 +6,7 @@ import { ref } from 'vue';
 
 //emit声明
 const emit=defineEmits(['update:modelValue:']);
+
 const {proxy} = getCurrentInstance();
 //props声明
 const model = defineModel({ 
@@ -15,7 +16,6 @@ const model = defineModel({
 
 
  const deletethisItem=()=>{
-    console.log("000000000000000000000");
     proxy.$emit('remove');
  }
 
@@ -23,15 +23,18 @@ const model = defineModel({
 //计算属性处理子组件改动权重,防止打破单向流
 const weightchange=computed({
     get(){
-        return model.value.weight;
+        return model.value.task_weight;
     },
     set(value){
-        model.value.weight=value;
+        model.value.task_weight=value;
     }
 })
 
 const deleteRow = (index: number) => {
-  model.value.tableData.splice(index, 1)
+
+    console.log(model.value.tableData)
+    proxy.$emit('removeallmapone',model.value.tableData[index].staff_id)
+    model.value.tableData.splice(index, 1)
 }
 </script>
 <template>
@@ -59,7 +62,7 @@ const deleteRow = (index: number) => {
             </el-table>
         </el-card>
         <el-card class="weight_right">
-            <el-input-number v-model="weightchange" :min="0" :max="100" style="width: 110px" placeholder="权重"  controls-position="right"/>
+            <el-input-number class="weight_input" v-model="weightchange" :min="0" :max="100"  placeholder="权重(总和100)"  controls-position="right"/>
         </el-card>
     </div>
 </template>
@@ -68,9 +71,10 @@ const deleteRow = (index: number) => {
 .evaitem_container{
     display: flex;
     margin: 10px;
+    width: 100%;
 }
 .title_left{
-    width: 100px;
+    width: 15%;
     display: flex;
     text-align: center;
     align-items: center;
@@ -80,7 +84,7 @@ const deleteRow = (index: number) => {
 }
 
 .contain_middle{
-    width: 450px;
+    width: 58%;
     margin-left: 10px;
     margin-right: 10px;
     align-items: center;
@@ -88,15 +92,19 @@ const deleteRow = (index: number) => {
     background-color: rgb(248, 246, 246);
 }
 .weight_right{
-    width: 150px;
-    padding: 0px;
-    align-items: center;
+    width: 22%;
     display: flex;
-    height: auto; 
+    text-align: center;
+    align-items: center;
+    justify-content: center;
+    height: auto; /* 让所有卡片的高度占满父容器 */
     background-color: rgb(248, 246, 246);
 }
 .evatitle_span{
     font-size: 16px;
     font-weight: 600;
+}
+.weight_input{
+    width: 150px;
 }
 </style>

@@ -18,6 +18,7 @@ onUpdated(() => {
 
 
 <template>
+  <div>
     <el-tabs type="border-card" stretch="true" @tab-click="refreshComponent">
       <el-tab-pane label="部门管理">
         <div class="p1">
@@ -30,6 +31,7 @@ onUpdated(() => {
         </div>
       </el-tab-pane>
     </el-tabs>
+  </div>
 </template>
 
 

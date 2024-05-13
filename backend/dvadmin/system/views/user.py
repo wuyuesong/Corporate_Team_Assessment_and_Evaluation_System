@@ -229,7 +229,8 @@ class UserViewSet(CustomModelViewSet):
     destroy:删除
     """
 
-    queryset = Users.objects.exclude(is_superuser=1).all()
+
+    queryset = Users.objects.exclude(is_superuser=1).exclude(our_user_type=2).all()
     serializer_class = UserSerializer
     create_serializer_class = UserCreateSerializer
     update_serializer_class = UserUpdateSerializer

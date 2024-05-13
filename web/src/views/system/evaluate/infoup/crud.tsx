@@ -42,7 +42,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						onClick:() => {
 							// 在这里执行您想要的操作
 							downloadFile({
-								url: getBaseURL() + 'api/system/staff/export_data/',
+								url:'api/system/staff/export_data/',
 								params: {},
 								method: 'get'
 							})
@@ -108,7 +108,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 					type: 'dict-tree',
 					dict: dict({
                         isTree: true,
-                        url: '/api/system/department',
+                        url: '/api/system/department/',
                         label: 'staff_department',
 						value: 'staff_department'
                     }),
@@ -155,7 +155,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 					type: 'dict-tree',
 					dict: dict({
                         isTree: true,
-                        url: '/api/system/rank/unique_rank_list',
+                        url: '/api/system/rank/unique_rank_list/',
                         label: 'name',
 						value: 'name'
                     }),

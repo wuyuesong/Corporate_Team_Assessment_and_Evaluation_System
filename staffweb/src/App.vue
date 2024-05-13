@@ -1,4 +1,5 @@
 <template>
+		
 		<router-view />
 </template>
 
@@ -12,7 +13,6 @@ import other from '/@/utils/other';
 import { Local, Session } from '/@/utils/storage';
 import mittBus from '/@/utils/mitt';
 import setIntroduction from '/@/utils/setIconfont';
-
 
 // 定义变量内容
 const { messages, locale } = useI18n();

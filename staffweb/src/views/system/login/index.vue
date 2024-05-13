@@ -1,5 +1,7 @@
 <script lang="ts" setup>
 import * as loginApi from './api';
+
+
 import {Md5}  from 'ts-md5';
 import { useRoute, useRouter } from 'vue-router';
 import { Session } from '/@/utils/storage';
@@ -16,19 +18,35 @@ const { userInfos } = storeToRefs(useUserInfo());
 const route = useRoute();
 const router = useRouter();
 import { message } from '/@/utils/message';
-
-
-
+import jumploading from '../Animate/jumploading.vue';
+import VanillaTilt from 'vanilla-tilt';
   
-
+const main=ref()
+const temp=ref()
+const loginrotaition=ref()
 // 页面加载时
 onMounted(() => {
 	NextLoading.done();
+  VanillaTilt.init(main.value, {
+    "mouse-event-element":temp.value,
+    startX:8,
+    max:8,
+    axis:'x',
+	});
+  VanillaTilt.init(loginrotaition.value, {
+    reverse:true,
+    "mouse-event-element":temp.value,
+    startX:8,
+    max:8,
+    axis:'x',
+	});
+
 });
 
 
-
 const loginClick = async () => {
+
+    
     errors.value='';
     if (!input.value||!password.value){
       errors.value = 'Please enter your username or password';
@@ -36,17 +54,21 @@ const loginClick = async () => {
       Cookies.clear();
       return;
     }
-
+    loading.value=true;
     // Md5.hashStr(password.value),
      loginApi.login({ username:input.value, password: password.value,login_type:"2"}).then((res: any) => {
         if (res.code === 2000) {
           Session.set('token', res.data.access);
+          Cookies.set('staff_id',input.value)
           Cookies.set('username', res.data.name);
+          loading.value=false;
           loginSuccess();
         }else{  
+          
+          loading.value=false;
         }
       }).catch((err: any) => {
-       
+        loading.value=false;
       });
 };
 
@@ -70,21 +92,24 @@ const loginSuccess = () => {
       // }
 };
 
+const loading = ref(false)
+
+
 </script>
 <template>
+  <jumploading class="thistop" v-if="true"/>
   <div class="app_container">
     <header>
-      <a class="logo" href="/" >
+      <a class="logo"  ref="temp">
       <li-icon type="logo" size="50dp"  color="brand" role="banner">
         <svg width="40" height="32" viewBox="0 0 102 26" fill="none" id="logo">
-          
         </svg>
       </li-icon>
     </a>
     </header>
-    <main class="loginmainpage">
+    <main class="loginmainpage" ref="main">
       <div style="height: 120px; width: 100%"/>
-      <div class="card">
+      <div class="card" v-loading="loading" ref="loginrotaition" >
           <div class="organ">
               <div class="headercontent">
                 <h1 class="header__content__heading ">登录</h1>
@@ -94,7 +119,7 @@ const loginSuccess = () => {
             <div style="height: 10px;"/>
               <form  class="login__form"  novalidate="true"  @submit.prevent="loginClick">
                 <div class="l-1">
-                  <input id="username" v-model="input" name="session_key" type="text" required  autofocus aria-label="账号" autocomplete="off">
+                  <input  id="username" v-model="input" name="session_key" type="text" required  autofocus aria-label="账号" autocomplete="off">
                   <label class="form__label--floating" for="username" aria-hidden="true">账号</label>
                 </div>
                 <div class="l-1">
@@ -115,27 +140,27 @@ const loginSuccess = () => {
       <div style="height: 120px; width: 100%"/>
 
     </main>
-  </div>
-
+  
+</div>
 
 </template>
 
 
 
 
-<style>
+<style scoped>
 
-@font-face {
-  font-family: "钉钉进步体 Regular";font-weight: 400;src: url("//at.alicdn.com/wf/webfont/iSq66waD0Wdh/hJRqEK6c6oM1.woff2") format("woff2"),
-  url("//at.alicdn.com/wf/webfont/iSq66waD0Wdh/it8Mekj0bBph.woff") format("woff");
-  font-display: swap;
-}
 
-#app__container {
 
+.app__container {
     display: flex;
     min-height: 100vh;
     background-color: var(--color-background-canvas, #ffffff);
+    z-index: 1;
+
+}
+.thistop{
+  display: relative;
 }
 
 .loginmainpage{
@@ -158,7 +183,6 @@ const loginSuccess = () => {
 .app__content {
     display: flex;
     flex: 1;
-    float: none;
     flex-direction: column;
     justify-content: center;
     margin: 0 auto;
@@ -202,6 +226,7 @@ const loginSuccess = () => {
     margin-top: 24px;
     position: relative;
     background-color: #fff;
+    z-index: 1;
 }
 
 
@@ -211,12 +236,11 @@ const loginSuccess = () => {
     line-height: 1.33333;
     font-weight: 400;
     color: rgba(0, 0, 0, 0.9);
-    position: relative;
-    z-index: 1;
     border: 2px solid #ccc; /* 设置边框为1像素宽，实线，颜色为灰色 */
     height: 60px;
     padding: 28px 15px 6px;
     border-radius: 4px !important;
+    z-index: 1;
 }
 
 .l-1>label {
@@ -232,6 +256,7 @@ const loginSuccess = () => {
     margin: 0;
     -webkit-transition: .2s all;
     transition: .2s all;
+    z-index: 1;
 }
 
 input:focus + .form__label--floating,
