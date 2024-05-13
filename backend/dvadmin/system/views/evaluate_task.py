@@ -31,6 +31,7 @@ from openpyxl import Workbook
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.utils import get_column_letter, quote_sheetname
 from openpyxl.worksheet.table import Table, TableStyleInfo
+from openpyxl.styles import Alignment
 from urllib.parse import quote
 
 
@@ -410,6 +411,12 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         ws1.sheet_state = "hidden"
         ws = wb.active
 
+        ws.column_dimensions['A'].width = 20
+        ws.column_dimensions['B'].width = 20
+        ws.column_dimensions['C'].width = 20
+        ws.column_dimensions['D'].width = 20
+
+
         all_evaluate_id = list(EvaluateTask.objects.all().values_list('evaluate_id', flat=True).distinct().order_by('evaluate_id'))
         staff_infos = Staff.objects.filter(staff_id__in=all_evaluate_id)
 
@@ -439,6 +446,14 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         row = len(all_evaluate_id) + 5
         column = 7
         tab = Table(displayName="Table", ref=f"A1:{get_column_letter(row)}{column}")  # 名称管理器
+        for row in ws.iter_rows():
+            ws.row_dimensions[row[0].row].height = 40
+
+        alignment = Alignment(horizontal='center', vertical='center')
+
+        for row in ws.iter_rows():
+            for cell in row:
+                cell.alignment = alignment
         ws.add_table(tab)
         wb.save(response)
         return response

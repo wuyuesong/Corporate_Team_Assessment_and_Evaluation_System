@@ -609,16 +609,31 @@ const openresetRES=()=>{
 
 
 //具体详情
-const indexundo=(title)=>{
-    ElMessageBox.alert('<strong style="font-size: 16px;">'+departmentMap.get(title).map(item=>item.staff_name+' --- '+item.staff_firm_id).join('</br>')+'</strong>',
-    title, {
-        confirmButtonText: 'OK',
-        dangerouslyUseHTMLString: true,
-        callback: (action: Action) => {
-        if(action==='confirm'){
-            }
-        },
-    })
+const indexundo=(title,flag)=>{
+
+    if(flag===1){
+        ElMessageBox.alert('<strong style="font-size: 16px;">'+departmentMap.get(title).map(item=>item.staff_name+' --- '+item.staff_firm_id).join('</br>')+'</strong>',
+        title, {
+            confirmButtonText: 'OK',
+            dangerouslyUseHTMLString: true,
+            callback: (action: Action) => {
+            if(action==='confirm'){
+                }
+            },
+        })
+    }else{
+        ElMessageBox.alert('<strong style="font-size: 16px;">'+departmentMap.get(title).map(item=>'账号：0'+item.staff_firm_id).join('</br>')+'</strong>',
+        title, {
+            confirmButtonText: 'OK',
+            dangerouslyUseHTMLString: true,
+            callback: (action: Action) => {
+            if(action==='confirm'){
+                }
+            },
+        })
+    
+    }
+    
 
 }
 
@@ -632,9 +647,15 @@ const exportExcel=()=>{
     const headers = ['排名', '姓名','分数','编号'];
     const dataWithHeaders = [title,headers, ...ranktabledata.value.map(item => Object.values(item))];
     const ws = utils.aoa_to_sheet(dataWithHeaders);
+    
     const wb = utils.book_new();
     utils.book_append_sheet(wb, ws, 'Sheet1');
-
+    // 遍历每一列
+    for(let i = 1; i <= ws.columnCount; i++) {
+        ws.getColumn(i).width = 30;
+    }
+    // 设置每一列的宽度
+    ws['!cols'] = Array(headers.length).fill({wch: 20});
     // 创建 Blob 对象
     const blob = new Blob([write(wb, { bookType: 'xlsx', type: 'array' })], { type: 'application/octet-stream' });
 
@@ -668,9 +689,12 @@ const exportExpExcel=()=>{
     })
     const dataWithHeaders = [title,headers, ...abnomaltabledata];
     const ws = utils.aoa_to_sheet(dataWithHeaders);
+    for(let i = 1; i <= ws.columnCount; i++) {
+        ws.getColumn(i).width = 30;
+    }
+    ws['!cols'] = Array(headers.length).fill({wch: 20})
     const wb = utils.book_new();
     utils.book_append_sheet(wb, ws, 'Sheet1');
-
     // 创建 Blob 对象
     const blob = new Blob([write(wb, { bookType: 'xlsx', type: 'array' })], { type: 'application/octet-stream' });
 
@@ -731,7 +755,7 @@ const exportExpExcel=()=>{
                             value-format="YYYY-MM-DD HH:mm:ss "
                             ></el-date-picker>
                     </el-form-item>
-                    <el-form-item label="任务标题">
+                    <el-form-item label="任务发布状态">
                         <div class="mb-2 text-sm">
                         <el-radio-group v-model="OTtaskcontent.info_type">
                             <el-radio value="1" size="large" border>邮件通知</el-radio>
@@ -812,12 +836,17 @@ const exportExpExcel=()=>{
                                         <p>/{{  OTtaskcontent.staff_count}}</p>
                                     </template>
                                     <template #default>
-                                        <div v-for="item in departmentMap"  v-if="OTtaskcontent.info_type===1">
+                                        <!-- <div v-for="item in departmentMap"  v-if="OTtaskcontent.info_type===1">
                                             <p class="font-sans text-sky-400/100 text-wrap text-xl hover:text-indigo-800 cursor-pointer ..." @click="indexundo(item[0])">{{ item[0]}} 还剩 {{item[1].length}}个人尚未完成</p>
                                         </div>
                                         <div v-for="item in departmentMap"  v-if="OTtaskcontent.info_type!==1">
                                             <p class="font-sans text-sky-400/100 text-wrap text-xl  cursor-pointer ...">{{ item[0]}} 还剩 {{item[1].length}}个人尚未完成</p>
+                                        </div> -->
+
+                                        <div v-for="item in departmentMap" >
+                                            <p class="font-sans text-sky-400/100 text-wrap text-xl hover:text-indigo-800 cursor-pointer ..." @click="indexundo(item[0],OTtaskcontent.info_type)">{{ item[0]}} 还剩 {{item[1].length}}个人尚未完成</p>
                                         </div>
+
                                     </template>
                                 </el-popover>
                             </template>

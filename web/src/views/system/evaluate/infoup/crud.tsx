@@ -3,6 +3,9 @@ import { UserPageQuery, AddReq, DelReq, EditReq, CreateCrudOptionsProps, CreateC
 import {commonCrudConfig} from "/@/utils/commonCrud";
 import { downloadFile } from '/@/utils/service';
 import { getBaseURL } from '/@/utils/baseUrl';
+import {auth} from "/@/utils/authFunction";
+
+
 export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProps): CreateCrudOptionsRet {
 	const pageRequest = async (query: UserPageQuery) => {
 		return await api.GetList(query);
@@ -16,6 +19,10 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 	};
 	const addRequest = async ({ form }: AddReq) => {
 		return await api.AddObj(form);
+	};
+
+	const exportRequest = async (query: UserPageQuery) => {
+		return await api.exportData(query);
 	};
 	
 	return {
@@ -33,22 +40,21 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 				buttons: {
 					add: {
 						show: true,
-					},
 
-					customButton: {
+					},
+					exportfile: {
 						show: true,
 						label: "导出信息",
 						text:"导出信息",
-						onClick:() => {
-							// 在这里执行您想要的操作
-							downloadFile({
+						click:() => {
+							return downloadFile({
 								url:'api/system/staff/export_data/',
 								params: {},
 								method: 'get'
 							})
 						},
 						order:2,
-					}	
+					},
 				},
 					
 			},
