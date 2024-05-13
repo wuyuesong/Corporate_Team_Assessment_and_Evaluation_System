@@ -10,7 +10,7 @@ from rest_framework.request import Request
 from django.db import connection
 from django.db.models import Q
 from application import dispatch
-from dvadmin.system.models import Users, Role, Dept, Staff, Department, Rank
+from dvadmin.system.models import Users, Role, Dept, Staff, Department, Rank, EvaluateTask, WeightTask, Task
 from dvadmin.system.views.role import RoleSerializer
 from dvadmin.utils.json_response import ErrorResponse, DetailResponse, SuccessResponse
 from dvadmin.utils.serializers import CustomModelSerializer
@@ -344,6 +344,15 @@ class StaffViewSet(CustomModelViewSet):
     def staff_delete_all(self, request: Request):
         Staff_all = Staff.objects.all()
         Staff_all.delete()
+
+        evaluateTask_all = Staff.objects.all()
+        evaluateTask_all.delete()
+
+        WeightTask = Staff.objects.all()
+        WeightTask.delete()
+
+        Task = Staff.objects.all()
+        Task.delete()
         
         staff_user_all = Users.objects.filter(our_user_type=2)
         staff_user_all.delete()
