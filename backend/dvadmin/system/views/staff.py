@@ -383,7 +383,7 @@ class StaffViewSet(CustomModelViewSet):
         return DetailResponse(data=serializer.data, msg="新增成功")
     
     # 获得员工kpi
-    @action(methods=['get'], detail=False, permission_classes=[])
+    @action(methods=['post'], detail=False, permission_classes=[])
     def get_staff_kpi(self, request: Request):
         staff_list = request.data.get("staff_list")
         staff_id_list = []
