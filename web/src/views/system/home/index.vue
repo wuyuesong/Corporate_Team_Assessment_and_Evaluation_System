@@ -1,16 +1,21 @@
 <template>
 	<div style="display: block; text-align: center; justify-items: center; ">
 		<div style="text-align: center;font-size: 40px;font-weight: bold; margin: 40px;">WELCOME</div>
-
     	<div class="text-3xl" ref="hero" style="line-height: 1.7;">
     	</div>
 	</div>
+
+
+
 </template>
+
 <script setup lang="ts">
-import { ref ,onMounted} from 'vue';
+import { ref ,onMounted, nextTick} from 'vue';
 import TypeIt from 'typeit';
 
 const hero = ref();
+
+const homedialogVisible= ref(false);
 onMounted(() => {
 
 	new TypeIt(hero.value, {
@@ -39,17 +44,20 @@ onMounted(() => {
   .move(null, { to: "END" })
   .type(' please <span class="place">contact us</span>', { delay: 400 })
   .delete(".place", { delay: 800, instant: true })
-  .type('<em><strong class="font-semibold">contact us.</strong></em>', {
+  .type('<span><strong class="font-semibold">contact us.</strong></span>', {
     speed: 100,
   })
-  .move(-30,{ delay: 200 })
+  .move(-30,{ delay: 10 , instant: true})
   .delete(5,{ delay: 50 })
-  .type('<em class="text-slate-500 underline">问题或建议</em>', {
+  .type('<em id="advice" class="text-slate-500 hover:text-teal-600 cursor-pointer underline">问题或建议</em>', {
     speed: 100,
   })
   .move(null, { to: "END" })
-  .go();
+  .go()
 })
+
+
+
 </script>
 
 <style scoped>

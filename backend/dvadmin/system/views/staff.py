@@ -381,7 +381,26 @@ class StaffViewSet(CustomModelViewSet):
         
         self.perform_create(serializer)
         return DetailResponse(data=serializer.data, msg="新增成功")
+    
+    # 获得员工kpi
+    @action(methods=['post'], detail=False, permission_classes=[])
+    def get_staff_kpi(self, request: Request):
+        staff_list = request.data.get("staff_list")
+        staff_id_list = []
+        for staff in staff_list:
+            staff_id_list.append(staff.get("evaluated_id"))
 
+        staff_list = Staff.objects.filter(staff_id__in=staff_id_list)
+        staff_list = sorted(staff_list, key=lambda staff: staff_id_list.index(staff.staff_id))
+        ret = []
+        for staff in staff_list:
+            ret.append({
+                "staff_id": staff.staff_id,
+                "staff_kpi1": staff.staff_kpi1,
+                "staff_kpi2": staff.staff_kpi2,
+                "staff_kpi3": staff.staff_kpi3,})
+        
+        return DetailResponse(data=ret, msg="获取成功")
 
 
 
