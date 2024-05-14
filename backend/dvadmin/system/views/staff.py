@@ -391,6 +391,7 @@ class StaffViewSet(CustomModelViewSet):
             staff_id_list.append(staff.get("evaluated_id"))
 
         staff_list = Staff.objects.filter(staff_id__in=staff_id_list)
+        staff_list = sorted(staff_list, key=lambda staff: staff_id_list.index(staff.staff_id))
         ret = []
         for staff in staff_list:
             ret.append({

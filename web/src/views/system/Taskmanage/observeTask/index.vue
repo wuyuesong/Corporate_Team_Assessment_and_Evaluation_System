@@ -16,7 +16,10 @@ const OTtasklist =ref([])
 const currentTask=ref('')
 const Selectedtitle=ref('')
 const MatrixCanvas=ref()
-
+const Scorepersent=ref('70%')
+const KPI1=ref('10%')
+const KPI2=ref('10%')
+const KPI3=ref('10%')
 const resranktable=ref()
 //图例dom
 // const legendDom=ref()
@@ -41,7 +44,8 @@ const OTtaskcontent=ref({
     undo_staff:[],
     staff_count:0,
     task_done:0,
-    info_type:0
+    info_type:0,
+
 })
 const overloading=ref(false)
 
@@ -97,7 +101,6 @@ const fetchTaskpageInfo=async()=>{
             tempTime.value.starttemptime=OTtaskcontent.value.task_start_date
             tempTime.value.endtemptime=OTtaskcontent.value.task_end_date
 
-            console.log(OTtaskcontent.value)
             if(OTtaskcontent.value.task_done===1){
                 fetchrankresinfo()
                 fetchallevaluate()
@@ -134,6 +137,8 @@ const ObTask=(value)=>{
         starttemptime:'',
         endtemptime:''
     }
+    UTLMutires.value=[]
+    UTLMutiisTrue.value=false
     // if(legendDom.value){
     //     echarts.init(legendDom.value).clear()
     // }
@@ -325,6 +330,7 @@ const fetchrankresinfo=async()=>{
                 ranktabledata.value=temp
                 itemkey.value=Math.random()
                 fetchabnorinfo()
+                fetchKPIinfo()
 
                 // drawMatrixTable()
                 //initrankcharts(rankdata,rankname,rankscore)
@@ -411,6 +417,32 @@ const fetchabnorinfo=async()=>{
             type: 'error',
         })
     }
+}
+
+
+const KPIinfo=ref()
+//获取对应人的三年kpi信息
+const fetchKPIinfo=async()=>{
+    try {
+        const response=await request({
+                url: 'api/system/staff/get_staff_kpi/',
+                method: 'post',
+                data:{
+                    staff_list: ranktabledata.value,
+                }
+        })
+        if(response.code==2000){
+            if(response.data){
+                KPIinfo.value=response.data
+            }
+        }
+    }catch(error){
+        ElMessage({
+            message: error.message,
+            type: 'error',
+        })
+    }
+
 }
 
 
@@ -670,6 +702,34 @@ const exportExcel=()=>{
 
 }
 
+const exportUTLExcel=()=>{
+    //列名
+    const title=[OTtaskcontent.value.task_name]
+    const headers = ['排名', '姓名' ,'系统分数' ,'KPI1' ,'KPI2' ,'KPI3' ,'最终得分'];
+    const dataWithHeaders = [title,headers, ...UTLMutires.value.map(item => Object.values(item))];
+    const ws = utils.aoa_to_sheet(dataWithHeaders);
+    for(let i = 1; i <= ws.columnCount; i++) {
+        ws.getColumn(i).width = 30;
+    }
+    ws['!cols'] = Array(headers.length).fill({wch: 20})
+    const wb = utils.book_new();
+    utils.book_append_sheet(wb, ws, 'Sheet1');
+    // 创建 Blob 对象
+    const blob = new Blob([write(wb, { bookType: 'xlsx', type: 'array' })], { type: 'application/octet-stream' });
+
+    
+    // 创建下载链接
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = 'output.xlsx';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+
+}
+
+
 const exportExpExcel=()=>{
     //列名
     const title=[OTtaskcontent.value.task_name]
@@ -707,6 +767,72 @@ const exportExpExcel=()=>{
     link.click();
     document.body.removeChild(link);
 
+}
+
+
+const UTLMutires=ref([])
+const UTLMutiisTrue=ref(false)
+//生成多角度的综合评估考量结果
+const generateMutiViewRES=()=>{
+    ElMessageBox.confirm(
+        '确认生成多角度的综合评估考量结果?',
+        '提示',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        icon:markRaw(Refresh)
+      }).then(()=>{
+        if((parsePercent(KPI1.value)+parsePercent(KPI2.value)+parsePercent(KPI3.value)+parsePercent(Scorepersent.value))!==1){
+            ElMessage({
+                type: 'error',
+                message: '权重之和必须为1'
+            });
+        }
+
+
+        UTLMutires.value=[]
+        let Mutires=[]
+        for (let i = 0; i < ranktabledata.value.length; i++) {
+            Mutires.push({
+                evaluated_id:ranktabledata.value[i].evaluated_id,
+                evaluated_name:ranktabledata.value[i].name,
+                evaluated_score:ranktabledata.value[i].score,
+                KPI1:KPIinfo.value[i].staff_kpi1,
+                KPI2:KPIinfo.value[i].staff_kpi2,
+                KPI3:KPIinfo.value[i].staff_kpi3,
+                totalScore:(parsePercent(KPI1.value)*KPIinfo.value[i].staff_kpi1+
+                            parsePercent(KPI2.value)*KPIinfo.value[i].staff_kpi2+
+                            parsePercent(KPI3.value)*KPIinfo.value[i].staff_kpi3+
+                            parsePercent(Scorepersent.value)*ranktabledata.value[i].score).toFixed(2)
+            })
+        }
+        //使用堆排序
+
+
+        
+        Mutires.sort((a,b)=>{
+            return b.totalScore-a.totalScore
+        })
+
+        Mutires.forEach((item,index)=>{
+            UTLMutires.value.push({
+                rank:index+1,
+                evaluated_name:item.evaluated_name,
+                evaluated_score:item.evaluated_score,
+                KPI1:item.KPI1,
+                KPI2:item.KPI2,
+                KPI3:item.KPI3,
+                totalScore:item.totalScore
+
+            })
+        })
+        UTLMutiisTrue.value=true
+    })
+}
+//将百分比字符串转化为number
+const parsePercent=(str)=>{
+    return parseInt(str.replace('%',''))/100
 }
 
 </script>
@@ -873,7 +999,7 @@ const exportExpExcel=()=>{
                 </div>
                
                 <el-collapse v-if="OTtaskcontent.task_done===1">
-                     <el-collapse-item title="详细信息-结果及排名" name="1">
+                     <el-collapse-item  title="详细信息-结果及排名" name="1">
                         <div class="chartzone">
 
                             <!-- 使用 :key 解决响应刷新问题 -->
@@ -883,7 +1009,108 @@ const exportExpExcel=()=>{
                                 <el-table-column prop="score" label="分数"  width="240px" />
                             </el-table>
                         </div>
-                        <el-button size="large" style="font-size: large; font-weight: bold; border-width: 2px;"  @click="exportExcel">
+                        <el-button  style="font-size: large; font-weight: bold; border-width: 2px; margin-left: 20px;"  @click="exportExcel">
+                            导出excel
+                        </el-button>
+                        <div style="height: 30px;"/>
+                        <el-divider content-position="right">综合考评</el-divider>
+                        <!-- 百分比下拉框 默认70% -->
+
+                        <div style="display: flex;    flex-wrap: wrap;  ">
+                            <div style="display: flex; align-items: center; text-align: center;">
+                                <div class="persentWeight">
+                                    <span style="margin-right: 10px;" class="text-xl">结果权重: </span>
+                                    <el-select v-model="Scorepersent" placeholder="请选择" style="width: 150px;">
+                                        <el-option label="0%" value="0%"></el-option>
+                                        <el-option label="10%" value="10%"></el-option>
+                                        <el-option label="20%" value="20%"></el-option>
+                                        <el-option label="30%" value="30%"></el-option>
+                                        <el-option label="40%" value="40%"></el-option>
+                                        <el-option label="50%" value="50%"></el-option>
+                                        <el-option label="60%" value="60%"></el-option>
+                                        <el-option label="70%" value="70%"></el-option>
+                                        <el-option label="80%" value="80%"></el-option>
+                                        <el-option label="90%" value="90%"></el-option>
+                                        <el-option label="100%" value="100%"></el-option>
+                                    </el-select>
+                                </div>
+                            </div>
+
+                            <div  style="display: flex; align-items: center; text-align: center;">
+                                <div class="persentWeight">
+                                    <span style="margin-right: 10px;" class="text-xl">第一年KPI权重: </span>
+                                    <el-select v-model="KPI1" placeholder="请选择" style="width: 150px;">
+                                        <el-option label="0%" value="0%"></el-option>
+                                        <el-option label="10%" value="10%"></el-option>
+                                        <el-option label="20%" value="20%"></el-option>
+                                        <el-option label="30%" value="30%"></el-option>
+                                        <el-option label="40%" value="40%"></el-option>
+                                        <el-option label="50%" value="50%"></el-option>
+                                        <el-option label="60%" value="60%"></el-option>
+                                        <el-option label="70%" value="70%"></el-option>
+                                        <el-option label="80%" value="80%"></el-option>
+                                        <el-option label="90%" value="90%"></el-option>
+                                        <el-option label="100%" value="100%"></el-option>
+                                    </el-select>
+                                </div>
+                            </div>
+                            
+
+                            <div  style="display: flex; align-items: center; text-align: center;">
+                                <div class="persentWeight">
+                                    <span style="margin-right: 10px;" class="text-xl">第二年KPI权重: </span>
+                                    <el-select v-model="KPI2" placeholder="请选择" style="width: 150px;">
+                                        <el-option label="0%" value="0%"></el-option>
+                                        <el-option label="10%" value="10%"></el-option>
+                                        <el-option label="20%" value="20%"></el-option>
+                                        <el-option label="30%" value="30%"></el-option>
+                                        <el-option label="40%" value="40%"></el-option>
+                                        <el-option label="50%" value="50%"></el-option>
+                                        <el-option label="60%" value="60%"></el-option>
+                                        <el-option label="70%" value="70%"></el-option>
+                                        <el-option label="80%" value="80%"></el-option>
+                                        <el-option label="90%" value="90%"></el-option>
+                                        <el-option label="100%" value="100%"></el-option>
+                                    </el-select>
+                                </div>
+                            </div>
+
+                            <div  style="display: flex; align-items: center; text-align: center;">
+                                <div class="persentWeight">
+                                    <span style="margin-right: 10px;" class="text-xl">第三年KPI权重: </span>
+                                    <el-select v-model="KPI3" placeholder="请选择" style="width: 150px;">
+                                        <el-option label="0%" value="0%"></el-option>
+                                        <el-option label="10%" value="10%"></el-option>
+                                        <el-option label="20%" value="20%"></el-option>
+                                        <el-option label="30%" value="30%"></el-option>
+                                        <el-option label="40%" value="40%"></el-option>
+                                        <el-option label="50%" value="50%"></el-option>
+                                        <el-option label="60%" value="60%"></el-option>
+                                        <el-option label="70%" value="70%"></el-option>
+                                        <el-option label="80%" value="80%"></el-option>
+                                        <el-option label="90%" value="90%"></el-option>
+                                        <el-option label="100%" value="100%"></el-option>
+                                    </el-select>
+                                </div>
+                            </div>
+                        </div>
+                        <el-button  style="font-size: large; font-weight: bold; border-width: 2px;margin-left: 20px;"  @click="generateMutiViewRES">
+                                生成综合结果
+                        </el-button>
+                        <div style="display: flex;justify-content: center;">
+                            <!-- 使用 :key 解决响应刷新问题 -->
+                            <el-table  v-if="UTLMutiisTrue" :data="UTLMutires" :key="itemkey" height="400px" stripe border style="width: 1200px; margin: 20px; "  >
+                                <el-table-column fixed  prop="rank" label="排名" width="120px"  />
+                                <el-table-column prop="evaluated_name" label="姓名" width="300px"  />
+                                <el-table-column prop="evaluated_score" label="系统分数"  width="240px" />
+                                <el-table-column prop="KPI1" label="KPI1"  width="240px" />
+                                <el-table-column prop="KPI2" label="KPI2" width="240px"  />
+                                <el-table-column prop="KPI3" label="KPI3"  width="240px" />
+                                <el-table-column prop="totalScore" label="最终得分"  width="240px" />
+                                
+                            </el-table>
+                        </div>
+                        <el-button v-if="UTLMutiisTrue" style="font-size: large; font-weight: bold; border-width: 2px; margin-top: 10px; margin-left: 20px;"  @click="exportUTLExcel">
                             导出excel
                         </el-button>
                     </el-collapse-item>
@@ -906,7 +1133,7 @@ const exportExpExcel=()=>{
 
                             </el-table>
                         </div>
-                        <el-button size="large" style="font-size: large; font-weight: bold; border-width: 2px; margin-top: 10px;"  @click="exportExpExcel">
+                        <el-button  style="font-size: large; font-weight: bold; border-width: 2px; margin-top: 10px; margin-left: 20px;"  @click="exportExpExcel">
                             导出excel
                         </el-button>
                     </el-collapse-item>
@@ -1112,4 +1339,9 @@ const exportExpExcel=()=>{
       }
     }
 }
+
+.persentWeight{
+    margin: 20px;
+}
+
 </style>
