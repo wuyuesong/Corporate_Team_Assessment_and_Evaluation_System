@@ -1,7 +1,7 @@
 import { request } from '/@/utils/service';
 import { UserPageQuery, AddReq, DelReq, EditReq, InfoReq } from '@fast-crud/fast-crud';
 export const apiPrefix = '/api/system/staff/';
-
+import {  downloadFile } from '/@/utils/service';
 
 export function GetList(query: UserPageQuery) {
 	return request({
@@ -40,3 +40,12 @@ export function DelObj(id: DelReq) {
 		data: { id },
 	});
 }
+
+export function exportData(params: any) {
+	return downloadFile({
+		url: apiPrefix + 'export_data/',
+		params: params,
+		method: 'get',
+	});
+}
+
