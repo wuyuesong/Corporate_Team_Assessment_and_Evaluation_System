@@ -19,8 +19,8 @@ const service: AxiosInstance = axios.create({
 service.interceptors.request.use(
 	(config: AxiosRequestConfig) => {
 		// 在发送请求之前做些什么 token
-		if (Session.get('token')) {
-			config.headers!['Authorization'] = `${Session.get('token')}`;
+		if (Session.get('staff_token')) {
+			config.headers!['Authorization'] = `${Session.get('staff_token')}`;
 		}
 		return config;
 	},

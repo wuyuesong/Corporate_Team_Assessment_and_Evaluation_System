@@ -28,7 +28,7 @@ const websocket: socket = {
             message.warning('浏览器不支持WebSocket')
             return null
         }
-        const token = Session.get('token')
+        const token = Session.get('staff_token')
         if(!token){
             // message.warning('websocket认证失败')
             return null
@@ -76,7 +76,7 @@ const websocket: socket = {
 
         websocket.hearbeat_timer = setInterval(() => {
             let data = {
-                token: Session.get('token')
+                token: Session.get('staff_token')
             }
             websocket.send(data)
         }, websocket.hearbeat_interval)

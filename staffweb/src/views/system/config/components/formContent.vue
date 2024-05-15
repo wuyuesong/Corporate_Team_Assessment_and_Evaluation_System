@@ -277,7 +277,7 @@ const validRules = reactive<FormRules>({
 const formRef =  ref<FormInstance>()
 let uploadUrl = ref(getBaseURL() + 'api/system/file/');
 let uploadHeaders = ref({
-  Authorization: 'JWT ' + Session.get('token'),
+  Authorization: 'JWT ' + Session.get('staff_token'),
 });
 let dialogImageUrl = ref('');
 let dialogImgVisible = ref(false);
