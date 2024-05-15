@@ -36,7 +36,10 @@ const  handleCommand= (path: string) => {
 		})
 			.then(async () => {
 				// 清除缓存/token等
-				Session.clear();
+                // 只清除Session中的staff_token
+
+                Session.remove('staff_token');
+                Cookies.remove('staff_id');
 				// 使用 reload 时，不需要调用 resetRoute() 重置路由
 				window.location.reload();
 			})

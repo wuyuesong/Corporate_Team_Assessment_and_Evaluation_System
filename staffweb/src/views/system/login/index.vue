@@ -50,17 +50,16 @@ const loginClick = async () => {
     errors.value='';
     if (!input.value||!password.value){
       errors.value = 'Please enter your username or password';
-      Session.clear();
-      Cookies.clear();
+      Session.remove('staff_token');
+      Cookies.remove('staff_id');
       return;
     }
     loading.value=true;
     // Md5.hashStr(password.value),
      loginApi.login({ username:input.value, password: password.value,login_type:"2"}).then((res: any) => {
         if (res.code === 2000) {
-          Session.set('token', res.data.access);
+          Session.set('staff_token', res.data.access);
           Cookies.set('staff_id',input.value)
-          Cookies.set('username', res.data.name);
           loading.value=false;
           loginSuccess();
         }else{  

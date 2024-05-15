@@ -179,7 +179,7 @@ function createRequestFunction(service: any) {
 		};
 
 		// const token = userStore.getToken;
-		const token = Session.get('token');
+		const token = Session.get('staff_token');
 		if (token != null) {
 			// @ts-ignore
 			configDefault.headers.Authorization = 'JWT ' + token;

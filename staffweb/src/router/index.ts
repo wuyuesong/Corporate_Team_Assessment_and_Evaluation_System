@@ -95,14 +95,14 @@ export function formatTwoStageRoutes(arr: any) {
 router.beforeEach(async (to, from, next) => {
     NProgress.configure({showSpinner: false});
     if (to.meta.title) NProgress.start();
-    const token = Session.get('token');
+    const token = Session.get('staff_token');
     if (to.path === '/login' && !token) {
         next();
         NProgress.done();
     } else {
         if (!token) {
             next(`/login?redirect=${to.path}&params=${JSON.stringify(to.query ? to.query : to.params)}`);
-            Session.clear();
+            Session.remove('staff_token');
             NProgress.done();
         } else if (token && to.path === '/login') {
             next('/home');
