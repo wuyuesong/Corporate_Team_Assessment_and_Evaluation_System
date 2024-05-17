@@ -56,7 +56,7 @@ export const createCrudOptions = function ({
             actionbar: {
                 buttons: {
                     add: {
-                        show: auth('role:Create')
+                        show:true
                     }
                 }
             },
@@ -69,15 +69,15 @@ export const createCrudOptions = function ({
                         show: true,
                     },
                     edit: {
-                        show: auth('role:Update'),
+                        show: true,
                     },
                     remove: {
-                        show: auth('role:Delete'),
+                        show: true,
                     },
                     permission: {
                         type: 'primary',
                         text: '权限配置',
-                        show: auth('role:Permission'),
+                        show: true,
                         tooltip: {
                             placement: 'top',
                             content: '权限配置',
