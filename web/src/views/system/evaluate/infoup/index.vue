@@ -110,17 +110,27 @@ const handleSubmmitClick = () => {
     })
 }
 const handleResetClick = () => {
-  ElMessageBox.confirm(
-    '确定重置?',
+  ElMessageBox.prompt(
+    '确定重置?重置后将清空所有员工信息和所有的任务信息，无法恢复！请在输入框中输入“我同意”以确认操作',
     'Warning',
     {
-      confirmButtonText: 'OK',
-      cancelButtonText: 'Cancel',
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      inputPattern: /\S+/,
+      inputErrorMessage: '输入不能为空',
       type: 'warning',
     }
   )
-    .then(() => {
-      ResetInfo()
+    .then(({value}) => {
+      if(value=='我同意'){
+        ResetInfo()
+      }
+      else{
+        ElMessage({
+          type: 'info',
+          message: '输入错误，操作取消',
+        })
+      }
     })
     .catch(() => {
       ElMessage({
