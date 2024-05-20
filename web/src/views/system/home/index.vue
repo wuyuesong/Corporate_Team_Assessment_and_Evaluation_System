@@ -53,7 +53,22 @@ onMounted(() => {
     speed: 100,
   })
   .move(null, { to: "END" })
-  .go()
+  .break()
+  .type('<span class="font-semibold">--- evadevteam@163.com ---</span>', {
+    instant: true
+  })
+  .exec(() => {
+    document.getElementById('advice').addEventListener('click', function() {
+      // 打开默认邮箱发送
+      var to = encodeURIComponent('evadevteam@163.com');
+      var subject = encodeURIComponent('问题或建议');
+      var body = encodeURIComponent('这是我的问题或建议...');
+      window.open('https://mail.163.com/');
+    })
+  }).go()
+  
+  
+  
 })
 
 
