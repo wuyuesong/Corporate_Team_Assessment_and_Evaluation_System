@@ -10,7 +10,7 @@ from rest_framework.request import Request
 from django.db import connection
 from django.db.models import Q
 from application import dispatch
-from dvadmin.system.models import Users, Role, Dept, Staff, Department, Rank, EvaluateTask, WeightTask, Task
+from dvadmin.system.models import Users, Role, Dept, Staff, Department, Rank, EvaluateTask, WeightTask, Task, SystemStatus
 from dvadmin.system.views.role import RoleSerializer
 from dvadmin.utils.json_response import ErrorResponse, DetailResponse, SuccessResponse
 from dvadmin.utils.serializers import CustomModelSerializer
@@ -345,6 +345,10 @@ class StaffViewSet(CustomModelViewSet):
     # 加上锁，如果期间有报错，则回退，不然再次录入时主键会重复
     @transaction.atomic
     def generate_account(self, request: Request):
+        status = SystemStatus.objects.get(key="generate_account")
+        status.value = "1"
+        status.save()
+        
         Staff_all = Staff.objects.all()
         for staff in Staff_all:
             try:

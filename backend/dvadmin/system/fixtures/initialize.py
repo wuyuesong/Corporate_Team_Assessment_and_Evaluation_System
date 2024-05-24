@@ -11,7 +11,8 @@ from dvadmin.utils.core_initialize import CoreInitialize
 from dvadmin.system.fixtures.initSerializer import (
     UsersInitSerializer, DeptInitSerializer, RoleInitSerializer,
     MenuInitSerializer, ApiWhiteListInitSerializer, DictionaryInitSerializer,
-    SystemConfigInitSerializer, RoleMenuInitSerializer, RoleMenuButtonInitSerializer
+    SystemConfigInitSerializer, RoleMenuInitSerializer, RoleMenuButtonInitSerializer,
+    SystemStatusInitSerializer
 )
 
 
@@ -71,6 +72,12 @@ class Initialize(CoreInitialize):
         """
         self.init_base(SystemConfigInitSerializer, unique_fields=['key', 'parent', ])
 
+    def init_system_status(self):
+        """
+        初始化系统配置表
+        """
+        self.init_base(SystemStatusInitSerializer, unique_fields=['key'])
+
     def run(self):
         self.init_dept()
         self.init_role()
@@ -81,6 +88,7 @@ class Initialize(CoreInitialize):
         self.init_api_white_list()
         self.init_dictionary()
         self.init_system_config()
+        self.init_system_status()
 
 
 if __name__ == "__main__":
