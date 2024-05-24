@@ -31,7 +31,7 @@ class SystemStatusViewSet(CustomModelViewSet):
     """
     queryset = SystemConfig.objects.order_by('sort', 'create_datetime')
 
-    @action(methods=['POST'], detail=False, permission_classes=[])
+    @action(methods=['get'], detail=False, permission_classes=[])
     def get_status(self, request: Request):
         system_status_all = SystemStatus.objects.all()
 
