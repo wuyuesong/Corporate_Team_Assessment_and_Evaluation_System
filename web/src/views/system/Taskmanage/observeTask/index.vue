@@ -50,8 +50,24 @@ const OTtaskcontent=ref({
 const overloading=ref(false)
 
 onMounted(()=>{
-    fetchTimeFromNTP()
-    fetchAllTaskList()
+    const res1=fetchTimeFromNTP()
+    const res2=fetchAllTaskList()
+
+    //回到之前处理的任务上去
+    Promise.all([res1,res2]).then(()=>{
+        var selectedTask = localStorage.getItem('selectedTask');
+        if (selectedTask) {
+            // 如果有选中的任务，选中这个任务
+            currentTask.value = selectedTask;
+            // 清除 localStorage 中的选中任务
+            ObTask(currentTask.value)
+            Selectedtitle.value=OTtasklist.value.find(item => item.task_id === currentTask.value).task_name
+            localStorage.removeItem('selectedTask');
+        }
+    });
+
+    
+
 })
 
 
@@ -227,6 +243,8 @@ const confirmdeleteTask = async()=>{
 }
 
 const handleDialogClose=()=>{
+    //暂存当前任务
+    localStorage.setItem('selectedTask', currentTask.value);
     location.reload()
 }
 
@@ -252,6 +270,7 @@ const confirmsEditTask=async()=>{
                 message: "修改成功",
                 type: 'success',
             })
+            localStorage.setItem('selectedTask', currentTask.value);
             location.reload()
         }else{
             ElMessage({
