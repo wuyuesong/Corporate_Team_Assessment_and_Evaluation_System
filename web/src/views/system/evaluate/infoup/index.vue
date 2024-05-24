@@ -16,11 +16,14 @@ const { crudBinding, crudRef, crudExpose } = useFs({ createCrudOptions });
 const uploadRef = ref()
 const refreshView = inject('refreshView')
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Eleme } from '@element-plus/icons-vue'
-import { response } from '/@/utils/tools';
+
+
+
 // 页面打开后获取列表数据
 onMounted(() => {
 	crudExpose.doRefresh();
+  fetchEVacondition()
+  
 });
 
 
@@ -52,6 +55,26 @@ let props = defineProps({
   }
 })
 
+const evastatus = ref()
+const fetchEVacondition = async() => {
+  request({
+    url: 'api/system/system_status/get_status',
+    method: 'get',
+  }).then((response:any) => {
+    if(response.code==2000){
+      evastatus.value = response.data
+    }
+  }).catch(() => {
+    ElMessage({
+      type: 'error',
+      message: '获取状态失败',
+    })
+  })
+}
+
+const EvaAuth=()=>{
+  return true;
+}
 
 // 文件上传成功处理
 const handleFileSuccess=function (response:any, file:any, fileList:any) {
