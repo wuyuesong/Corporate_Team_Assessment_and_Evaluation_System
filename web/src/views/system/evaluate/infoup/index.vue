@@ -12,18 +12,18 @@ import { FsActionbar } from '@fast-crud/fast-crud';
 import {Download } from '@element-plus/icons-vue'
 import { useFs } from '@fast-crud/fast-crud';
 import { createCrudOptions } from './crud';
-const { crudBinding, crudRef, crudExpose } = useFs({ createCrudOptions });
+import {Evaauth} from "/@/plugin/permission/func.permission";
 const uploadRef = ref()
 const refreshView = inject('refreshView')
 import { ElMessage, ElMessageBox } from 'element-plus'
 
 
+const EvaStatus = ref(Evaauth('......'))
+
 
 // 页面打开后获取列表数据
 onMounted(() => {
-	crudExpose.doRefresh();
-  fetchEVacondition()
-  
+  crudExpose.doRefresh();
 });
 
 
@@ -55,26 +55,10 @@ let props = defineProps({
   }
 })
 
-const evastatus = ref()
-const fetchEVacondition = async() => {
-  request({
-    url: 'api/system/system_status/get_status',
-    method: 'get',
-  }).then((response:any) => {
-    if(response.code==2000){
-      evastatus.value = response.data
-    }
-  }).catch(() => {
-    ElMessage({
-      type: 'error',
-      message: '获取状态失败',
-    })
-  })
-}
 
-const EvaAuth=()=>{
-  return true;
-}
+
+const { crudBinding, crudRef, crudExpose } = useFs({ createCrudOptions });
+
 
 // 文件上传成功处理
 const handleFileSuccess=function (response:any, file:any, fileList:any) {
@@ -233,7 +217,7 @@ const ResetInfo = async() => {
                     <div style="padding: 10px; display: flex;">
         
                       <el-col :span="20">
-                      <el-button id="staffsubmit" type="danger" :loading="subloading" @click="handleSubmmitClick" size="large">
+                      <el-button v-if="EvaStatus" id="staffsubmit" type="danger" :loading="subloading" @click="handleSubmmitClick" size="large" >
                       <template #loading>
                         <div class="custom-loading">
                           <svg class="circular" viewBox="-10, -10, 50, 50">
@@ -304,6 +288,7 @@ const ResetInfo = async() => {
                     :headers="props.upload.headers"
                     :action="props.upload.url"
                     :on-success="handleFileSuccess"
+                    :disabled="!EvaStatus"
                     drag>
                   <el-icon class="el-icon--upload"><upload-filled /></el-icon>
                   <div class="el-upload__text">
