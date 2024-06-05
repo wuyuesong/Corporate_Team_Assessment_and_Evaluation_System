@@ -5,6 +5,7 @@ import screenfull from 'screenfull';
 import { useI18n } from 'vue-i18n';
 import { storeToRefs } from 'pinia';
 const { locale, t } = useI18n();
+import Cookies from 'js-cookie';
 
 
 const  handleCommand= (path: string) => {
@@ -35,7 +36,11 @@ const  handleCommand= (path: string) => {
 		})
 			.then(async () => {
 				// 清除缓存/token等
-				Session.clear();
+                // 只清除Session中的staff_token
+
+                Session.remove('staff_token');
+                Session.remove('userInfo');
+                Cookies.remove('staff_id');
 				// 使用 reload 时，不需要调用 resetRoute() 重置路由
 				window.location.reload();
 			})
@@ -49,7 +54,7 @@ const  handleCommand= (path: string) => {
     <div class="toolbar" >
         <div class="ava">
             <div class="avatar"></div>
-            <span style="color: #CCD8E2; font-weight: bold;">用户</span>
+            <span style="color: #CCD8E2; font-weight: bold;">用户{{ Cookies.get('staff_id') }}</span>
         </div>
         <div class="setting">
             <el-dropdown trigger="click"  @command="handleCommand">

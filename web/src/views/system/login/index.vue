@@ -27,10 +27,7 @@
 								<el-tab-pane :label="$t('message.label.one1')" name="account">
 									<Account />
 								</el-tab-pane>
-								<!-- TODO 手机号码登录未接入，展示隐藏 -->
-								<!-- <el-tab-pane :label="$t('message.label.two2')" name="mobile">
-									<Mobile />
-								</el-tab-pane> -->
+								
 							</el-tabs>
 						</div>
 						<Scan v-if="state.isScan" />
@@ -75,11 +72,14 @@ import loginMain from '/@/assets/login-main.svg';
 import loginBg from '/@/assets/login-bg.svg';
 import { SystemConfigStore } from '/@/stores/systemConfig'
 import { getBaseURL } from "/@/utils/baseUrl";
+import { Session } from '/@/utils/storage';
 // 引入组件
 const Account = defineAsyncComponent(() => import('/@/views/system/login/component/account.vue'));
 const Mobile = defineAsyncComponent(() => import('/@/views/system/login/component/mobile.vue'));
 const Scan = defineAsyncComponent(() => import('/@/views/system/login/component/scan.vue'));
+
 import _ from "lodash";
+import { userInfo } from 'os';
 
 // 定义变量内容
 const storesThemeConfig = useThemeConfig();
@@ -116,6 +116,7 @@ const siteBg = computed(() => {
 // 页面加载时
 onMounted(() => {
 	NextLoading.done();
+	
 });
 </script>
 

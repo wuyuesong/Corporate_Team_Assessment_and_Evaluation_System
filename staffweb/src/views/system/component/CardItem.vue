@@ -1,22 +1,42 @@
 <script setup lang="ts">
-import { defineProps,ref } from 'vue';
+import { defineProps,onMounted,ref } from 'vue';
 import cardform from './Scoringform.vue'
+
 
 
 const props = defineProps({
   title: String,
   Btime: String,
   Etime: String,
-  state: Boolean,
+  task_id:String,
+  discribe:String,
+  complete_status:String
 });
+const cardstate=ref(true);
+onMounted(() => {
+	let enddate = new Date(props.Etime);
+    let startdate = new Date(props.Btime);
+    let currentdate=new Date();
+    if ((currentdate.getTime() >startdate.getTime())&&(currentdate.getTime()<enddate.getTime())) {
+        cardstate.value=true;
+    }else{
+        cardstate.value=false;
+    }
+});
+
+
 
 
 import { ElMessageBox } from 'element-plus'
 
 const dialogVisible = ref(false)
 
+const handlescore=()=>{
+    dialogVisible.value = true
+}
+
 const handleClose = (done: () => void) => {
-  ElMessageBox.confirm('Are you sure to close this dialog?')
+  ElMessageBox.confirm('是否要关闭窗口?')
     .then(() => {
       done()
     })
@@ -29,23 +49,61 @@ const handleClose = (done: () => void) => {
 </script>
 
 <template>
-    <el-card  class="card-item" shadow="always"  @click="dialogVisible = true">
+    <el-card  class="card-item" shadow="always"  v-if="cardstate&&complete_status=='0'"  @click="dialogVisible = true">
         <template #header>
             <div class="card-header">
                 <h2 class="Title">{{title}}</h2>
             </div>
         </template>
         <div class="decontent">
-            <p>开始时间: {{ Btime }}</p>
-            <p>结束时间: {{ Etime }}</p>
+            <div>
+                <p>开始时间: {{ Btime?.replace('T','') }}</p>
+                <p>结束时间: {{ Etime?.replace('T','') }}</p>
+            </div>
+            <div style="width: 500px;"></div>
+            
+        </div>
+    </el-card>
+    <el-card  class="card-outtime" shadow="always"  v-if="!cardstate" >
+        <template #header>
+            <div class="card-header">
+                <h2 class="Title">{{title}}</h2>
+            </div>
+        </template>
+        <div class="decontent">
+            <div>
+                <p>开始时间: {{ Btime?.replace('T','-') }}</p>
+                <p>结束时间: {{ Etime?.replace('T','-') }}</p>
+            </div>
+            <div style="width: 500px;"></div>
+            
+    
+            
+        </div>
+    </el-card>
+    <el-card  class="card-already" shadow="always"  v-if="cardstate&&complete_status=='1'" >
+        <template #header>
+            <div class="card-header">
+                <h2 class="Title">{{title}}</h2>
+            </div>
+        </template>
+        <div class="decontent">
+            <div>
+                <p>开始时间: {{ Btime?.replace('T','-') }}</p>
+                <p>结束时间: {{ Etime?.replace('T','-') }}</p>
+            </div>
+            <div style="width: 500px;"></div>
         </div>
     </el-card>
     <el-dialog
         v-model="dialogVisible"
-        title="Tips"
-        width="1000"
+        title="打分表"
+        width="1500"
         :before-close="handleClose">
-        <cardform></cardform>
+        <div>
+            <cardform :task_id="task_id" :title="title" :discribe="discribe"></cardform>
+        </div>
+        
 
     </el-dialog>
 
@@ -54,7 +112,7 @@ const handleClose = (done: () => void) => {
 
 <style scoped>
 
-.el-card{
+.card-item{
     padding: 10px;
     margin-top: 50px;
     margin-bottom: 50px;
@@ -71,8 +129,72 @@ const handleClose = (done: () => void) => {
     transition: box-shadow 0.3s ease; /* 添加过渡效果 */
 }
 
+.card-outtime{
+    padding: 10px;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    margin-left: 50px;
+    margin-right: 50px;
+    
+    background-image: linear-gradient(rgba(210, 209, 209, 0.6), rgba(210, 209, 209, 0.6)),
+                    url('../../../assets/cardbg.jpg');
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 20px; 
+    height: 160px;
+    position: relative;
+}
+.card-outtime::after {
+    content: "不在时间范围内";
+    position: absolute;
+    top: 10%;
+    left: 60%;
+    color: red;  /* 设置文字颜色 */
+    font-size: 1.4em;  /* 设置文字大小 */
+    font-weight: bold;
+    text-align: center;  /* 让文字居中显示 */
+    border: 4px solid red;  /* 添加这一行，创建一个红色的边框 */
+    border-radius: 50%;  /* 添加这一行，使得边框成为圆形 */
+    width: 130px;  /* 设置伪元素的宽度，这将决定圆形边框的大小 */
+    height: 130px;  /* 设置伪元素的高度，这将决定圆形边框的大小 */
+    line-height: 120px;  /* 使得文字垂直居中，这个值应该和 .card-outtime 的 height 属性值相同 */
+    opacity: 0.6;
+    z-index: 1;
+}
 
-.el-card:hover {
+
+.card-already{
+    padding: 10px;
+    margin-top: 50px;
+    margin-bottom: 50px;
+    margin-left: 50px;
+    margin-right: 50px;
+    
+    background-image: linear-gradient(rgba(210, 209, 209, 0.6), rgba(210, 209, 209, 0.6)),
+                    url('../../../assets/cardbg.jpg');
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    border-radius: 20px; 
+    height: 160px;
+    position: relative;
+}
+.card-already::after {
+    content: "已完成";
+    position: absolute;
+    top: 10%;
+    left: 60%;
+    color: rgb(2, 167, 150);  /* 设置文字颜色 */
+    font-size: 2em;  /* 设置文字大小 */
+    font-weight: bold;
+    text-align: center;  /* 让文字居中显示 */
+    border: 4px solid rgb(2, 167, 150);  /* 添加这一行，创建一个红色的边框 */
+    border-radius: 50%;  /* 添加这一行，使得边框成为圆形 */
+    width: 130px;  /* 设置伪元素的宽度，这将决定圆形边框的大小 */
+    height: 130px;  /* 设置伪元素的高度，这将决定圆形边框的大小 */
+    line-height: 120px;  /* 使得文字垂直居中，这个值应该和 .card-outtime 的 height 属性值相同 */
+    opacity: 0.6;
+    z-index: 1;
+}
+
+.card-item:hover {
     background-image: linear-gradient(rgba(195, 195, 195, 0.4), rgba(195, 195, 195, 0.4)),
                     url('../../../assets/cardbg.jpg');
     backdrop-filter:blur(10px) ;
@@ -87,9 +209,15 @@ const handleClose = (done: () => void) => {
 .decontent{
     color: white; /* 设置文本颜色为白色 */
     text-shadow: 1px 1px 2px rgba(0,0,0,1); /* 在文本下方添加阴影 */
+    display: flex;
 }
 .el-dialog{
     display: flex;
     justify-content: center; /* horizontally center */
+}
+.cardwarn{
+    font-size:28px;
+    font-weight: bold;
+    color: #ff0000;
 }
 </style>

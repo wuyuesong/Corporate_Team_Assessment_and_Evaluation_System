@@ -15,8 +15,24 @@ services:
       - "8080"
     restart: always
     networks:
-      network:
-        ipv4_address: 177.10.0.11
+      - network
+
+  dvadmin3-staffweb:
+    container_name: dvadmin3-staffweb
+    ports:
+      - "8090:8090"
+    build:
+      context: ./
+      dockerfile: ./docker_env/staffweb/Dockerfile
+    environment:
+      TZ: Asia/Shanghai
+    volumes:
+      - ./docker_env/nginx/mystaffweb.conf:/etc/nginx/conf.d/my.conf
+    expose:
+      - "8090"
+    restart: always
+    networks:
+      - network
 
   dvadmin3-django:
     build:
@@ -39,8 +55,7 @@ services:
       - "8000"
     restart: always
     networks:
-      network:
-        ipv4_address: 177.10.0.12
+      - network
 
   dvadmin3-mysql:
     image: mysql:8.0
@@ -63,8 +78,7 @@ services:
       - "./docker_env/mysql/conf.d:/etc/mysql/conf.d"
       - "./docker_env/mysql/logs:/logs"
     networks:
-      network:
-        ipv4_address: 177.10.0.13
+      - network
 
 
   dvadmin3-celery:
@@ -84,8 +98,7 @@ services:
       - ./logs/log:/var/log
     restart: always
     networks:
-      network:
-        ipv4_address: 177.10.0.14
+      - network
 
 
   dvadmin3-redis:
@@ -104,8 +117,8 @@ services:
     command: /bin/sh -c "echo 'vm.overcommit_memory = 1' >> /etc/sysctl.conf && redis-server /etc/redis/redis.conf --appendonly yes --requirepass DVADMIN3" # 指定配置文件并开启持久化
     privileged: true # 使用该参数，container内的root拥有真正的root权限。否则，container内的root只是外部的一个普通用户权限
     networks:
-      network:
-        ipv4_address: 177.10.0.15
+      - network
+
 
 
 networks:

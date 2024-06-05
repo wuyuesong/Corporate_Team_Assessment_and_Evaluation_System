@@ -1,7 +1,8 @@
 /backend/venv
 /backend/.idea
 .idea
-
+/docker_env/mysql
 .history/
 .vscode/
 web/package-lock.json
+docker_env/redis/data/

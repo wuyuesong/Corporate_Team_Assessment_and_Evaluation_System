@@ -10,7 +10,7 @@ from rest_framework.request import Request
 from django.db import connection
 from django.db.models import Q
 from application import dispatch
-from dvadmin.system.models import Users, Role, Dept, Staff, Department, Rank
+from dvadmin.system.models import Users, Role, Dept, Staff, Department, Rank, EvaluateTask, WeightTask, Task, SystemStatus
 from dvadmin.system.views.role import RoleSerializer
 from dvadmin.utils.json_response import ErrorResponse, DetailResponse, SuccessResponse
 from dvadmin.utils.serializers import CustomModelSerializer
@@ -301,26 +301,7 @@ class StaffViewSet(CustomModelViewSet):
     export_serializer_class = ExportStaffProfileSerializer
     # 导入
     import_serializer_class = StaffProfileImportSerializer
-    # import_field_dict = {
-    #     "username": "登录账号",
-    #     "name": "用户名称",
-    #     "email": "用户邮箱",
-    #     "mobile": "手机号码",
-    #     "gender": {
-    #         "title": "用户性别",
-    #         "choices": {
-    #             "data": {"未知": 2, "男": 1, "女": 0},
-    #         }
-    #     },
-    #     "is_active": {
-    #         "title": "帐号状态",
-    #         "choices": {
-    #             "data": {"启用": True, "禁用": False},
-    #         }
-    #     },
-    #     "dept": {"title": "部门", "choices": {"queryset": Dept.objects.filter(status=True), "values_name": "name"}},
-    #     "role": {"title": "角色", "choices": {"queryset": Role.objects.filter(status=True), "values_name": "name"}},
-    # }
+
     import_field_dict = {
         # "staff_department": {"title": "单位名称", "choices": {"queryset": Department.objects.all(), "values_name": "staff_department"}},
         "staff_department": "单位名称",
@@ -341,18 +322,33 @@ class StaffViewSet(CustomModelViewSet):
         "staff_email": "员工邮箱"
     }
 
+    #删除所有员工信息
     def staff_delete_all(self, request: Request):
         Staff_all = Staff.objects.all()
         Staff_all.delete()
+
+        evaluateTask_all = Staff.objects.all()
+        evaluateTask_all.delete()
+
+        WeightTask = Staff.objects.all()
+        WeightTask.delete()
+
+        Task = Staff.objects.all()
+        Task.delete()
         
         staff_user_all = Users.objects.filter(our_user_type=2)
         staff_user_all.delete()
         
         return DetailResponse(data=[], msg="删除成功")
     
+    # 生成账号接口
     # 加上锁，如果期间有报错，则回退，不然再次录入时主键会重复
     @transaction.atomic
     def generate_account(self, request: Request):
+        status = SystemStatus.objects.get(key="generate_account")
+        status.value = "1"
+        status.save()
+        
         Staff_all = Staff.objects.all()
         for staff in Staff_all:
             try:
@@ -373,6 +369,7 @@ class StaffViewSet(CustomModelViewSet):
             staff.save()
         return DetailResponse(data=[], msg="创建账号成功")
     
+    # 已弃用
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data, request=request)
         serializer.is_valid(raise_exception=True)
@@ -388,7 +385,26 @@ class StaffViewSet(CustomModelViewSet):
         
         self.perform_create(serializer)
         return DetailResponse(data=serializer.data, msg="新增成功")
+    
+    # 获得员工kpi
+    @action(methods=['post'], detail=False, permission_classes=[])
+    def get_staff_kpi(self, request: Request):
+        staff_list = request.data.get("staff_list")
+        staff_id_list = []
+        for staff in staff_list:
+            staff_id_list.append(staff.get("evaluated_id"))
 
+        staff_list = Staff.objects.filter(staff_id__in=staff_id_list)
+        staff_list = sorted(staff_list, key=lambda staff: staff_id_list.index(staff.staff_id))
+        ret = []
+        for staff in staff_list:
+            ret.append({
+                "staff_id": staff.staff_id,
+                "staff_kpi1": staff.staff_kpi1,
+                "staff_kpi2": staff.staff_kpi2,
+                "staff_kpi3": staff.staff_kpi3,})
+        
+        return DetailResponse(data=ret, msg="获取成功")
 
 
 

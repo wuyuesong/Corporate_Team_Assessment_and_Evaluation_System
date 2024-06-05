@@ -3,6 +3,9 @@ import { UserPageQuery, AddReq, DelReq, EditReq, CreateCrudOptionsProps, CreateC
 import {commonCrudConfig} from "/@/utils/commonCrud";
 import { downloadFile } from '/@/utils/service';
 import { getBaseURL } from '/@/utils/baseUrl';
+
+import {Evaauth} from "/@/plugin/permission/func.permission";
+
 export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProps): CreateCrudOptionsRet {
 	const pageRequest = async (query: UserPageQuery) => {
 		return await api.GetList(query);
@@ -17,7 +20,10 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 	const addRequest = async ({ form }: AddReq) => {
 		return await api.AddObj(form);
 	};
-	
+
+	const exportRequest = async (query: UserPageQuery) => {
+		return await api.exportData(query);
+	};
 	return {
 		crudOptions: {
 			container:{
@@ -32,23 +38,22 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 			actionbar: {
 				buttons: {
 					add: {
-						show: true,
-					},
+						show: Evaauth('add')
 
-					customButton: {
+					},
+					exportfile: {
 						show: true,
 						label: "导出信息",
 						text:"导出信息",
-						onClick:() => {
-							// 在这里执行您想要的操作
-							downloadFile({
-								url: getBaseURL() + 'api/system/staff/export_data/',
+						click:() => {
+							return downloadFile({
+								url:'api/system/staff/export_data/',
 								params: {},
 								method: 'get'
 							})
 						},
 						order:2,
-					}	
+					},
 				},
 					
 			},
@@ -68,10 +73,12 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						type: 'text',
 					},
 					edit: {
-						show: true,
+						show: Evaauth('edit'),
+
 					},
 					remove: {
-						show: true,
+						show: Evaauth('remove'),
+
 					},
 				},
 			},
@@ -108,7 +115,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 					type: 'dict-tree',
 					dict: dict({
                         isTree: true,
-                        url: '/api/system/department',
+                        url: '/api/system/department/',
                         label: 'staff_department',
 						value: 'staff_department'
                     }),
@@ -130,6 +137,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 				staff_name: {
 					title: '员工姓名',
 					search: {
+						
 						disabled: false,
 					},
 					type: 'input',
@@ -155,7 +163,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 					type: 'dict-tree',
 					dict: dict({
                         isTree: true,
-                        url: '/api/system/rank/unique_rank_list',
+                        url: '/api/system/rank/unique_rank_list/',
                         label: 'name',
 						value: 'name'
                     }),

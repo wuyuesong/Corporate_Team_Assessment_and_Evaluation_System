@@ -64,9 +64,9 @@ let props = defineProps({
         // 是否更新已经存在的用户数据
         updateSupport: 0,
         // 设置上传的请求头部
-        headers: { Authorization: 'JWT ' + Session.get('token') },
+        headers: { Authorization: 'JWT ' + Session.get('staff_token') },
         // 上传的地址
-        url: getBaseURL() + 'api/system/file/'
+        url:  'api/system/file/'
       }
     }
   },

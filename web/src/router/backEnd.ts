@@ -12,6 +12,7 @@ import { useTagsViewRoutes } from '/@/stores/tagsViewRoutes';
 import { useMenuApi } from '/@/api/menu/index';
 import { handleMenu } from '../utils/menu';
 import { BtnPermissionStore } from '/@/plugin/permission/store.permission';
+import { EvaPermissionStore } from '/@/plugin/permission/store.permission';
 import {SystemConfigStore} from "/@/stores/systemConfig";
 import {useDeptInfoStore} from "/@/stores/modules/dept";
 import {DictionaryStore} from "/@/stores/dictionary";
@@ -130,6 +131,10 @@ export async function setAddRoute() {
 export function getBackEndControlRoutes() {
 	//获取所有的按钮权限
 	BtnPermissionStore().getBtnPermissionStore();
+
+	//获取EVA系统按钮权限
+	EvaPermissionStore().getEvaPermissionStore();
+
 	// 获取系统配置
 	SystemConfigStore().getSystemConfigs()
 	// 获取所有部门信息

@@ -12,14 +12,18 @@ import { FsActionbar } from '@fast-crud/fast-crud';
 import {Download } from '@element-plus/icons-vue'
 import { useFs } from '@fast-crud/fast-crud';
 import { createCrudOptions } from './crud';
-const { crudBinding, crudRef, crudExpose } = useFs({ createCrudOptions });
+import {Evaauth} from "/@/plugin/permission/func.permission";
 const uploadRef = ref()
 const refreshView = inject('refreshView')
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Eleme } from '@element-plus/icons-vue'
+
+
+const EvaStatus = ref(Evaauth('......'))
+
+
 // 页面打开后获取列表数据
 onMounted(() => {
-	crudExpose.doRefresh();
+  crudExpose.doRefresh();
 });
 
 
@@ -39,7 +43,7 @@ let props = defineProps({
         // 设置上传的请求头部
         headers: { Authorization: 'JWT ' + Session.get('token') },
         // 上传的地址
-        url: getBaseURL() + 'api/system/file/'
+        url:  getBaseURL()+'api/system/file/'
       }
     }
   },
@@ -52,12 +56,16 @@ let props = defineProps({
 })
 
 
+
+const { crudBinding, crudRef, crudExpose } = useFs({ createCrudOptions });
+
+
 // 文件上传成功处理
 const handleFileSuccess=function (response:any, file:any, fileList:any) {
   uploadRef.value.clearFiles()
   // 是否更新已经存在的用户数据
   return request({
-    url: getBaseURL() + 'api/system/staff/import_data/',
+    url: 'api/system/staff/import_data/',
     method: 'post',
     data: {
       url: response.data.url
@@ -79,7 +87,7 @@ const handleFileSuccess=function (response:any, file:any, fileList:any) {
 // 定义一个处理点击事件的函数
 const handleDLClick = () => {
   downloadFile({
-    url: getBaseURL() + 'api/system/staff/import_data/',
+    url: 'api/system/staff/import_data/',
     params: {},
     method: 'get'
   })
@@ -109,17 +117,27 @@ const handleSubmmitClick = () => {
     })
 }
 const handleResetClick = () => {
-  ElMessageBox.confirm(
-    '确定重置?',
+  ElMessageBox.prompt(
+    '确定重置?重置后将清空所有员工信息和所有的任务信息，无法恢复！请在输入框中输入“我同意”以确认操作',
     'Warning',
     {
-      confirmButtonText: 'OK',
-      cancelButtonText: 'Cancel',
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      inputPattern: /\S+/,
+      inputErrorMessage: '输入不能为空',
       type: 'warning',
     }
   )
-    .then(() => {
-      ResetInfo()
+    .then(({value}) => {
+      if(value=='我同意'){
+        ResetInfo()
+      }
+      else{
+        ElMessage({
+          type: 'info',
+          message: '输入错误，操作取消',
+        })
+      }
     })
     .catch(() => {
       ElMessage({
@@ -133,7 +151,7 @@ const handleResetClick = () => {
 const SubmmitInfo = async() => {
       subloading.value = true; // 开始加载状态
       request({
-        url: getBaseURL() + 'api/system/staff/generate_account/',
+        url: 'api/system/staff/generate_account/',
         method: 'get',
         data: {
         }
@@ -160,7 +178,7 @@ const SubmmitInfo = async() => {
 const ResetInfo = async() => {
       resetloading.value = true; // 开始加载状态
        request({
-          url: getBaseURL() + 'api/system/staff/delete_all/',
+          url: 'api/system/staff/delete_all/',
          method: 'get',
        }).then((response:any) => {
          if(response.code==2000){
@@ -181,6 +199,9 @@ const ResetInfo = async() => {
 
         });
 };
+
+
+
 </script>
 
 
@@ -193,8 +214,10 @@ const ResetInfo = async() => {
                             <b>组织人员信息</b>
                     </div>
                     <fs-crud ref="crudRef" v-bind="crudBinding" > </fs-crud>
-                    <div style="padding: 10px;">
-                      <el-button id="staffsubmit" type="danger" :loading="subloading" @click="handleSubmmitClick" size="large">
+                    <div style="padding: 10px; display: flex;">
+        
+                      <el-col :span="20">
+                      <el-button v-if="EvaStatus" id="staffsubmit" type="danger" :loading="subloading" @click="handleSubmmitClick" size="large" >
                       <template #loading>
                         <div class="custom-loading">
                           <svg class="circular" viewBox="-10, -10, 50, 50">
@@ -213,7 +236,7 @@ const ResetInfo = async() => {
                           </svg>
                         </div>
                       </template>
-                      提交员工信息
+                      确认员工信息
                       </el-button>   
                       
                       <el-button id="staffreset" type="warning" :loading="resetloading" @click="handleResetClick" size="large">
@@ -236,7 +259,11 @@ const ResetInfo = async() => {
                         </div>
                       </template>
                       重置
-                      </el-button>     
+                      </el-button>  
+                      </el-col>
+                     
+                      
+
                     </div>
                     
             </div>
@@ -261,6 +288,7 @@ const ResetInfo = async() => {
                     :headers="props.upload.headers"
                     :action="props.upload.url"
                     :on-success="handleFileSuccess"
+                    :disabled="!EvaStatus"
                     drag>
                   <el-icon class="el-icon--upload"><upload-filled /></el-icon>
                   <div class="el-upload__text">

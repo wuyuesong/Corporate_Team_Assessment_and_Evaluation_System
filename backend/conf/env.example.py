@@ -15,7 +15,7 @@ DATABASE_ENGINE = "django.db.backends.mysql"
 DATABASE_NAME = 'django-vue3-admin' # mysql 时使用
 
 # 数据库地址 改为自己数据库地址
-DATABASE_HOST = '127.0.0.1'
+DATABASE_HOST = 'dvadmin3-mysql'
 # # 数据库端口
 DATABASE_PORT = 3306
 # # 数据库用户名
@@ -29,7 +29,7 @@ TABLE_PREFIX = "dvadmin_"
 # ******** redis配置，无redis 可不进行配置  ******** #
 # ================================================= #
 REDIS_PASSWORD = 'DVADMIN3'
-REDIS_HOST = '127.0.0.1'
+REDIS_HOST = 'dvadmin3-redis'
 REDIS_URL = f'redis://:{REDIS_PASSWORD or ""}@{REDIS_HOST}:6379'
 # ================================================= #
 # ****************** 功能 启停  ******************* #
@@ -46,3 +46,12 @@ LOGIN_NO_CAPTCHA_AUTH = True
 ALLOWED_HOSTS = ["*"]
 # 列权限中排除App应用
 COLUMN_EXCLUDE_APPS = []
+
+
+# ================================================= #
+# ****************** 邮件 配置  ******************* #
+# ================================================= #
+EMAIL_SENDER = '2401707410@qq.com'
+EMAIL_PASSWORD = 'ihnpxohfzjuieadc'
+SMTP_SERVER = 'smtp.qq.com'
+SMTP_PORT = '465'

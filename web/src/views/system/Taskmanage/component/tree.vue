@@ -20,7 +20,7 @@ const fetchAddingTreeInfo=async()=>{
     try {
         // 发送请求并获取数据
         const response = await request({
-        url: getBaseURL() + 'api/system/rank/tree_rank_list/',
+        url: 'api/system/rank/tree_rank_list/',
         method: 'get',})
         const data = await response.data;
         // 更新选项列表
@@ -72,13 +72,16 @@ const checked = ref(false)
       show-checkbox
     >
       <template #default="{ node }">
-        <span class="prefix" :class="{ 'is-leaf': node.isLeaf }"
-          >[ElementPlus]</span
-        >
+        <span class="prefix" :class="{ 'is-leaf': node.isLeaf }">
+          <el-icon >
+            <SuitcaseLine />
+          </el-icon>
+            [系统组织]
+        </span>
         <span>{{ node.label }}</span>
 
         <div class="addtag">
-          <el-check-tag  v-if="node.isLeaf" :checked="checked" @change="checked=!checked"  >评价-优秀</el-check-tag>
+          <!-- <el-check-tag  v-if="node.isLeaf" :checked="checked" @change="checked=!checked"  >评价-优秀</el-check-tag> -->
         </div>
       </template>
     </el-tree>

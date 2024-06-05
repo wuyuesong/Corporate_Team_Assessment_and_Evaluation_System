@@ -105,10 +105,11 @@ router.beforeEach(async (to, from, next) => {
     } else {
         if (!token) {
             next(`/login?redirect=${to.path}&params=${JSON.stringify(to.query ? to.query : to.params)}`);
-            Session.clear();
+            Session.remove('token');
             NProgress.done();
         } else if (token && to.path === '/login') {
             next('/home');
+
             NProgress.done();
         } else {
 

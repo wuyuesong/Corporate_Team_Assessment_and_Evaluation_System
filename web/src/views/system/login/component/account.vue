@@ -213,6 +213,17 @@ export default defineComponent({
 		};
 	},
 });
+
+// 页面加载时
+onMounted(() => {
+	setInterval(() => {
+		if (Session.get('token')){
+			// 刷新页面
+			
+			window.location.reload();
+		}
+	}, 1500);
+});
 </script>
 
 <style scoped lang="scss">
