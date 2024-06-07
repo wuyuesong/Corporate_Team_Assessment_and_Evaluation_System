@@ -152,7 +152,7 @@ const fetchRankOptions = async () => {
 
 const feach_rank_of_deparrtment=async(department:any)=>{
 
-    console.log(department)
+    form.staff_rank='';
     if(department===''){
         try {
             // 发送请求并获取数据
