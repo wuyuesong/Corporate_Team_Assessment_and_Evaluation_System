@@ -116,6 +116,17 @@ const siteBg = computed(() => {
 // 页面加载时
 onMounted(() => {
 	NextLoading.done();
+	setInterval(() => {
+		
+		if (Session.get('token')){
+			// 刷新页面
+			
+			window.location.reload();
+			console.log('刷新页面');
+		}else{
+			console.log('刷新页面');
+		}
+	}, 1500);
 	
 });
 </script>

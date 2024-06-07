@@ -327,17 +327,21 @@ class StaffViewSet(CustomModelViewSet):
         Staff_all = Staff.objects.all()
         Staff_all.delete()
 
-        evaluateTask_all = Staff.objects.all()
-        evaluateTask_all.delete()
+        evaluate_task_all = EvaluateTask.objects.all()
+        evaluate_task_all.delete()
 
-        WeightTask = Staff.objects.all()
-        WeightTask.delete()
+        weight_task_all = WeightTask.objects.all()
+        weight_task_all.delete()
 
-        Task = Staff.objects.all()
-        Task.delete()
+        task_all = Task.objects.all()
+        task_all.delete()
         
         staff_user_all = Users.objects.filter(our_user_type=2)
         staff_user_all.delete()
+
+        status = SystemStatus.objects.get(key="generate_account")
+        status.value = "0"
+        status.save()
         
         return DetailResponse(data=[], msg="删除成功")
     

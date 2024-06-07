@@ -177,9 +177,13 @@ const reset=()=>{
 const evaluatingGroup=ref([])
 const reltree:any=ref(null);
 const addevaluatinggroup=async()=>{
+
+    console.log(".....")
     loading.value = true;
     const evaluatingTabledata=ref([]);
     const addtarget=reltree.value.treeclick();
+    console.log(addtarget)
+
 
     try {
         // 发送请求并获取数据

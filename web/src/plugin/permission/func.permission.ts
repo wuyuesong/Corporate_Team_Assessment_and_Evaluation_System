@@ -30,8 +30,9 @@ export default {
 export function Evaauth(value: string): boolean {
 	const stores = EvaPermissionStore();
   if(stores.data[0].value==='1'){
-    return true
+    return false
   }
-	return false
+  console.log("未生成账号密码")
+	return true
 }
 
