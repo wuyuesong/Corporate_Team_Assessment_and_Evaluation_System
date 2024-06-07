@@ -187,6 +187,15 @@ class RankViewSet(CustomModelViewSet):
             ret[offset]['children'].append(tmp_dict)
             
         return DetailResponse(data=ret, msg="获取成功")
+    
+
+    @action(methods=['GET'], detail=False, permission_classes=[])
+    def rank_delete_all(self, request: Request):
+        
+        rank_all = Rank.objects.all()
+        rank_all.delete()
+        
+        return DetailResponse(data=[], msg="删除成功")
         
                 
                 
