@@ -158,6 +158,9 @@ const SubmmitInfo = async() => {
       }).then((response:any) => {
         if(response.code==2000){
             ElMessageBox.alert('提交成功', {
+              showClose: false,
+            }).then(() => {
+              location.reload()
             })
             subloading.value = false; // 结束加载状态vv
             refreshView()
@@ -183,7 +186,9 @@ const ResetInfo = async() => {
        }).then((response:any) => {
          if(response.code==2000){
              ElMessageBox.alert('重置成功', {
-              
+              showClose: false,
+             }).then(() => {
+               location.reload()
              })
              resetloading.value = false; // 结束加载状态vv
              refreshView()

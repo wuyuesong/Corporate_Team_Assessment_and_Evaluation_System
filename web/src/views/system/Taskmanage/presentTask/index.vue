@@ -150,6 +150,49 @@ const fetchRankOptions = async () => {
     }
 }
 
+const feach_rank_of_deparrtment=async(department:any)=>{
+
+    console.log(department)
+    if(department===''){
+        try {
+            // 发送请求并获取数据
+            const response = await request({
+            url: 'api/system/rank/unique_rank_list/',
+            method: 'get',})
+            const data = await response.data;
+            // 更新选项列表
+            Rankoptions.value = data;
+        } catch (error) {
+            ElMessage({
+            showClose: true,
+            message: error.value,
+            type: 'error',
+            })
+        }
+    }else{
+        try {
+                // 发送请求并获取数据
+                const response = await request({
+                url: 'api/system/rank/department_get_rank/',
+                method: 'post',
+                data:{
+                    department:form.department
+                }
+                })
+                const data = await response.data;
+                // 更新选项列表
+                Rankoptions.value = data;
+            } catch (error) {
+                ElMessage({
+                showClose: true,
+                message: error.value,
+                type: 'error',
+                })
+            }
+    }
+    
+}
+
 
 
 
@@ -530,6 +573,7 @@ const transfertoevaluate=()=>{
                         <el-select
                             v-model="form.department"
                             placeholder="Please select "
+                            :change="feach_rank_of_deparrtment(form.department)"
                         >
                             <el-option label="" value=""/>
                             <el-option

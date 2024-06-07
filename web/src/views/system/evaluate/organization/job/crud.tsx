@@ -4,6 +4,8 @@ import {commonCrudConfig} from "/@/utils/commonCrud";
 import { downloadFile } from '/@/utils/service';
 import { getBaseURL } from '/@/utils/baseUrl';
 
+import {Evaauth} from "/@/plugin/permission/func.permission";
+
 export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProps): CreateCrudOptionsRet {
 	const pageRequest = async (query: UserPageQuery) => {
 		return await api.GetList(query);
@@ -18,7 +20,9 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 	const addRequest = async ({ form }: AddReq) => {
 		return await api.AddObj(form);
 	};
-	
+	const deletealljob = async () => {
+		return await api.deletealljob();
+	}
 	return {
 		crudOptions: {
 			container:{
@@ -29,8 +33,24 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 				addRequest,
 				editRequest,
 				delRequest,
+				deletealljob,
 			},
-	
+			actionbar: {	
+				buttons: {
+					add: {
+						show:Evaauth('add')
+					},
+					deletall:{
+						show:Evaauth('delete'),
+						label: "批量删除",
+						text:"批量删除",
+						click: () => {
+							deletealljob()
+							crudExpose.doRefresh();
+						},
+					}
+				}
+			},
 			toolbar:{
 				show:false
 			},
@@ -40,6 +60,23 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 			form: { // crudOptions.form
 				labelWidth: "120px", //标签宽度
 
+			},
+			rowHandle: {
+				fixed:'right',
+				width: 250,
+				buttons: {
+					view: {
+						type: 'text',
+					},
+					edit: {
+						show: Evaauth('edit'),
+
+					},
+					remove: {
+						show: Evaauth('remove'),
+
+					},
+				},
 			},
             columns: {
 				_index: {

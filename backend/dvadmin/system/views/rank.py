@@ -206,8 +206,11 @@ class RankViewSet(CustomModelViewSet):
 
         ret = []
 
+        cnt = 0
+
         for rank in rank_filter:
-            ret.append(rank.staff_rank)
+            ret.append(dict(name=rank.staff_rank, id=cnt))
+            cnt += 1
         
         return DetailResponse(data=ret, msg="获取成功")
                 
