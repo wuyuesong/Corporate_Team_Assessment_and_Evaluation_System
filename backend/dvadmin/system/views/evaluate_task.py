@@ -536,9 +536,10 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         # return DetailResponse(data=ret, msg="获取成功")
 
         start_time = request.data.get("start_time")
-        end_time = request.data.get("start_time")   
+        end_time = request.data.get("end_time")   
 
         ret = Sample.main(start_time=start_time, end_time=end_time)
+        print("ret: ", ret)
         failed_list = []
         ret_list = []
         tmp_list = []
@@ -548,9 +549,9 @@ class EvaluateTaskViewSet(CustomModelViewSet):
                 failed_list.append(dict(staff_name=detail["Subject"].split("-")[1], addr=detail["ToAddress"], username=detail["Subject"].split("-")[2]))
 
 
-        # for failed in failed_list:
-        #     ret_list.append(dict(staff_name=failed["staff_name"], addr=failed["addr"], username=failed["username"]))
-        #     tmp_list.append(Failed_email(staff_name=failed["staff_name"], addr=failed["addr"], username=failed["username"]))
+        for failed in failed_list:
+            ret_list.append(dict(staff_name=failed["staff_name"], addr=failed["addr"], username=failed["username"]))
+            tmp_list.append(Failed_email(staff_name=failed["staff_name"], addr=failed["addr"], username=failed["username"]))
             
         # Failed_email.objects.bulk_create(tmp_list)
 

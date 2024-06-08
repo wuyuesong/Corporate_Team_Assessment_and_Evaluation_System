@@ -100,12 +100,17 @@ const random_inform=async()=>{
 }
 
 const taskExceptionList=ref([])
+const eail_index_starttime='2024-06-08 13:30'
 const fetchexceptionlist=async()=>{
   try{
     exceptionDrawer.value=true
     const res = await request({
       url: 'api/system/evaluate_task/get_failed_email_list/',
-      method: 'get',
+      method: 'post',
+      data: {
+        start_time: eail_index_starttime,  
+        end_time:  "2024-06-09 00:00",
+      }
     })
     if(res.code==2000){
         taskExceptionList.value=res.data
@@ -129,9 +134,13 @@ const fetchexceptionlist=async()=>{
 <template>
 <div style="height: 88vh;">
     <el-row>
-        <el-col :span="3">
-            <div class="email_notice">
-                <el-button  @click="email_inform" size="large" type="danger" :loading="email_inform_loading">
+        <el-col :span="12">
+            <div class="infolist">
+            <div class="notice-postings" >
+                <div class="notice-postings-title">
+
+                    <h1 class=" antialiased "  style="margin-bottom:10px;">实名任务列表</h1>
+                    <el-button  @click="email_inform" size="large" type="danger" :loading="email_inform_loading">
                     <template #loading>
                         <div style="margin-right: 5px;">
                             <svg width="24" height="24" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg">
@@ -169,77 +178,75 @@ const fetchexceptionlist=async()=>{
                     </template>
                     邮件通知
                 </el-button>
-            </div>
-        </el-col>
-        <el-col :span="8">
-            <div class="infolist">
-                <h1 class="font-serif text-2xl antialiased font-bold " style="margin-bottom:10px;">实名任务列表</h1>
-                <el-scrollbar max-height="800px">
-                <div class="list_item" v-for="item in taskEmailList">
-                    <p class="font-mono text-xl font-semibold" >{{ item.task_name }}</p>
-                    <p class="font-mono text-base font-semibold" >{{ "任务标识:"+item.task_id }}</p>
-                    <p class="font-mono text-base font-semibold" >{{ "创建时间:"+item.task_create_date.replace('T',' ') }}</p>
                 </div>
-                </el-scrollbar>
-            </div>
-        </el-col>
-        <el-col :span="1">
-            <div class="divider">
-                <div class="div_line"/>
-            </div>
-        </el-col>
-        <el-col :span="8">
-            <div class="infolist">
-                <h1 class="font-serif text-2xl antialiased font-bold" style="margin-bottom:10px;">匿名任务列表</h1>
-                <el-scrollbar max-height="800px">
-                <div class="list_item" v-for="item in taskRandomList">
-                    <p class="font-mono text-xl font-semibold" >{{ item.task_name }}</p>
-                    <p class="font-mono text-base font-semibold" >{{ "任务标识:"+item.task_id }}</p>
-                    <p class="font-mono text-base font-semibold" >{{ "创建时间:"+item.task_create_date.replace('T',' ') }}</p>
-                </div>
-                </el-scrollbar>
-            </div>
-        </el-col>
-        <el-col :span="3">
-            <div class="random_notice">
-                <el-button  @click="random_inform" size="large" type="danger" :loading="random_inform_loading" >
-                    <template #loading>
-                        <div style="margin-right: 5px;">
-                            <svg width="24" height="24" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg">
-                                <defs>
-                                    <linearGradient x1="8.042%" y1="0%" x2="65.682%" y2="23.865%" id="a">
-                                        <stop stop-color="#fff" stop-opacity="0" offset="0%"/>
-                                        <stop stop-color="#fff" stop-opacity=".631" offset="63.146%"/>
-                                        <stop stop-color="#fff" offset="100%"/>
-                                    </linearGradient>
-                                </defs>
-                                <g fill="none" fill-rule="evenodd">
-                                    <g transform="translate(1 1)">
-                                        <path d="M36 18c0-9.94-8.06-18-18-18" id="Oval-2" stroke="url(#a)" stroke-width="2">
-                                            <animateTransform
-                                                attributeName="transform"
-                                                type="rotate"
-                                                from="0 18 18"
-                                                to="360 18 18"
-                                                dur="0.9s"
-                                                repeatCount="indefinite" />
-                                        </path>
-                                        <circle fill="#fff" cx="36" cy="18" r="1">
-                                            <animateTransform
-                                                attributeName="transform"
-                                                type="rotate"
-                                                from="0 18 18"
-                                                to="360 18 18"
-                                                dur="0.9s"
-                                                repeatCount="indefinite" />
-                                        </circle>
-                                    </g>
-                                </g>
-                            </svg>
+                
+
+                <el-scrollbar>
+                        <div class="notice" v-for="item in taskEmailList">
+                            <a href="#" class="notice-title">{{ item.task_name }}</a>
+                            <div class="notice-details">
+                                <span class="type">{{ "任务标识: "+item.task_id }}</span>
+                            </div>
+                            <span class="location">{{ "创建时间: "+item.task_create_date.replace('T',' ') }}</span>
                         </div>
-                    </template>
-                    随机抽取
-                </el-button>
+                </el-scrollbar>
+            </div>
+        </div>
+        </el-col>
+        <el-col :span="11">
+            <div class="infolist">
+                <div class="notice-postings" >
+                    <div class="notice-postings-title">
+                        <h1 class="antialiased" style="margin-bottom:10px;">匿名任务列表</h1>
+                        <el-button  @click="random_inform" size="large" type="danger" :loading="random_inform_loading" >
+                            <template #loading>
+                                <div style="margin-right: 5px;">
+                                    <svg width="24" height="24" viewBox="0 0 38 38" xmlns="http://www.w3.org/2000/svg">
+                                        <defs>
+                                            <linearGradient x1="8.042%" y1="0%" x2="65.682%" y2="23.865%" id="a">
+                                                <stop stop-color="#fff" stop-opacity="0" offset="0%"/>
+                                                <stop stop-color="#fff" stop-opacity=".631" offset="63.146%"/>
+                                                <stop stop-color="#fff" offset="100%"/>
+                                            </linearGradient>
+                                        </defs>
+                                        <g fill="none" fill-rule="evenodd">
+                                            <g transform="translate(1 1)">
+                                                <path d="M36 18c0-9.94-8.06-18-18-18" id="Oval-2" stroke="url(#a)" stroke-width="2">
+                                                    <animateTransform
+                                                        attributeName="transform"
+                                                        type="rotate"
+                                                        from="0 18 18"
+                                                        to="360 18 18"
+                                                        dur="0.9s"
+                                                        repeatCount="indefinite" />
+                                                </path>
+                                                <circle fill="#fff" cx="36" cy="18" r="1">
+                                                    <animateTransform
+                                                        attributeName="transform"
+                                                        type="rotate"
+                                                        from="0 18 18"
+                                                        to="360 18 18"
+                                                        dur="0.9s"
+                                                        repeatCount="indefinite" />
+                                                </circle>
+                                            </g>
+                                        </g>
+                                    </svg>
+                                </div>
+                            </template>
+                            随机抽取
+                        </el-button>
+                    </div>
+                </div>
+                <el-scrollbar>
+                        <div class="notice" v-for="item in taskRandomList">
+                            <a href="#" class="notice-title">{{ item.task_name }}</a>
+                            <div class="notice-details">
+                                <span class="type">{{ "任务标识: "+item.task_id }}</span>
+                            </div>
+                            <span class="location">{{ "创建时间: "+item.task_create_date.replace('T',' ') }}</span>
+                        </div>
+                </el-scrollbar>
             </div>
         </el-col>
         <el-col :span="1">
@@ -260,8 +267,12 @@ const fetchexceptionlist=async()=>{
         :with-header="true"
         :width="800">
         <el-scrollbar max-height="1000px">
-            <div class="list_item" v-for="item in taskExceptionList" >
-
+            <div class="list_item" v-for="item in taskExceptionList">
+                <a href="#" class="notice-title">{{ item.staff_name }}</a>
+                <div class="notice-details">
+                    <span class="type">{{ "邮件地址: "+item.addr }}</span>
+                </div>
+                <span class="location">{{ "账户名: "+item.username }}</span>
             </div>
         </el-scrollbar>
     </el-drawer>
@@ -301,18 +312,13 @@ const fetchexceptionlist=async()=>{
     margin-top: 10px;
 }
 
-.div_line {
-    width: 2px;
-    height: 100%;
-    background-image: linear-gradient(black 50%, transparent 50%);
-    background-size: 100% 4px;
-    
-}
 .infolist{
     height: 88vh;
     background-color: #f0f0f0;
     border-radius: 10px;
     padding: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
     padding-top: 20px;
     margin: 10px;
     display: flex;
@@ -323,12 +329,59 @@ const fetchexceptionlist=async()=>{
     display: block;
     align-items: center;
     justify-content: center;
-    height: 70px;
+    height: 90px;
     margin: 10px;
     padding: 5px;
-    background-color: rgb(254, 243, 205);
+    background-color: rgb(255, 238, 223);
     color: var(--el-color-primary);
     border-radius: 5px;
     
+}
+.notice-postings {
+    width: 100%;
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    font-size: 22px;
+}
+
+.notice {
+    padding: 15px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.notice:last-child {
+    border-bottom: none;
+}
+
+.notice-title {
+    font-size: 18px;
+    color: #6a5acd;
+    text-decoration: none;
+}
+
+.notice-title:hover {
+    text-decoration: underline;
+}
+
+.notice-details {
+    display: flex;
+    justify-content: space-between;
+    color: #999999;
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+.department, .type, .location {
+    display: inline-block;
+}
+.notice-postings-title{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 </style>
