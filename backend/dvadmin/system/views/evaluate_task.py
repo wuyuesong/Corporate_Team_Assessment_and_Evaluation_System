@@ -524,7 +524,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         return response
     
     # 获取发送邮件失败的列表
-    @action(methods=['get'], detail=False, permission_classes=[])
+    @action(methods=['post'], detail=False, permission_classes=[])
     def get_failed_email_list(self, request: Request):
         
         # ret = []
