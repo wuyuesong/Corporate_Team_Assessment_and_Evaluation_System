@@ -75,7 +75,7 @@ const delayShow = () => {
   const isUpgrade = Session.get('isUpgrade')===false?Session.get('isUpgrade'):true
   if(isUpgrade){
     setTimeout(() => {
-      state.isUpgrade = true;
+      state.isUpgrade = false;
     }, 2000);
   }
 };

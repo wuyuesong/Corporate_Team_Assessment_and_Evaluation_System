@@ -10,7 +10,8 @@ import type { Action } from 'element-plus'
 const uploadRef = ref()
 const refreshView = inject('refreshView')
 import { ElMessage, ElMessageBox } from 'element-plus'
-
+import {Evaauth} from "/@/plugin/permission/func.permission";
+const EvaStatus = ref(Evaauth('......'))
 onMounted(() => {
 	crudExpose.doRefresh();
 });
@@ -85,6 +86,7 @@ const handleFileSuccess=function (response:any, file:any, fileList:any) {
                     :headers="props.upload.headers"
                     :action="props.upload.url"
                     :on-success="handleFileSuccess"
+                    :disabled="!EvaStatus"
                     drag>
                   <el-icon class="el-icon--upload"><upload-filled /></el-icon>
                   <div class="el-upload__text">

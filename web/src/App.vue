@@ -77,6 +77,8 @@ onMounted(() => {
 			stores.setCurrenFullscreen(Session.get('isTagsViewCurrenFull'));
 		}
 	});
+
+
 });
 // 页面销毁时，关闭监听布局配置/i18n监听
 onUnmounted(() => {

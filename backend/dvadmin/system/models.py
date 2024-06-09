@@ -832,3 +832,15 @@ class EvaluateTaskAbnormalData(CoreModel):
         verbose_name = "评价任务不正常数据"
         verbose_name_plural = verbose_name
         ordering = ("create_datetime",)
+
+
+class SystemStatus(CoreModel):
+
+    key = models.CharField(max_length=255, verbose_name="系统状态键", null=True, blank=True, help_text="系统状态键",default="")
+    value = models.CharField(max_length=255, verbose_name="系统状态值", null=True, blank=True, help_text="系统状态值",default="")
+
+    class Meta:
+        db_table = table_prefix + "system_status"
+        verbose_name = "系统状态表"
+        verbose_name_plural = verbose_name
+        ordering = ("create_datetime",)

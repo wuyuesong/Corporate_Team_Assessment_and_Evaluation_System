@@ -3,8 +3,8 @@ import { UserPageQuery, AddReq, DelReq, EditReq, CreateCrudOptionsProps, CreateC
 import {commonCrudConfig} from "/@/utils/commonCrud";
 import { downloadFile } from '/@/utils/service';
 import { getBaseURL } from '/@/utils/baseUrl';
-import {auth} from "/@/utils/authFunction";
 
+import {Evaauth} from "/@/plugin/permission/func.permission";
 
 export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProps): CreateCrudOptionsRet {
 	const pageRequest = async (query: UserPageQuery) => {
@@ -24,7 +24,6 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 	const exportRequest = async (query: UserPageQuery) => {
 		return await api.exportData(query);
 	};
-	
 	return {
 		crudOptions: {
 			container:{
@@ -39,7 +38,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 			actionbar: {
 				buttons: {
 					add: {
-						show: true,
+						show: Evaauth('add')
 
 					},
 					exportfile: {
@@ -74,10 +73,12 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						type: 'text',
 					},
 					edit: {
-						show: true,
+						show: Evaauth('edit'),
+
 					},
 					remove: {
-						show: true,
+						show: Evaauth('remove'),
+
 					},
 				},
 			},

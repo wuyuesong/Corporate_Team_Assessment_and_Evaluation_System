@@ -10,7 +10,7 @@ import {
 } from '@fast-crud/fast-crud';
 import {commonCrudConfig} from "/@/utils/commonCrud";
 import { Md5 } from 'ts-md5';
-export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProps): CreateCrudOptionsRet {
+export const createCrudOptions = function ({ context,crudExpose }: CreateCrudOptionsProps): CreateCrudOptionsRet {
     const pageRequest = async (query: UserPageQuery) => {
         return await api.GetList(query);
     };
@@ -54,7 +54,9 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
                 }
             },
             toolbar:{
-				show:false
+				show:false,
+
+
 			},
             rowHandle: {
 				fixed:'right',
@@ -69,6 +71,18 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 					remove: {
 						show: true,
 					},
+                    resetPwd: {
+                        type: 'text',
+                        text: '重置密码',
+                        tooltip: {
+							placement: 'top',
+							content: '重设密码',
+						},
+						click: (ctx: any) => {
+							const { row } = ctx;
+							context?.handleResetPwdOpen(row);
+						},
+                    },
 				},
 			},
             columns: {

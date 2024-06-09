@@ -10,7 +10,7 @@ from rest_framework.request import Request
 from django.db import connection
 from django.db.models import Q
 from application import dispatch
-from dvadmin.system.models import Users, Role, Dept, Staff, Department, Rank, EvaluateTask, WeightTask, Task
+from dvadmin.system.models import Users, Role, Dept, Staff, Department, Rank, EvaluateTask, WeightTask, Task, SystemStatus
 from dvadmin.system.views.role import RoleSerializer
 from dvadmin.utils.json_response import ErrorResponse, DetailResponse, SuccessResponse
 from dvadmin.utils.serializers import CustomModelSerializer
@@ -327,17 +327,21 @@ class StaffViewSet(CustomModelViewSet):
         Staff_all = Staff.objects.all()
         Staff_all.delete()
 
-        evaluateTask_all = Staff.objects.all()
-        evaluateTask_all.delete()
+        evaluate_task_all = EvaluateTask.objects.all()
+        evaluate_task_all.delete()
 
-        WeightTask = Staff.objects.all()
-        WeightTask.delete()
+        weight_task_all = WeightTask.objects.all()
+        weight_task_all.delete()
 
-        Task = Staff.objects.all()
-        Task.delete()
+        task_all = Task.objects.all()
+        task_all.delete()
         
         staff_user_all = Users.objects.filter(our_user_type=2)
         staff_user_all.delete()
+
+        status = SystemStatus.objects.get(key="generate_account")
+        status.value = "0"
+        status.save()
         
         return DetailResponse(data=[], msg="删除成功")
     
@@ -345,6 +349,10 @@ class StaffViewSet(CustomModelViewSet):
     # 加上锁，如果期间有报错，则回退，不然再次录入时主键会重复
     @transaction.atomic
     def generate_account(self, request: Request):
+        status = SystemStatus.objects.get(key="generate_account")
+        status.value = "1"
+        status.save()
+        
         Staff_all = Staff.objects.all()
         for staff in Staff_all:
             try:

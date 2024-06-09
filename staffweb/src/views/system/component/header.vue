@@ -39,6 +39,7 @@ const  handleCommand= (path: string) => {
                 // 只清除Session中的staff_token
 
                 Session.remove('staff_token');
+                Session.remove('userInfo');
                 Cookies.remove('staff_id');
 				// 使用 reload 时，不需要调用 resetRoute() 重置路由
 				window.location.reload();

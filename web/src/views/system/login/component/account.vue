@@ -213,6 +213,11 @@ export default defineComponent({
 		};
 	},
 });
+
+// 页面加载时
+onMounted(() => {
+	
+});
 </script>
 
 <style scoped lang="scss">

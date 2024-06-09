@@ -12,15 +12,18 @@ import { FsActionbar } from '@fast-crud/fast-crud';
 import {Download } from '@element-plus/icons-vue'
 import { useFs } from '@fast-crud/fast-crud';
 import { createCrudOptions } from './crud';
-const { crudBinding, crudRef, crudExpose } = useFs({ createCrudOptions });
+import {Evaauth} from "/@/plugin/permission/func.permission";
 const uploadRef = ref()
 const refreshView = inject('refreshView')
 import { ElMessage, ElMessageBox } from 'element-plus'
-import { Eleme } from '@element-plus/icons-vue'
-import { response } from '/@/utils/tools';
+
+
+const EvaStatus = ref(Evaauth('......'))
+
+
 // 页面打开后获取列表数据
 onMounted(() => {
-	crudExpose.doRefresh();
+  crudExpose.doRefresh();
 });
 
 
@@ -51,6 +54,10 @@ let props = defineProps({
     }
   }
 })
+
+
+
+const { crudBinding, crudRef, crudExpose } = useFs({ createCrudOptions });
 
 
 // 文件上传成功处理
@@ -110,17 +117,27 @@ const handleSubmmitClick = () => {
     })
 }
 const handleResetClick = () => {
-  ElMessageBox.confirm(
-    '确定重置?',
+  ElMessageBox.prompt(
+    '确定重置?重置后将清空所有员工信息和所有的任务信息，无法恢复！请在输入框中输入“我同意”以确认操作',
     'Warning',
     {
-      confirmButtonText: 'OK',
-      cancelButtonText: 'Cancel',
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      inputPattern: /\S+/,
+      inputErrorMessage: '输入不能为空',
       type: 'warning',
     }
   )
-    .then(() => {
-      ResetInfo()
+    .then(({value}) => {
+      if(value=='我同意'){
+        ResetInfo()
+      }
+      else{
+        ElMessage({
+          type: 'info',
+          message: '输入错误，操作取消',
+        })
+      }
     })
     .catch(() => {
       ElMessage({
@@ -141,6 +158,9 @@ const SubmmitInfo = async() => {
       }).then((response:any) => {
         if(response.code==2000){
             ElMessageBox.alert('提交成功', {
+              showClose: false,
+            }).then(() => {
+              location.reload()
             })
             subloading.value = false; // 结束加载状态vv
             refreshView()
@@ -166,7 +186,9 @@ const ResetInfo = async() => {
        }).then((response:any) => {
          if(response.code==2000){
              ElMessageBox.alert('重置成功', {
-              
+              showClose: false,
+             }).then(() => {
+               location.reload()
              })
              resetloading.value = false; // 结束加载状态vv
              refreshView()
@@ -200,7 +222,7 @@ const ResetInfo = async() => {
                     <div style="padding: 10px; display: flex;">
         
                       <el-col :span="20">
-                      <el-button id="staffsubmit" type="danger" :loading="subloading" @click="handleSubmmitClick" size="large">
+                      <el-button v-if="EvaStatus" id="staffsubmit" type="danger" :loading="subloading" @click="handleSubmmitClick" size="large" >
                       <template #loading>
                         <div class="custom-loading">
                           <svg class="circular" viewBox="-10, -10, 50, 50">
@@ -271,6 +293,7 @@ const ResetInfo = async() => {
                     :headers="props.upload.headers"
                     :action="props.upload.url"
                     :on-success="handleFileSuccess"
+                    :disabled="!EvaStatus"
                     drag>
                   <el-icon class="el-icon--upload"><upload-filled /></el-icon>
                   <div class="el-upload__text">

@@ -93,7 +93,6 @@
 				<el-dropdown-menu>
 					<el-dropdown-item command="/home">{{ $t('message.user.dropdown1') }}</el-dropdown-item>
 					<el-dropdown-item command="/personal">{{ $t('message.user.dropdown2') }}</el-dropdown-item>
-					<el-dropdown-item command="wareHouse">{{ $t('message.user.dropdown6') }}</el-dropdown-item>
 					<el-dropdown-item divided command="logOut">{{ $t('message.user.dropdown5') }}</el-dropdown-item>
 				</el-dropdown-menu>
 			</template>
@@ -125,6 +124,7 @@ const Search = defineAsyncComponent(() => import('/@/layout/navBars/breadcrumb/s
 const { locale, t } = useI18n();
 const router = useRouter();
 const stores = useUserInfo();
+stores.updateUserInfos();
 const storesThemeConfig = useThemeConfig();
 const { userInfos } = storeToRefs(stores);
 const { themeConfig } = storeToRefs(storesThemeConfig);
@@ -205,12 +205,11 @@ const onHandleCommandClick = (path: string) => {
 			.then(async () => {
 				// 清除缓存/token等
 				Session.remove('token');
+				Session.remove('userInfo');
 				// 使用 reload 时，不需要调用 resetRoute() 重置路由
 				window.location.reload();
 			})
 			.catch(() => {});
-	} else if (path === 'wareHouse') {
-		window.open('https://gitee.com/huge-dream/django-vue3-admin');
 	} else {
 		router.push(path);
 	}
@@ -246,11 +245,19 @@ onMounted(() => {
 		initI18nOrSize('globalComponentSize', 'disabledSize');
 		initI18nOrSize('globalI18n', 'disabledI18n');
 	}
+
 });
 
 //消息中心的未读数量
 import { messageCenterStore } from '/@/stores/messageCenter';
+import { set } from 'nprogress';
 const messageCenter = messageCenterStore();
+
+
+
+
+
+
 </script>
 
 <style scoped lang="scss">

@@ -72,11 +72,14 @@ import loginMain from '/@/assets/login-main.svg';
 import loginBg from '/@/assets/login-bg.svg';
 import { SystemConfigStore } from '/@/stores/systemConfig'
 import { getBaseURL } from "/@/utils/baseUrl";
+import { Session } from '/@/utils/storage';
 // 引入组件
 const Account = defineAsyncComponent(() => import('/@/views/system/login/component/account.vue'));
 const Mobile = defineAsyncComponent(() => import('/@/views/system/login/component/mobile.vue'));
 const Scan = defineAsyncComponent(() => import('/@/views/system/login/component/scan.vue'));
+
 import _ from "lodash";
+import { userInfo } from 'os';
 
 // 定义变量内容
 const storesThemeConfig = useThemeConfig();
@@ -113,6 +116,18 @@ const siteBg = computed(() => {
 // 页面加载时
 onMounted(() => {
 	NextLoading.done();
+	setInterval(() => {
+		
+		if (Session.get('token')){
+			// 刷新页面
+			
+			window.location.reload();
+			console.log('刷新页面');
+		}else{
+			console.log('刷新页面');
+		}
+	}, 1500);
+	
 });
 </script>
 

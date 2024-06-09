@@ -40,3 +40,11 @@ export function DelObj(id: DelReq) {
 		data: { id },
 	});
 }
+
+
+export function deletealljob() {
+	return request({
+		url: apiPrefix + 'rank_delete_all/',
+		method: 'get',
+	});
+}

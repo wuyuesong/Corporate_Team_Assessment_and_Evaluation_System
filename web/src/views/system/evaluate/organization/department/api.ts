@@ -40,3 +40,9 @@ export function DelObj(id: DelReq) {
 		data: { id },
 	});
 }
+export function deletealldep() {
+	return request({
+		url: apiPrefix + 'department_delete_all/',
+		method: 'get',
+	});
+}

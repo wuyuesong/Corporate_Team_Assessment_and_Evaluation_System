@@ -187,7 +187,32 @@ class RankViewSet(CustomModelViewSet):
             ret[offset]['children'].append(tmp_dict)
             
         return DetailResponse(data=ret, msg="获取成功")
+    
+
+    @action(methods=['GET'], detail=False, permission_classes=[])
+    def rank_delete_all(self, request: Request):
+
+        rank_all = Rank.objects.all()
+        rank_all.delete()
         
+        return DetailResponse(data=[], msg="删除成功")
+    
+
+    @action(methods=['POST'], detail=False, permission_classes=[])
+    def department_get_rank(self, request: Request):
+        department = request.data.get("department")
+
+        rank_filter = Rank.objects.filter(staff_department=department)
+
+        ret = []
+
+        cnt = 0
+
+        for rank in rank_filter:
+            ret.append(dict(name=rank.staff_rank, id=cnt))
+            cnt += 1
+        
+        return DetailResponse(data=ret, msg="获取成功")
                 
                 
             

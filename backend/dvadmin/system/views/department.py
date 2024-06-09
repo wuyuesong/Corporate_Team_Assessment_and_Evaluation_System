@@ -137,5 +137,14 @@ class DepartmentViewSet(CustomModelViewSet):
         Department_all = Department.objects.all()
         Department_all.delete()
         return DetailResponse(data=[], msg="删除成功")
+    
+
+    @action(methods=['GET'], detail=False, permission_classes=[])
+    def department_delete_all(self, request: Request):
+        
+        rank_all = Department.objects.all()
+        rank_all.delete()
+        
+        return DetailResponse(data=[], msg="删除成功")
 
 
