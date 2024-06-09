@@ -4,7 +4,7 @@ import {inject,onMounted,ref} from "vue";
 import type { Action } from 'element-plus'
 import { getBaseURL } from '/@/utils/baseUrl';
 import { ElMessage, ElMessageBox } from 'element-plus'
-
+import { useRouter } from 'vue-router';
 onMounted(() => {
     //初始化
     featchTaskList()
@@ -101,15 +101,18 @@ const random_inform=async()=>{
 
 const taskExceptionList=ref([])
 const eail_index_starttime='2024-06-08 13:30'
+
 const fetchexceptionlist=async()=>{
   try{
     exceptionDrawer.value=true
+    const now = new Date();
+    const formatted = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
     const res = await request({
       url: 'api/system/evaluate_task/get_failed_email_list/',
       method: 'post',
       data: {
         start_time: eail_index_starttime,  
-        end_time:  "2024-06-09 00:00",
+        end_time:  formatted,
       }
     })
     if(res.code==2000){
@@ -129,6 +132,26 @@ const fetchexceptionlist=async()=>{
   
 }
 }
+
+
+const router = useRouter();
+
+const gotoNotice=(currentTaskid:any)=>{
+    localStorage.setItem('selectedTask', currentTaskid);
+    router.push('/observeTask/');
+
+}
+
+// 路由过滤递归函数
+const filterRoutesFun = <T extends RouteItem>(arr: T[]): T[] => {
+	return arr
+		.filter((item: T) => !item.meta?.isHide)
+		.map((item: T) => {
+			item = Object.assign({}, item);
+			if (item.children) item.children = filterRoutesFun(item.children);
+			return item;
+		});
+};
 </script>
 
 <template>
@@ -183,7 +206,7 @@ const fetchexceptionlist=async()=>{
 
                 <el-scrollbar>
                         <div class="notice" v-for="item in taskEmailList">
-                            <a href="#" class="notice-title">{{ item.task_name }}</a>
+                            <a @click="gotoNotice(item.task_id)" class="notice-title">{{ item.task_name }}</a>
                             <div class="notice-details">
                                 <span class="type">{{ "任务标识: "+item.task_id }}</span>
                             </div>
@@ -237,16 +260,19 @@ const fetchexceptionlist=async()=>{
                             随机抽取
                         </el-button>
                     </div>
-                </div>
+                
+
                 <el-scrollbar>
                         <div class="notice" v-for="item in taskRandomList">
-                            <a href="#" class="notice-title">{{ item.task_name }}</a>
+                            
+                            <a @click="gotoNotice(item.task_id)" class="notice-title">{{ item.task_name }}</a>
                             <div class="notice-details">
                                 <span class="type">{{ "任务标识: "+item.task_id }}</span>
                             </div>
                             <span class="location">{{ "创建时间: "+item.task_create_date.replace('T',' ') }}</span>
                         </div>
                 </el-scrollbar>
+                </div>
             </div>
         </el-col>
         <el-col :span="1">
@@ -268,7 +294,7 @@ const fetchexceptionlist=async()=>{
         :width="800">
         <el-scrollbar max-height="1000px">
             <div class="list_item" v-for="item in taskExceptionList">
-                <a href="#" class="notice-title">{{ item.staff_name }}</a>
+                <a href="#/observeTask" class="notice-title">{{ item.staff_name }}</a>
                 <div class="notice-details">
                     <span class="type">{{ "邮件地址: "+item.addr }}</span>
                 </div>

@@ -163,6 +163,6 @@ def send_email(to_addrs):
             failed_list.append(to_addr)
             print('邮件发送异常, ', str(e))
         
-        client.quit()
+    client.quit()
 
     return failed_list

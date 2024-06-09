@@ -54,6 +54,7 @@ export async function initBackEndControlRoutes() {
 	// 处理路由（component），替换 dynamicRoutes（/@/router/route）第一个顶级 children 的路由
 	const {frameIn,frameOut} = handleMenu(res.data)
 	dynamicRoutes[0].children = await backEndComponent(frameIn);
+	console.log(dynamicRoutes[0].children)
 	// 添加动态路由
 	await setAddRoute();
 	// 设置路由到 vuex routesList 中（已处理成多级嵌套路由）及缓存多级嵌套数组处理后的一维数组
