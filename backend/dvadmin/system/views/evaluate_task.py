@@ -16,7 +16,7 @@ from rest_framework.request import Request
 from django.db import connection
 from django.db.models import Q
 from application import dispatch
-from dvadmin.system.models import Users, Role, Dept, Department, EvaluateTask, Task, Staff,EvaluateTaskRank, EvaluateTaskAbnormalData, Failed_email
+from dvadmin.system.models import Users, Role, Dept, Department, EvaluateTask, Task, Staff,EvaluateTaskRank, EvaluateTaskAbnormalData, Failed_email, SystemStatus
 from dvadmin.system.views.role import RoleSerializer
 from dvadmin.utils.json_response import ErrorResponse, DetailResponse, SuccessResponse
 from dvadmin.utils.serializers import CustomModelSerializer
@@ -464,6 +464,59 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         #     DetailResponse(data=[], msg="发送成功")
         # else:
         #     ErrorResponse(data=ret_list, msg="列表中人员发送失败")
+
+    
+    @action(methods=['get'], detail=False, permission_classes=[])
+    def send_email(self, request: Request):
+
+
+        current_datetime_str = str(datetime.datetime.now())
+        last_email_time_status = SystemStatus.objects.get(key="last_email_time")
+        last_email_time_status.last_email_time = current_datetime_str
+        last_email_time_status.save()
+
+        all_email_info_task = list(Task.objects.filter(inform_type=1).values_list('task_id', flat=True).distinct().order_by('task_id'))
+        all_evaluate_id = list(EvaluateTask.objects.filter(task_id__in=all_email_info_task).values_list('evaluate_id', flat=True).distinct().order_by('evaluate_id'))
+        staff_infos = Staff.objects.filter(staff_id__in=all_evaluate_id)
+
+        to_addrs = []
+        ret = []
+        for staff_info in staff_infos:
+            to_addrs.append({
+                "staff_name":staff_info.staff_name,
+                "addr":staff_info.staff_email,
+                "username": staff_info.username,
+                "password": staff_info.password
+            })
+
+        failed_list = send_email(to_addrs=to_addrs)
+
+        tmp_list = []
+        ret_list = []
+        Failed_email.objects.all().delete()
+
+        # ret = Sample.main(None)
+        # failed_list = []
+        # for detail in ret["body"]["data"]["mailDetail"]:
+        #     if detail["Status"] != 0:
+        #         print("detail['Subject']", detail["Subject"].split("-"))
+        #         failed_list.append(dict(staff_name=detail["Subject"].split("-")[1], addr=detail["ToAddress"], username=detail["Subject"].split("-")[2]))
+
+
+        for failed in failed_list:
+            ret_list.append(dict(staff_name=failed["staff_name"], addr=failed["addr"], username=failed["username"]))
+            tmp_list.append(Failed_email(staff_name=failed["staff_name"], addr=failed["addr"], username=failed["username"]))
+            
+        Failed_email.objects.bulk_create(tmp_list)
+
+        return DetailResponse(data=[], msg="发送中...")
+        # if len(tmp_list) == 0:
+        #     DetailResponse(data=[], msg="发送成功")
+        # else:
+        #     ErrorResponse(data=ret_list, msg="列表中人员发送失败")
+
+
+        
             
     # 生成excel表
     @action(methods=['get'], detail=False, permission_classes=[])
