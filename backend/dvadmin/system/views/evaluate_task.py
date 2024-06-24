@@ -516,6 +516,52 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         #     ErrorResponse(data=ret_list, msg="列表中人员发送失败")
 
 
+
+    
+    @action(methods=['POST'], detail=False, permission_classes=[])
+    def send_failed_email(self, request: Request):
+
+        all_evaluate_id = request.data.get("all_evaluate_id")
+
+        staff_infos = Staff.objects.filter(staff_id__in=all_evaluate_id)
+
+        to_addrs = []
+        ret = []
+        for staff_info in staff_infos:
+            to_addrs.append({
+                "staff_name":staff_info.staff_name,
+                "addr":staff_info.staff_email,
+                "username": staff_info.username,
+                "password": staff_info.password
+            })
+
+        failed_list = send_email(to_addrs=to_addrs)
+
+        tmp_list = []
+        ret_list = []
+        Failed_email.objects.all().delete()
+
+        # ret = Sample.main(None)
+        # failed_list = []
+        # for detail in ret["body"]["data"]["mailDetail"]:
+        #     if detail["Status"] != 0:
+        #         print("detail['Subject']", detail["Subject"].split("-"))
+        #         failed_list.append(dict(staff_name=detail["Subject"].split("-")[1], addr=detail["ToAddress"], username=detail["Subject"].split("-")[2]))
+
+
+        for failed in failed_list:
+            ret_list.append(dict(staff_name=failed["staff_name"], addr=failed["addr"], username=failed["username"]))
+            tmp_list.append(Failed_email(staff_name=failed["staff_name"], addr=failed["addr"], username=failed["username"]))
+            
+        Failed_email.objects.bulk_create(tmp_list)
+
+        return DetailResponse(data=[], msg="发送中...")
+        # if len(tmp_list) == 0:
+        #     DetailResponse(data=[], msg="发送成功")
+        # else:
+        #     ErrorResponse(data=ret_list, msg="列表中人员发送失败")
+
+
         
             
     # 生成excel表
