@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     "captcha",
     "channels",
     "dvadmin.system",
+    "dvadmin.utils.send_email",
 ]
 
 MIDDLEWARE = [
@@ -404,7 +405,7 @@ PLUGINS_URL_PATTERNS = []
 # ********** 一键导入插件配置开始 **********
 # 例如:
 # from dvadmin_upgrade_center.settings import *    # 升级中心
-# from dvadmin_celery.settings import *            # celery 异步任务
+from dvadmin_celery.settings import *            # celery 异步任务
 # from dvadmin_third.settings import *            # 第三方用户管理
 # from dvadmin_ak_sk.settings import *            # 秘钥管理管理
 # from dvadmin_tenants.settings import *            # 租户管理
@@ -412,3 +413,13 @@ PLUGINS_URL_PATTERNS = []
 #from dvadmin_uniapp.settings import *
 # ...
 # ********** 一键导入插件配置结束 **********
+
+
+# ================================================= #
+# ******************** CELERY配置 ******************** #
+# ================================================= #
+# CELERY_BROKER_URL = 'redis://localhost:6379'
+# CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+# CELERY_ACCEPT_CONTENT = ['application/json']
+# CELERY_TASK_SERIALIZER = 'json'
+# CELERY_RESULT_SERIALIZER = 'json'

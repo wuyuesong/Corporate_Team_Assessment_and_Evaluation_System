@@ -23,10 +23,12 @@ from dvadmin.utils.serializers import CustomModelSerializer
 from dvadmin.utils.validator import CustomUniqueValidator
 from dvadmin.utils.viewset import CustomModelViewSet
 from dvadmin.utils.calc import calc_score
+# from dvadmin.utils.send_email import send_email, SendEmailTask
 from dvadmin.utils.send_email import send_email
 import numpy as np
 
 from django.http import HttpResponse
+from asgiref.sync import async_to_sync
 from openpyxl import Workbook
 from openpyxl.worksheet.datavalidation import DataValidation
 from openpyxl.utils import get_column_letter, quote_sheetname
@@ -37,6 +39,8 @@ from urllib.parse import quote
 
 import os
 import sys
+import asyncio
+from threading import Thread
 
 from typing import List
 
@@ -470,9 +474,12 @@ class EvaluateTaskViewSet(CustomModelViewSet):
     def send_email(self, request: Request):
 
 
-        current_datetime_str = str(datetime.datetime.now())
+        current_datetime_str = str(datetime.now())
         last_email_time_status = SystemStatus.objects.get(key="last_email_time")
-        last_email_time_status.last_email_time = current_datetime_str
+        last_email_time_status.value = current_datetime_str
+        
+        print(last_email_time_status.key)
+        print(last_email_time_status.value)
         last_email_time_status.save()
 
         all_email_info_task = list(Task.objects.filter(inform_type=1).values_list('task_id', flat=True).distinct().order_by('task_id'))
@@ -489,7 +496,22 @@ class EvaluateTaskViewSet(CustomModelViewSet):
                 "password": staff_info.password
             })
 
-        failed_list = send_email(to_addrs=to_addrs)
+
+        # loop = asyncio.new_event_loop()
+        # asyncio.set_event_loop(loop)
+        # # 不等待send_email的完成
+        # task = loop.create_task(send_email(to_addrs))
+        # loop.run_forever()
+        # failed_list = send_email(to_addrs=to_addrs)
+        # async_to_sync(send_email)(to_addrs)
+        failed_list = send_email.delay(to_addrs)
+        
+        # asyncio.run(self.send_email_task(to_addrs=to_addrs))
+
+        
+        
+        # t = Thread(target=send_email, args=(to_addrs))
+        # t.start()
 
         tmp_list = []
         ret_list = []
@@ -503,11 +525,11 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         #         failed_list.append(dict(staff_name=detail["Subject"].split("-")[1], addr=detail["ToAddress"], username=detail["Subject"].split("-")[2]))
 
 
-        for failed in failed_list:
-            ret_list.append(dict(staff_name=failed["staff_name"], addr=failed["addr"], username=failed["username"]))
-            tmp_list.append(Failed_email(staff_name=failed["staff_name"], addr=failed["addr"], username=failed["username"]))
+        # for failed in failed_list:
+        #     ret_list.append(dict(staff_name=failed["staff_name"], addr=failed["addr"], username=failed["username"]))
+        #     tmp_list.append(Failed_email(staff_name=failed["staff_name"], addr=failed["addr"], username=failed["username"]))
             
-        Failed_email.objects.bulk_create(tmp_list)
+        # Failed_email.objects.bulk_create(tmp_list)
 
         return DetailResponse(data=[], msg="发送中...")
         # if len(tmp_list) == 0:
@@ -515,11 +537,14 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         # else:
         #     ErrorResponse(data=ret_list, msg="列表中人员发送失败")
 
-
-
     
     @action(methods=['POST'], detail=False, permission_classes=[])
     def send_failed_email(self, request: Request):
+        
+        current_datetime_str = str(datetime.now())
+        last_email_time_status = SystemStatus.objects.get(key="last_email_time")
+        last_email_time_status.last_email_time = current_datetime_str
+        last_email_time_status.save()
 
         all_evaluate_id = request.data.get("all_evaluate_id")
 

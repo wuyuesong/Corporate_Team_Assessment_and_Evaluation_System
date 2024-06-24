@@ -46,6 +46,8 @@ const featchTaskList = async () => {
 }
 
 
+
+
 //通知接口
 const email_inform=async()=>{
   try{
@@ -100,19 +102,64 @@ const random_inform=async()=>{
 }
 
 const taskExceptionList=ref([])
-const eail_index_starttime='2024-06-08 13:30'
+
+const eail_index_starttime=ref()
+
+
+const featch_starttime = async()=>{
+    try{
+        const res = await request({
+        url: 'api/system/system_status/get_status/',
+        method: 'get',
+        })
+        if(res.code==2000){
+            let dateTimeStr = res.data[1].value
+            eail_index_starttime.value= new Date(dateTimeStr);
+
+        }else{
+            ElMessage({
+                showClose: true,
+                message: "通知失败",
+                type: 'error',
+            })
+        }
+    }catch(error){
+
+        ElMessage({
+        showClose: true,
+        message: "获取时间失败",
+        type: 'error',
+    })
+}
+  
+}
+
+
 
 const fetchexceptionlist=async()=>{
   try{
+    await featch_starttime()
     exceptionDrawer.value=true
     const now = new Date();
-    const formatted = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    
+    // 计算差值（毫秒）
+    const diff =  now.getTime()-eail_index_starttime.value.getTime();
+
+    // 将差值转换为天数
+    const days = diff / (1000 * 60 * 60 * 24);
+    if(days>7){
+        //eail_index_starttime设为现在时间的前7天
+        eail_index_starttime.value.setDate(now.getDate()-6)
+    }
+
+    const form_end = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}-${now.getDate().toString().padStart(2, '0')} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+    const form_start = `${eail_index_starttime.value.getFullYear()}-${(eail_index_starttime.value.getMonth() + 1).toString().padStart(2, '0')}-${eail_index_starttime.value.getDate().toString().padStart(2, '0')} ${eail_index_starttime.value.getHours().toString().padStart(2, '0')}:${eail_index_starttime.value.getMinutes().toString().padStart(2, '0')}`;
     const res = await request({
       url: 'api/system/evaluate_task/get_failed_email_list/',
       method: 'post',
       data: {
-        start_time: eail_index_starttime,  
-        end_time:  formatted,
+        start_time: form_start,  
+        end_time:  form_end,
       }
     })
     if(res.code==2000){
@@ -152,7 +199,18 @@ const filterRoutesFun = <T extends RouteItem>(arr: T[]): T[] => {
 			return item;
 		});
 };
+
+
+const EditInFailfomation=()=>{
+    console.log('编辑失败通知信息')
+}
+
+
+
 </script>
+
+
+
 
 <template>
 <div style="height: 88vh;">
@@ -210,7 +268,8 @@ const filterRoutesFun = <T extends RouteItem>(arr: T[]): T[] => {
                             <div class="notice-details">
                                 <span class="type">{{ "任务标识: "+item.task_id }}</span>
                             </div>
-                            <span class="location">{{ "创建时间: "+item.task_create_date.replace('T',' ') }}</span>
+                            
+                            <span class="location">{{ "创建时间: "+item.task_create_date.replace('T',' ').substring(0, 19) }}</span>
                         </div>
                 </el-scrollbar>
             </div>
@@ -269,7 +328,7 @@ const filterRoutesFun = <T extends RouteItem>(arr: T[]): T[] => {
                             <div class="notice-details">
                                 <span class="type">{{ "任务标识: "+item.task_id }}</span>
                             </div>
-                            <span class="location">{{ "创建时间: "+item.task_create_date.replace('T',' ') }}</span>
+                            <span class="location">{{ "创建时间: "+item.task_create_date.replace('T',' ').substring(0,19) }}</span>
                         </div>
                 </el-scrollbar>
                 </div>
@@ -293,10 +352,12 @@ const filterRoutesFun = <T extends RouteItem>(arr: T[]): T[] => {
         :with-header="true"
         :width="800">
         <el-scrollbar max-height="1000px">
-            <div class="list_item" v-for="item in taskExceptionList">
-                <a href="#/observeTask" class="notice-title">{{ item.staff_name }}</a>
+            <div class="list_item" v-for="item in taskExceptionList"> 
+                
+                <h2 style="color: crimson; font-size: large;">{{ item.staff_name }}</h2>
                 <div class="notice-details">
                     <span class="type">{{ "邮件地址: "+item.addr }}</span>
+                    <a class="cursor-pointer" style="font-size: medium; margin-right: 10px;"  @click="EditInFailfomation"><el-icon><EditPen /></el-icon>修改信息 </a>
                 </div>
                 <span class="location">{{ "账户名: "+item.username }}</span>
             </div>
@@ -396,6 +457,7 @@ h1 {
 
 .notice-details {
     display: flex;
+    flex-direction: row;
     justify-content: space-between;
     color: #999999;
     font-size: 14px;
@@ -409,5 +471,11 @@ h1 {
     display: flex;
     justify-content: space-between;
     align-items: center;
+}
+.cursor-pointer {
+    cursor: pointer;
+}
+.cursor-pointer:hover {
+    color: #4463ff; /* 添加这行代码 */
 }
 </style>
