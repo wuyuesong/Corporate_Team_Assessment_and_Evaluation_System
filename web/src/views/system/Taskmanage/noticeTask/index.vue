@@ -5,6 +5,9 @@ import type { Action } from 'element-plus'
 import { getBaseURL } from '/@/utils/baseUrl';
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router';
+import { asyncCompute } from '@fast-crud/fast-crud';
+import { pa } from 'element-plus/es/locale';
+import { all } from 'axios';
 onMounted(() => {
     //初始化
     featchTaskList()
@@ -201,8 +204,107 @@ const filterRoutesFun = <T extends RouteItem>(arr: T[]): T[] => {
 };
 
 
-const EditInFailfomation=()=>{
+const dialogVisible =ref(false)
+const EditInFailfomation=(username)=>{
+    dialogVisible.value=true
+    fetchStaffInfotoEdit(username)
     console.log('编辑失败通知信息')
+}
+
+const thisStaffInfo=ref({})
+const fetchStaffInfotoEdit=async(username)=>{
+    try{
+        const res = await request({
+        url: '/api/system/staff/',
+        params: {
+            limit: 10,
+            page: 1,
+            staff_id: username
+        },
+        method: 'get',
+        })
+        if(res.code==2000){
+            thisStaffInfo.value=res.data[0]
+        }else{
+            ElMessage({
+                showClose: true,
+                message: "获取员工信息失败",
+                type: 'error',
+            })
+        }
+    }catch(error){
+        ElMessage({
+        showClose: true,
+        message: "获取员工信息失败",
+        type: 'error',
+    })
+}
+}
+const updateStaffInfotoEdit=async(staff_id)=>{
+    dialogVisible.value = false
+    try{
+        const res = await request({
+        url: '/api/system/staff/'+staff_id + '/',
+        method: 'put',
+        data: thisStaffInfo.value
+        })
+        if(res.code==2000){
+            ElMessage({
+                showClose: true,
+                message: "修改成功",
+                type: 'success',
+            })
+            thisStaffInfo.value={}
+        }else{
+            ElMessage({
+                showClose: true,
+                message: "修改失败",
+                type: 'error',
+            })
+            thisStaffInfo.value={}
+        }
+    }catch(error){
+        ElMessage({
+        showClose: true,
+        message: "修改失败",
+        type: 'error',
+    })
+    thisStaffInfo.value={}
+} 
+}
+
+
+const reinform_email=async()=>{
+    try{
+        let list = []
+        taskExceptionList.value.forEach((item)=>{
+            list.push(item.username)
+        })
+        const res = await request({
+        url: 'api/system/evaluate_task/send_failed_email/',
+        method: 'post',
+        data: {all_evaluate_id: list}
+        })
+        if(res.code==2000){
+            ElMessage({
+                showClose: true,
+                message: "通知成功",
+                type: 'success',
+            })
+        }else{
+            ElMessage({
+                showClose: true,
+                message: "通知失败",
+                type: 'error',
+            })
+        }
+    }catch(error){
+        ElMessage({
+        showClose: true,
+        message: "通知失败",
+        type: 'error',
+    })
+}
 }
 
 
@@ -357,12 +459,103 @@ const EditInFailfomation=()=>{
                 <h2 style="color: crimson; font-size: large;">{{ item.staff_name }}</h2>
                 <div class="notice-details">
                     <span class="type">{{ "邮件地址: "+item.addr }}</span>
-                    <a class="cursor-pointer" style="font-size: medium; margin-right: 10px;"  @click="EditInFailfomation"><el-icon><EditPen /></el-icon>修改信息 </a>
+                    <a class="cursor-pointer" style="font-size: medium; margin-right: 10px;"  @click="EditInFailfomation(item.username)"><el-icon><EditPen /></el-icon>修改信息 </a>
                 </div>
                 <span class="location">{{ "账户名: "+item.username }}</span>
             </div>
+            <div style="margin: 20px;font-size: large;">
+                <el-button type="success" size="large" @click="reinform_email">重发邮件</el-button>
+            </div>
+            
         </el-scrollbar>
     </el-drawer>
+
+    <el-dialog v-model="dialogVisible" title="基本信息" width="1200">
+        <el-form label-width="120px" :inline="true">
+            <el-form-item label="单位名称" >
+                <el-select
+                v-model="thisStaffInfo.staff_department"
+                placeholder="Select"
+                style="width: 400px"
+                disabled>
+                </el-select>
+            </el-form-item>
+            <el-form-item label="员工姓名" >
+                <el-input style="width: 400px" v-model="thisStaffInfo.staff_name" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="职位等级" >
+                <el-select
+                v-model="thisStaffInfo.staff_rank"
+                placeholder="Select"
+                style="width: 400px"
+                disabled>
+                </el-select>
+            </el-form-item>
+            
+
+            <el-form-item label="岗位等级">
+                <el-input style="width: 400px" v-model="thisStaffInfo.staff_job" disabled></el-input>
+            </el-form-item>
+
+            <el-form-item label="职称">
+                <el-input style="width: 400px" v-model="thisStaffInfo.job_title" disabled></el-input>
+            </el-form-item>
+
+            <el-form-item label="第一年KPI">
+                <el-input style="width: 400px" v-model="thisStaffInfo.staff_kpi1" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="第二年KPI">
+                <el-input style="width: 400px" v-model="thisStaffInfo.staff_kpi2" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="第三年KPI">
+                <el-input style="width: 400px" v-model="thisStaffInfo.staff_kpi3" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="第一年考核结果">
+                <el-input style="width: 400px" v-model="thisStaffInfo.assessment1" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="第二年考核结果">
+                <el-input style="width: 400px" v-model="thisStaffInfo.assessment2" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="第三年考核结果">
+                <el-input style="width: 400px" v-model="thisStaffInfo.assessment3" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="政治面貌">
+                <el-input style="width: 400px" v-model="thisStaffInfo.staff_status" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="员工企业ID">
+                <el-input style="width: 400px" v-model="thisStaffInfo.staff_firm_id" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="员工电话">
+                <el-input style="width: 400px" v-model="thisStaffInfo.staff_telephone" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="员工邮箱">
+                <el-input style="width: 400px" v-model="thisStaffInfo.staff_email" ></el-input>
+            </el-form-item>
+            <el-form-item label="备注">
+                <el-input type="textarea" style="width: 400px" v-model="thisStaffInfo.description" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="修改人">
+                <el-input style="width: 400px" v-model="thisStaffInfo.modifier_name" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="创建人">
+                <el-input style="width: 400px" v-model="thisStaffInfo.creator_name" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="更新时间">
+                <el-input style="width: 400px" v-model="thisStaffInfo.update_datetime" disabled></el-input>
+            </el-form-item>
+            <el-form-item label="创建时间">
+                <el-input style="width: 400px" v-model="thisStaffInfo.create_datetime" disabled></el-input>
+            </el-form-item>
+        </el-form>
+        <span slot="footer" class="dialog-footer">
+            <el-button @click="dialogVisible = false">取 消</el-button>
+            <el-button type="primary" @click="updateStaffInfotoEdit(thisStaffInfo.id)">确 定</el-button>
+        </span>
+
+    </el-dialog>
+
+
+
 </div>
 </template>
 

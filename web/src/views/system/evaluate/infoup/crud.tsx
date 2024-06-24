@@ -388,7 +388,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						minWidth: 100,
 					},
 					form: {
-						show:false
+						show:true
 					}
 
 				},
@@ -402,7 +402,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 						minWidth: 100,
 					},
 					form: {
-						show:false
+						show:true
 					}
 
 				},
