@@ -40,4 +40,13 @@ class SystemStatusViewSet(CustomModelViewSet):
             ret.append(dict(key=system_status.key, value=system_status.value))
         
         return DetailResponse(data=ret, msg="获取成功")
+    
+
+    @action(methods=['POST'], detail=False, permission_classes=[])
+    def set_last_email_time(self, request: Request):
+        last_email_time = request.data.get("last_email_time")
+        last_email_time_status = SystemStatus.objects.get(key="last_email_time")
+        last_email_time_status.last_email_time = last_email_time
+
+        return DetailResponse(data=[], msg="设置成功")
 

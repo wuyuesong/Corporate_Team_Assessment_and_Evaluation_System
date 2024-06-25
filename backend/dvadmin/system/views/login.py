@@ -33,6 +33,7 @@ class CaptchaView(APIView):
     )
     def get(self, request):
         data = {}
+        dispatch.refresh_system_config()
         if dispatch.get_system_config_values("base.captcha_state"):
             hashkey = CaptchaStore.generate_key()
             id = CaptchaStore.objects.filter(hashkey=hashkey).first().id

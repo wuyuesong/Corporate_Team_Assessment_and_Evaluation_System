@@ -86,7 +86,19 @@ from email.utils import formataddr
 # import ssl
 from conf.env import *
 import base64
+import time
+import asyncio
 
+# from celery import Celery, Task
+from application.celery import app
+
+
+# @app.task
+# class SendEmailTask(Task):
+#     def run(self, to_addrs):
+#         send_email(to_addrs)
+
+@app.task
 def send_email(to_addrs):
     # username，通过控制台创建的发信地址
     username = EMAIL_SENDER
@@ -137,6 +149,7 @@ def send_email(to_addrs):
     # 发件人和认证地址必须一致
     client.login(username, password)
 
+    start_time = time.time()
     for to_addr in to_addrs:
         msg = MIMEText(f'''您的公司邀请您参加考评任务\n 
                 以下是您的账号和密码：\n
@@ -148,7 +161,7 @@ def send_email(to_addrs):
         msg['Subject'] = Header(subject, 'utf-8')  # 邮件主题
         msg['To'] = Header(to_addr["staff_name"])  # 接收者
         receivers = [to_addr["addr"]]
-
+        
         # 发送邮件
         try:
            
@@ -158,6 +171,9 @@ def send_email(to_addrs):
             ret = client.sendmail(username, receivers, msg.as_string())  # 支持多个收件人，具体数量参考规格清单
             print("ret: ", ret)
             print('邮件发送成功！')
+            
+            end_time = time.time()
+            print("during time: ", end_time - start_time)
 
         except Exception as e:
             failed_list.append(to_addr)
@@ -166,3 +182,4 @@ def send_email(to_addrs):
     client.quit()
 
     return failed_list
+
