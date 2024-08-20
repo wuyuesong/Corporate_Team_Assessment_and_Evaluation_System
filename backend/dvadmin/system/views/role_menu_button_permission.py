@@ -13,7 +13,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from dvadmin.system.models import RoleMenuButtonPermission, Menu, MenuButton, Dept, RoleMenuPermission, FieldPermission, \
     MenuField
-from dvadmin.system.views.menu import MenuSerializer
+from dvadmin.system.views.menu import MenuInitSerializer
 from dvadmin.utils.json_response import DetailResponse, ErrorResponse
 from dvadmin.utils.serializers import CustomModelSerializer
 from dvadmin.utils.viewset import CustomModelViewSet

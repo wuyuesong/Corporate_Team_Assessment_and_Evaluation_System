@@ -12,7 +12,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from dvadmin.system.models import Role, Menu, MenuButton, Dept
 from dvadmin.system.views.dept import DeptSerializer
-from dvadmin.system.views.menu import MenuSerializer
+from dvadmin.system.views.menu import MenuInitSerializer
 from dvadmin.system.views.menu_button import MenuButtonSerializer
 from dvadmin.utils.crud_mixin import FastCrudMixin
 from dvadmin.utils.field_permission import FieldPermissionMixin
@@ -37,7 +37,7 @@ class RoleCreateUpdateSerializer(CustomModelSerializer):
     """
     角色管理 创建/更新时的列化器
     """
-    menu = MenuSerializer(many=True, read_only=True)
+    menu = MenuInitSerializer(many=True, read_only=True)
     dept = DeptSerializer(many=True, read_only=True)
     permission = MenuButtonSerializer(many=True, read_only=True)
     key = serializers.CharField(max_length=50,

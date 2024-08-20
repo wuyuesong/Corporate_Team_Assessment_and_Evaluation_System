@@ -477,9 +477,6 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         current_datetime_str = str(datetime.now())
         last_email_time_status = SystemStatus.objects.get(key="last_email_time")
         last_email_time_status.value = current_datetime_str
-        
-        print(last_email_time_status.key)
-        print(last_email_time_status.value)
         last_email_time_status.save()
 
         all_email_info_task = list(Task.objects.filter(inform_type=1).values_list('task_id', flat=True).distinct().order_by('task_id'))
@@ -543,7 +540,7 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         
         current_datetime_str = str(datetime.now())
         last_email_time_status = SystemStatus.objects.get(key="last_email_time")
-        last_email_time_status.last_email_time = current_datetime_str
+        last_email_time_status.value = current_datetime_str
         last_email_time_status.save()
 
         all_evaluate_id = request.data.get("all_evaluate_id")

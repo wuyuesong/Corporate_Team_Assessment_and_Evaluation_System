@@ -16,7 +16,7 @@ from dvadmin.utils.serializers import CustomModelSerializer
 from dvadmin.utils.viewset import CustomModelViewSet
 
 
-class MenuSerializer(CustomModelSerializer):
+class MenuInitSerializer(CustomModelSerializer):
     """
     菜单表的简单序列化器
     """
@@ -86,7 +86,7 @@ class MenuViewSet(CustomModelViewSet):
     destroy:删除
     """
     queryset = Menu.objects.all()
-    serializer_class = MenuSerializer
+    serializer_class = MenuInitSerializer
     create_serializer_class = MenuCreateSerializer
     update_serializer_class = MenuCreateSerializer
     search_fields = ['name', 'status']
