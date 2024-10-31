@@ -1145,7 +1145,7 @@ const parsePercent=(str)=>{
                                         </div>
                                         </template>
                                         <template #default="{ row }">
-                                        <span style="padding-left: 1em;">{{ row.name }}</span>
+                                        <span >{{ row.name }}</span>
                                     </template>
                                 </el-table-column>
                                 <el-table-column v-for="(item,index) in ranktabledata" :key="index" :prop="item.evaluated_id" :label="item.name" width="200px" />
@@ -1311,9 +1311,9 @@ const parsePercent=(str)=>{
 .chartzone{
     display: flex;
     margin-top: 30px;
-    justify-content: center;
+    /* justify-content: center;
     align-items: center;
-    text-align: center;
+    text-align: center; */
 }
 
 

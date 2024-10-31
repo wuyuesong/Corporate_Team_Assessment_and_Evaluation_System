@@ -109,7 +109,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 					type: 'dict-tree',
 					dict: dict({
                         isTree: true,
-                        url: '/api/system/department/',
+                        url: '/api/system/department/?limit=100',
                         label: 'staff_department',
 						value: 'staff_department'
                     }),

@@ -272,7 +272,12 @@ const addevaluatinggroup=async()=>{
         });
         loading.value = false;
         addDrawvisable.value=false;
-        taskpresentbutton.value=false;
+        //判断当前有无group
+        if(evaluatingGroup.value.length>0){
+            taskpresentbutton.value=false;
+        }else{
+            taskpresentbutton.value=true;
+        }
         
         // 更新选项列表
     } catch (error) {
@@ -295,6 +300,11 @@ const removeChild=(index)=>{
         allevaluatemap.value.delete(element.staff_id)
     });
     evaluatingGroup.value.splice(index, 1);
+    if(evaluatingGroup.value.length>0){
+        taskpresentbutton.value=false;
+    }else{
+        taskpresentbutton.value=true;
+    }
 }
 
 
@@ -464,6 +474,11 @@ const transfertoevaluate=()=>{
         evaluatingTabledata.forEach(item=>{
             allevaluatemap.value.set(item.staff_id,item.staff_name)
         })
+    }
+    if(evaluatingGroup.value.length>0){
+        taskpresentbutton.value=false;
+    }else{
+        taskpresentbutton.value=true;
     }
 }
 

@@ -200,7 +200,7 @@ const checkSubmit=()=>{
 <template>
 <div >
     <div class="rounded-lg shadow-xl hover:shadow-2xl ..." style="margin: 30px; padding: 20px; height: 700px;">
-        <el-row>
+        <el-row style="height: 100%;">
             <el-col :span="4">
                 <div class="leftside">  
                     <button type="button" class=" rounded-lg bg-teal-400  box-content h-16 w-52  hover:bg-teal-700" v-if="presenting===-1" @click="presentWeightQnn">
@@ -228,7 +228,7 @@ const checkSubmit=()=>{
                 </div>
             </el-col>
             <el-col :span="20">
-                <div class="MatrixRes" >
+                <div class="MatrixRes" style="max-height: 600px; overflow: auto;">
                     <table  class="table-content border-separate border border-slate-400 ...">
                     <caption class="text-2xl font-bold" style="margin-bottom: 10px;">部门间相关权重矩阵</caption>
                     <thead>
@@ -243,7 +243,6 @@ const checkSubmit=()=>{
                             <td v-for="(item1,index1) in departmentlist" :key="index1" class="border border-slate-400 w-36 text-xl"> {{matrixStatus[item][item1] !== undefined && matrixStatus[item][item1] !== null && typeof matrixStatus[item][item1] === 'number' ? matrixStatus[item][item1].toFixed(2) : matrixStatus[item][item1] }}</td>
                         </tr>
                     </tbody>
-                    
                     </table>
                 </div>
             </el-col>
@@ -263,12 +262,23 @@ const checkSubmit=()=>{
     text-align: center;
 }
 .MatrixRes{
+    max-width: 100%;
+    max-height: 600px; /* 固定最大高度 */
     margin: 20px;
     padding: 20px;
     display: flex;
-    justify-content: center;
-    align-items: center;
     text-align: center;
+    overflow: auto; /* 超出部分滚动 */
+}
+.table-content {
+    margin-top: 20px;
+    width: 100%;
+}
+
+.table-content th,
+.table-content td {
+  padding: 8px;
+  text-align: center;
 }
 
 </style>
