@@ -202,6 +202,8 @@ def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
     #         file.write("\n")
     ##########################################################################################
 
+
+    # 根据weight计算权重
     #######################################  step12  #########################################   最终排名
     dot_product = np.zeros_like(first_row)
     for i in range(z_score.shape[1]):
@@ -247,5 +249,5 @@ def calc_relation(relation):
     column_sums2 = np.sum(im_relation, axis=0)
     for i in range(im_relation.shape[1]):
         relation_normal[:, i] = 100 / column_sums2[i] * im_relation[:, i]
-
+ 
     return relation_normal
