@@ -45,9 +45,9 @@ const deleteRow = (index: number) => {
         </el-card>
         <el-card class="contain_middle">
             <el-table :data="model.tableData" style="width: 100%" max-height="250">
-                <el-table-column prop="staff_name" label="姓名" width="120" />
-                <el-table-column prop="staff_firm_id" label="ID" width="120" />
-                <el-table-column fixed="right" label="Operations" width="120">
+                <el-table-column prop="staff_name" label="姓名" width="150" />
+                <el-table-column prop="staff_firm_id" label="ID" width="150" />
+                <el-table-column fixed="right" label="Operations" width="200">
                 <template #default="scope">
                     <el-button
                     link
@@ -55,23 +55,25 @@ const deleteRow = (index: number) => {
                     size="small"
                     @click.prevent="deleteRow(scope.$index)"
                     >
-                    Remove
+                    删除
                     </el-button>
                 </template>
                 </el-table-column>
             </el-table>
         </el-card>
-        <el-card class="weight_right">
+        <!-- <el-card class="weight_right">
             <el-input-number class="weight_input" v-model="weightchange" :min="0" :max="100"  placeholder="权重(总和100)"  controls-position="right"/>
-        </el-card>
+        </el-card> -->
     </div>
 </template>
 
 <style>
 .evaitem_container{
     display: flex;
-    margin: 10px;
-    width: 100%;
+    padding: 5px;
+    /* margin: 10px; */
+    width: 95%;
+    /* height: 95%; */
 }
 .title_left{
     width: 15%;
@@ -84,7 +86,7 @@ const deleteRow = (index: number) => {
 }
 
 .contain_middle{
-    width: 58%;
+    width: 80%;
     margin-left: 10px;
     margin-right: 10px;
     align-items: center;

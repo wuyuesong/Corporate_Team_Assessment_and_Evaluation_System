@@ -220,13 +220,10 @@ const reset=()=>{
 const evaluatingGroup=ref([])
 const reltree:any=ref(null);
 const addevaluatinggroup=async()=>{
-
-    console.log(".....")
     loading.value = true;
     const evaluatingTabledata=ref([]);
     const addtarget=reltree.value.treeclick();
     console.log(addtarget)
-
 
     try {
         // 发送请求并获取数据
@@ -309,61 +306,86 @@ const removeChild=(index)=>{
 
 
 //请求负载的标准数据
-const torequestEvaluate =ref([]);
+const torequestEvaluate =ref([])
+const toEvaluatedTotal =ref([])
 const torequestEvaluated =ref([])
+const weighttable=ref({})
 /**
  * 请求负载处理
  */
 const processtoRequestData=()=>{
     torequestEvaluate.value=[];
     torequestEvaluated.value=[];
+    toEvaluatedTotal.value=[];
     
-    //遍历evaluatingGroup数据
-    let totalweight=0;
+    
     evaluatingGroup.value.forEach(element => {
-
-        let total=element.tableData.length;
-
-        if(element.task_weight===null){
-            totalweight=-1;
-            return;
-        }
-
-        totalweight=totalweight+parseFloat(element.task_weight);
-        
-        let avaweight=parseFloat(element.task_weight)/total;
+        // let total=element.tableData.length;
+        // if(element.task_weight===null){
+        //     totalweight=-1;
+        //     return;
+        // }
+        // totalweight=totalweight+parseFloat(element.task_weight);
+        // let avaweight=parseFloat(element.task_weight)/total;
         element.tableData.forEach(ele=>{
-            const {staff_id} =ele;
+            const {staff_id,staff_job} =ele;
+            if(toEvaluatedTotal[staff_job]===undefined){
+                toEvaluatedTotal[staff_job]=1;
+            }else{
+                toEvaluatedTotal[staff_job]=toEvaluatedTotal[staff_job]+1;
+            }
+
             torequestEvaluate.value.push({
                 evaluate_id:staff_id,
-                task_weight:avaweight
+                staff_job:staff_job
+                // task_weight:avaweight
             })
         })
     });
-    if(totalweight<0){
-        ElMessage({
-                showClose: true,
-                message: "存在权重没填",
-                type: 'error',
-        })
-        return true;
-    }
-    if(!(totalweight===100)){
-        ElMessage({
-                showClose: true,
-                message: "权重总和不为100",
-                type: 'error',
-            })
-        return true;
-    }
+    // if(totalweight<0){
+    //     ElMessage({
+    //             showClose: true,
+    //             message: "存在权重没填",
+    //             type: 'error',
+    //     })
+    //     return true;
+    // }
+    // if(!(totalweight===100)){
+    //     ElMessage({
+    //             showClose: true,
+    //             message: "权重总和不为100",
+    //             type: 'error',
+    //         })
+    //     return true;
+    // }
 
     //遍历evaluatedGroup数据
     griddata.value.forEach(element=>{
-        const {staff_id} =element;
+        const {staff_id,staff_job} =element;
         torequestEvaluated.value.push({
             evaluated_id:staff_id,
+            staff_job:staff_job
         })
     })
+    //遍历weight
+    for(const evaed in weight.value){
+        let evaedtotal=0
+        for(const eva in weight.value[evaed]){
+            evaedtotal+=weight.value[evaed][eva]
+            weight.value[evaed][eva]=weight.value[evaed][eva]/toEvaluatedTotal[eva]
+        }
+        if(!( evaedtotal === 100 || evaedtotal ===0)){
+            ElMessage({
+                showClose: true,
+                message: evaed+'权重总和不为100',
+                type: 'error',
+            })
+            return true;
+        }
+
+    }
+
+    
     return false;
 }
 
@@ -405,6 +427,16 @@ const TaskPreSubmit=async(type:number)=>{
     }
     
     pageloading.value=true;
+    weighttable.value={};
+    for(const item of torequestEvaluate.value){
+        //遍历torequestEvaluated
+        if (!weighttable.value[item.evaluate_id]) {
+            weighttable.value[item.evaluate_id] = {};
+        }
+        for(const item2 of torequestEvaluated.value){
+            weighttable.value[item.evaluate_id][item2.evaluated_id] = weight.value[item2.staff_job][item.staff_job]
+        }
+    }
     try {
         const response=await request({
                 url: 'api/system/evaluate_task/evaluate_task_create/',
@@ -416,6 +448,7 @@ const TaskPreSubmit=async(type:number)=>{
                     task_end_date:startendTime.value[1],
                     evaluate:torequestEvaluate.value,
                     evaluated:torequestEvaluated.value,
+                    weight_to_evaluated:weighttable.value,
                     task_type:type,
                     //已完成
                     inform_type:noticeradio.value,
@@ -482,6 +515,32 @@ const transfertoevaluate=()=>{
     }
 }
 
+const options = [
+  '总监',
+  '部门正职',
+  '部门副职',
+]
+const weight=ref({
+    '总监':{
+        '总监':0,
+        '部门正职':0,
+        '部门副职':0,
+    },
+    '部门正职':{
+        '总监':0,
+        '部门正职':0,
+        '部门副职':0,
+    },
+    '部门副职':{
+        '总监':0,
+        '部门正职':0,
+        '部门副职':0,
+    },
+})
+
+
+const value = ref('总监')
+
 </script>
 
 
@@ -546,7 +605,7 @@ const transfertoevaluate=()=>{
                 <h4 class="evaluated_title">评价组</h4>
                 <div class="addgrouo_container">
                     <el-button class="addgroup" @click="addDrawvisable=true" :disabled="evaluatingbutton">
-                        <h4 class="evaluated_title">加入新的评价组</h4>
+                        <h4 class="evaluated_title">加入评价组</h4>
                     </el-button>
                 </div>
           
@@ -645,7 +704,34 @@ const transfertoevaluate=()=>{
 
             
         </div>
+        
     </div>
+    <div class="rounded-lg shadow-xl hover:shadow-2xl ..." style="margin: 30px; padding: 20px; min-height: 500px;box-shadow: 0px 0px 6px rgba(0, 0, 0, 0.3); ">
+        <div class="ContentBody" v-if=true>
+            <h1 class="text-3xl font-extrabold text-center text-gray-700 bg-clip-text">
+                评价人权重配置
+            </h1>
+            <el-segmented class="segment" v-model="value" :options="options" block >
+                <template #default="{ item }">
+                    <div class="text-1xl font-bold text-center bg-clip-text">{{ item }}</div>
+                </template>
+            </el-segmented>
+            <div v-for="item in options">
+                <div class="evacontent" v-if="item==value">
+                    <span class="text-xl  text-center text-gray-700 bg-clip-text">被评价对象层级 / {{ item }}</span>
+                    <div class="wightFillblock" v-for="evaitem in options">
+                        <span class="text-xl  text-center text-gray-700 bg-clip-text"style="width: 300px;">{{ evaitem }}(权重%)</span>
+                        <el-input-number class="weight_input" v-model="weight[item][evaitem]" :min="0" :max="100"  placeholder="权重(总和100)"  controls-position="right"/>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="ContentBody" v-else>
+            <el-empty description="请选择任务进行配置" />
+        </div>
+
+    </div>
+    
 </div>
     
 </template>
@@ -799,4 +885,50 @@ const transfertoevaluate=()=>{
     width: 255px;  
 }
 
+.OTheaderBlank{
+    display: flex;
+    align-items: center;
+    padding-left: 30px;
+    width: 80%;
+}
+.ContentBody{
+    display: flex;
+    width: 100%;
+    padding-top: 20px;   
+    flex-direction: column;
+}
+.segment{
+    margin-top: 20px;
+    background-color: #dadada; /* 白色背景 */
+}
+.evacontent{
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+
+}
+.wightFillblock{
+    display: flex;
+    flex-direction: row;
+    align-items: center; 
+    background-color: #ffffff; /* 白色背景 */
+    border-radius: 10px;        /* 圆角5px */
+    border: 1px solid #cccccc; /* 灰色边框 */
+    width: 600px;               /* 宽度300px */
+    height: 50px;              /* 高度100px */
+    margin: 10px;
+    padding: 10px;
+}
+.submitbutton{
+    width: 80%;
+    display: flex;
+    justify-content: right;
+    align-items: right; 
+    text-align: right;
+}
+.weight_input{
+    width: 300px;
+}
 </style>
