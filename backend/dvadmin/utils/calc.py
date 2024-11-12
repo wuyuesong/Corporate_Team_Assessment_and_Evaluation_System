@@ -11,6 +11,15 @@ import math
 
 # 用于计算评价任务的最终得分
 def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
+    # rows:行数 ，即评价人
+    # cols:列数 ，即被评价人
+    # mul
+    # first_row:所有的被评价人
+    # first_column：所有的评价人
+    # range_data :scores矩阵
+    # weight
+
+
 
     non_zero_counts_row = np.count_nonzero(range_data, axis=1)
     non_zero_counts_col = np.count_nonzero(range_data, axis=0)
