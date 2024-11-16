@@ -396,8 +396,8 @@ class EvaluateTaskViewSet(CustomModelViewSet):
 
         ret= []
         for rank in rank_list:
-            evaluated_name = Staff.objects.get(staff_id=rank.evaluated_id).staff_name
-            ret.append(dict(evaluated_id=rank.evaluated_id, evaluated_rank=rank.evaluated_rank, evaluated_score=rank.evaluated_score, evaluated_name=evaluated_name))
+            evaluated = Staff.objects.get(staff_id=rank.evaluated_id)
+            ret.append(dict(evaluated_id=rank.evaluated_id, evaluated_rank=rank.evaluated_rank, evaluated_score=rank.evaluated_score, evaluated_name=evaluated.staff_name,staff_job=evaluated.staff_job,staff_rank=evaluated.staff_rank))
 
         return DetailResponse(data=ret, msg="获取成功")
     

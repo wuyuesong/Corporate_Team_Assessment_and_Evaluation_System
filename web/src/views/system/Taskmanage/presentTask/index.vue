@@ -63,6 +63,16 @@ const evaluatedrevert=async()=>{
             griddata.value=griddata.value.filter((item:any,index:any)=>{
                 return griddata.value.findIndex((item2:any)=>item2.staff_id===item.staff_id)===index
             })
+
+            //evaedoptions加入
+            griddata.value.forEach(item=>{
+                //判断是否已经加入
+                if(!evaedoptions.value.includes(item.staff_job)){
+                    evaedoptions.value.push(item.staff_job)
+                    weight.value[item.staff_job]={}
+                }
+            })
+            evavalue.value=evaedoptions.value[0]
       }else{
         loading.value = false;
         ElMessage({
@@ -204,6 +214,8 @@ const reset=()=>{
         evaluatingGroup.value = [];
         judge.value=true;
         evaluatingbutton.value=true;
+        evaedoptions.value=[];
+        weight.value={};
 
     })
     .catch(() => {
@@ -255,6 +267,13 @@ const addevaluatinggroup=async()=>{
                     evaluatingTabledata.value.push(...data)
                     evaluatingTabledata.value.forEach(item=>{
                         allevaluatemap.value.set(item.staff_id,item.staff_name)
+
+                        if(!evaoptions.value.includes(item.staff_job)){
+                            evaoptions.value.push(item.staff_job)
+                            for (const eva in weight.value) {
+                                weight.value[eva][item.staff_job]=0
+                            }
+                        }
                     })
                 }
             } else{
@@ -301,6 +320,24 @@ const removeChild=(index)=>{
         taskpresentbutton.value=false;
     }else{
         taskpresentbutton.value=true;
+    }
+    refreshevaoptions()
+}
+
+const refreshevaoptions = ()=>{
+    evaoptions.value=[]
+    for (const eva in weight.value) {
+        weight.value[eva]={}
+    }
+    for(const item of evaluatingGroup.value){
+        for (const ele of item.tableData) {
+            if(!evaoptions.value.includes(ele.staff_job)){
+                evaoptions.value.push(ele.staff_job)
+                for (const eva in weight.value) {
+                    weight.value[eva][ele.staff_job]=0
+                }
+            }
+        }
     }
 }
 
@@ -506,6 +543,13 @@ const transfertoevaluate=()=>{
         });
         evaluatingTabledata.forEach(item=>{
             allevaluatemap.value.set(item.staff_id,item.staff_name)
+
+            if(!evaoptions.value.includes(item.staff_job)){
+                evaoptions.value.push(item.staff_job)
+                for (const eva in weight.value) {
+                    weight.value[eva][item.staff_job]=0
+                }
+            }
         })
     }
     if(evaluatingGroup.value.length>0){
@@ -515,31 +559,30 @@ const transfertoevaluate=()=>{
     }
 }
 
-const options = [
-  '总监',
-  '部门正职',
-  '部门副职',
-]
+const evaoptions = ref([])
+const evaedoptions = ref([])
+
+
 const weight=ref({
-    '总监':{
-        '总监':0,
-        '部门正职':0,
-        '部门副职':0,
-    },
-    '部门正职':{
-        '总监':0,
-        '部门正职':0,
-        '部门副职':0,
-    },
-    '部门副职':{
-        '总监':0,
-        '部门正职':0,
-        '部门副职':0,
-    },
+    // '总监':{
+    //     '总监':0,
+    //     '部门正职':0,
+    //     '部门副职':0,
+    // },
+    // '部门正职':{
+    //     '总监':0,
+    //     '部门正职':0,
+    //     '部门副职':0,
+    // },
+    // '部门副职':{
+    //     '总监':0,
+    //     '部门正职':0,
+    //     '部门副职':0,
+    // },
 })
 
 
-const value = ref('总监')
+const evavalue = ref()
 
 </script>
 
@@ -615,7 +658,7 @@ const value = ref('总监')
                    <relationtree ref="reltree"></relationtree>
                     <div class="demo-drawer__footer">
                         <el-button type="primary" :loading="loading" @click="addevaluatinggroup">{{
-                            loading ? 'Submitting ...' : 'Submit'
+                            loading ? '确认 ...' : '确认'
                             }}</el-button>                    
                     </div>
                 </div>
@@ -678,7 +721,7 @@ const value = ref('总监')
                     </el-form>
                     <div class="demo-drawer__footer">
                         <el-button type="primary" :loading="loading" @click="evaluatedrevert">{{
-                            loading ? 'Submitting ...' : 'Submit'
+                            loading ? '确认 ...' : '确认'
                             }}</el-button>
                         
                     </div>
@@ -711,15 +754,15 @@ const value = ref('总监')
             <h1 class="text-3xl font-extrabold text-center text-gray-700 bg-clip-text">
                 评价人权重配置
             </h1>
-            <el-segmented class="segment" v-model="value" :options="options" block >
+            <el-segmented class="segment" v-model="evavalue" :options="evaedoptions" block >
                 <template #default="{ item }">
                     <div class="text-1xl font-bold text-center bg-clip-text">{{ item }}</div>
                 </template>
             </el-segmented>
-            <div v-for="item in options">
-                <div class="evacontent" v-if="item==value">
+            <div v-for="item in evaedoptions">
+                <div class="evacontent" v-if="item==evavalue">
                     <span class="text-xl  text-center text-gray-700 bg-clip-text">被评价对象层级 / {{ item }}</span>
-                    <div class="wightFillblock" v-for="evaitem in options">
+                    <div class="wightFillblock" v-for="evaitem in evaoptions">
                         <span class="text-xl  text-center text-gray-700 bg-clip-text"style="width: 300px;">{{ evaitem }}(权重%)</span>
                         <el-input-number class="weight_input" v-model="weight[item][evaitem]" :min="0" :max="100"  placeholder="权重(总和100)"  controls-position="right"/>
                     </div>
