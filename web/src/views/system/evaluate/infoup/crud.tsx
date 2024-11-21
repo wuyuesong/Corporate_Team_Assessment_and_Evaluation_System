@@ -135,7 +135,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 					},
 				},
 				staff_name: {
-					title: '员工姓名',
+					title: '姓名',
 					search: {
 						
 						disabled: false,
@@ -152,7 +152,7 @@ export const createCrudOptions = function ({ crudExpose }: CreateCrudOptionsProp
 					},
 				},
 				staff_rank: {
-					title: '职位等级',
+					title: '职务名称',
 					search: {
 						show:true,
 						disabled: false,

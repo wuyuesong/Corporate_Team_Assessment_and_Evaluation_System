@@ -132,6 +132,9 @@ const fetchTaskpageInfo=async()=>{
         })
     }
 }
+const switchjobrank=(value)=>{
+    itemkey.value=Math.random()
+}
 
 const ObTask=(value)=>{
     currentTask.value=value
@@ -321,6 +324,9 @@ const ranktabledata=ref([])
 
 const itemkey=ref()
 
+const rankjob=ref()
+const temp=ref([])
+const grouprank=ref({})
 //获取结果排名分数的信息
 const fetchrankresinfo=async()=>{
     try {
@@ -334,25 +340,53 @@ const fetchrankresinfo=async()=>{
         if(response.code==2000){
 
             if(response.data){
-                let temp=[]
+                let count = 0
+                grouprank.value={}
+                temp.value=[]
                 response.data.forEach(ele =>{
-
                     //保留ele.evaluated_score两位小数四舍五入
                     ele.evaluated_score=ele.evaluated_score.toFixed(2)
-                    temp.push({
-                        rank:ele.evaluated_rank,
-                        name:ele.evaluated_name,
-                        score:ele.evaluated_score,
-                        evaluated_id:ele.evaluated_id,
-                    })
+                    if(ele.evaluated_score!=='0.00'){
+                        temp.value.push({
+                            rank:ele.evaluated_rank,
+                            name:ele.evaluated_name,
+                            score:ele.evaluated_score,
+                            evaluated_id:ele.evaluated_id,
+                            staff_rank:ele.staff_rank,
+                            staff_job:ele.staff_job,
+                        })
+                        if(grouprank.value[ele.staff_job]){
+                            grouprank.value[ele.staff_job].push({
+                                rank:ele.evaluated_rank,
+                                name:ele.evaluated_name,
+                                score:ele.evaluated_score,
+                                evaluated_id:ele.evaluated_id,
+                                staff_rank:ele.staff_rank,
+                                staff_job:ele.staff_job,
+                            })
+                        }else{
+                            grouprank.value[ele.staff_job]=[]
+                            grouprank.value[ele.staff_job].push({
+                                rank:ele.evaluated_rank,
+                                name:ele.evaluated_name,
+                                score:ele.evaluated_score,
+                                evaluated_id:ele.evaluated_id,
+                                staff_rank:ele.staff_rank,
+                                staff_job:ele.staff_job,
+                            })
+                        }
+
+                    }
                 })
-                ranktabledata.value=temp
+
+                if(Object.keys(grouprank.value).length>0){
+                    //rankjob.value赋值为grouprank第一个key
+                    rankjob.value=Object.keys(grouprank.value)[0]
+                }
+                ranktabledata.value=temp.value
                 itemkey.value=Math.random()
                 fetchabnorinfo()
                 fetchKPIinfo()
-
-                // drawMatrixTable()
-                //initrankcharts(rankdata,rankname,rankscore)
             }
         }else{
             ElMessage({
@@ -465,163 +499,6 @@ const fetchKPIinfo=async()=>{
 }
 
 
-// const drawMatrixTable=()=>{
-//     if(MatrixCanvas){
-//         let ctx=MatrixCanvas.value.getContext('2d');
-//         ctx.lineWidth = 0.5;
-//         ctx.font = "10px serif";
-//         let len=ranktabledata.value.length
-//         for(let i=1;i<len+1;i++){
-//             ctx.beginPath()
-//             ctx.fillText("Hello world", (i-1)*(700/len)+10, 10,(700/len));
-//             ctx.lineTo(i*(700/len), 0);
-//             ctx.lineTo(i*(700/len), 700);
-//             ctx.stroke();
-//             ctx.closePath()
-//         }
-        
-//     }
-// }
-
-
-// #region 废弃图标改用表格
-// //INIT结果图标
-// const initrankcharts=(rankdata,rankname,rankscore)=>{
-//     if(legendDom.value){
-//         let myChart = echarts.init(legendDom.value);
-//         myChart.setOption( {
-//         title: {
-//           text: '处理后结果RANK'
-//         },
-//         tooltip: {
-//             trigger: 'axis',
-//             axisPointer: {
-//             type: 'cross',
-//             crossStyle: {
-//                 color: '#999'
-//             }
-//             }
-//         },
-//         legend: {
-//           data: ['分数','排名']
-//         },
-//         xAxis: {
-//           data: rankname
-//         },
-//         yAxis: {},
-//         series: [
-//           {
-//             name: '分数',
-//             type: 'bar',
-//             tooltip: {
-//                 valueFormatter: function (value) {
-//                     return value 
-//                 }
-//             },
-//             data: rankscore
-//           },
-//           {
-//             name: '排名',
-//             type: 'bar',
-//             tooltip: {
-//                 valueFormatter: function (value) {
-//                     return value 
-//                 }
-//             },
-//             data: rankdata
-//           }
-//         ]
-//       });
-//    }else{
-//         ElMessage({
-//             showClose: true,
-//             message: 'legendDom.value is null',
-//             type: 'error',
-//         })
-//         return;
-//     }
-// }
-
-// const initabnomalcharts=(xaxis,origindata,fixdata)=>{
-//     if(abnoramlDom.value){
-//         let myChart = echarts.init(abnoramlDom.value);
-//         myChart.setOption( {
-//             tooltip: {
-//                 trigger: 'axis',
-//                 axisPointer: {
-//                     type: 'cross',
-//                     crossStyle: {
-//                         color: '#999'
-//                     }
-//                 }
-//             },
-//             legend: {
-//                 data: ['Origin', 'Fix']
-//             },
-//             grid: {
-//                 left: '3%',
-//                 right: '4%',
-//                 bottom: '3%',
-//                 containLabel: true
-//             },
-//             xAxis: [
-//                 {
-//                     type: 'value',
-                     
-//                 },
-                
-//             ],
-//             yAxis: [
-//                 {
-//                 type: 'category',
-//                 axisTick: {
-//                     show: false
-//                 },
-//                 data: xaxis
-//                 }
-//             ],
-//             series: [
-//                 {
-//                 name: 'Origin',
-//                 type: 'bar',
-//                 label: {
-//                     show: true,
-//                     position: 'inside'
-//                 },
-//                 itemStyle: {
-//                     color: 'red'  // 设置柱状图的颜色为红色
-//                 },
-//                 emphasis: {
-//                     focus: 'series'
-//                 },
-//                 data: origindata
-//                 },
-//                 {
-//                 name: 'Fix',
-//                 type: 'bar',
-//                 stack: 'Total',
-//                 label: {
-//                     show: true,
-//                 },
-//                 emphasis: {
-//                     focus: 'series'
-//                 },
-//                 data: fixdata
-//                 },
-//             ]
-//       });
-//    }else{
-//         ElMessage({
-//             showClose: true,
-//             message: 'legendDom.value is null',
-//             type: 'error',
-//         })
-//         return;
-//     }
-// }
-// #endregion
-
-
 
 const openresetRES=()=>{
     ElMessageBox.confirm(
@@ -690,13 +567,10 @@ const indexundo=(title,flag)=>{
 
 //导出EXCEL
 const exportExcel=()=>{
-
-
-    
     //列名
     const title=[OTtaskcontent.value.task_name]
-    const headers = ['排名', '姓名','分数','编号'];
-    const dataWithHeaders = [title,headers, ...ranktabledata.value.map(item => Object.values(item))];
+    const headers = ['排名', '姓名','分数','编号','职务名称','岗位等级'];
+    const dataWithHeaders = [title,headers, ...grouprank.value[rankjob.value].map(item => Object.values(item))];
     const ws = utils.aoa_to_sheet(dataWithHeaders);
     
     const wb = utils.book_new();
@@ -714,7 +588,12 @@ const exportExcel=()=>{
     // 创建下载链接
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'output.xlsx';
+    const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const currentDate = `${year}-${month}-${day}`;
+    link.download = title+'任务-'+rankjob.value+'排名-'+currentDate+'.xlsx';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -781,7 +660,12 @@ const exportExpExcel=()=>{
     // 创建下载链接
     const link = document.createElement('a');
     link.href = URL.createObjectURL(blob);
-    link.download = 'output.xlsx';
+        const date = new Date();
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const currentDate = `${year}-${month}-${day}`;
+    link.download = title+'异常分数--'+currentDate+'.xlsx';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -853,6 +737,8 @@ const generateMutiViewRES=()=>{
 const parsePercent=(str)=>{
     return parseInt(str.replace('%',''))/100
 }
+
+
 
 </script>
 
@@ -1022,19 +908,25 @@ const parsePercent=(str)=>{
                         <div class="chartzone">
 
                             <!-- 使用 :key 解决响应刷新问题 -->
-                            <el-table  ref="resranktable" :data="ranktabledata" :key="itemkey" height="400px" stripe border style="width: 800px; " >
+
+                            <el-select v-model="rankjob" placeholder="请选择" style="width: 150px;">
+                                <el-option v-for="(item, key) in grouprank" :label="key" :value="key"   @click="switchjobrank(key)"></el-option>
+                            </el-select>
+
+                            <el-table  ref="resranktable" :data="grouprank[rankjob]" :key="itemkey" height="400px" stripe border style="width: 1200px; margin-left: 20px;" >
                                 <el-table-column prop="rank" label="排名"  width="160px" />
-                                <el-table-column prop="name" label="姓名" width="400px"  />
+                                <el-table-column prop="name" label="姓名" width="240px"  />
                                 <el-table-column prop="score" label="分数"  width="240px" />
+                                <el-table-column prop="staff_rank" label="职务名称"  width="240px" />
+                                <el-table-column prop="staff_job" label="岗位等级"  width="240px" />
                             </el-table>
                         </div>
                         <el-button  style="font-size: large; font-weight: bold; border-width: 2px; margin-left: 20px;"  @click="exportExcel">
                             导出excel
                         </el-button>
                         <div style="height: 30px;"/>
-                        <el-divider content-position="right">综合考评</el-divider>
+                        <el-divider content-position="right" >综合考评</el-divider>
                         <!-- 百分比下拉框 默认70% -->
-
                         <div style="display: flex;    flex-wrap: wrap;  ">
                             <div style="display: flex; align-items: center; text-align: center;">
                                 <div class="persentWeight">
@@ -1113,7 +1005,7 @@ const parsePercent=(str)=>{
                                 </div>
                             </div>
                         </div>
-                        <el-button  style="font-size: large; font-weight: bold; border-width: 2px;margin-left: 20px;"  @click="generateMutiViewRES">
+                        <el-button  style="font-size: large; font-weight: bold; border-width: 2px;margin-left: 20px;" disabled @click="generateMutiViewRES">
                                 生成综合结果
                         </el-button>
                         <div style="display: flex;justify-content: center;">

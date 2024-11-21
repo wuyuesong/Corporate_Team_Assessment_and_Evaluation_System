@@ -259,8 +259,8 @@ const utlsubmitStyle=ref([])
     '是否确认提交?',
     'Warning',
     {
-      confirmButtonText: 'OK',
-      cancelButtonText: 'Cancel',
+      confirmButtonText: '确认',
+      cancelButtonText: '取消',
       type: 'warning',
     }
     )
@@ -299,7 +299,7 @@ const utlsubmitStyle=ref([])
         if(response.code===2000){
           subscoreloading.value=false;
           ElMessageBox.alert('Success', '成功提交', {
-            confirmButtonText: 'OK',
+            confirmButtonText: '确认',
             callback: (action: Action) => {
               location.reload()
             },
@@ -403,11 +403,11 @@ const handleenter=(row:any,event)=>{
       width="500"
       :before-close="handleClose"
     >
-    <span>输入重复，请重新输入</span><br>
+    <span>输入重复，请重新输入改为分数重复请重新打分（分数可以存在小数）</span><br>
     <template #footer>
       <div class="dialog-footer">
         <el-button type="primary" @click="dialogVisible = false">
-          Confirm
+          确认
         </el-button>
       </div>
     </template>
@@ -456,9 +456,12 @@ const handleenter=(row:any,event)=>{
         <div :key="0" v-if="row.tips === 0"></div>
         <el-alert :key="1" v-if="row.tips === 1" title="分数需要在60和100之间" type="warning" show-icon :closable="false"/>
         <div :key="2" v-show="row.tips === 2">
-          <el-alert :title="'上一个人：'+errmessage.last.name+'，分值为'+errmessage.last.score" type="warning" show-icon :closable="false"/>
+          <el-alert v-if="errmessage.last.name =='无' " :title="'不存在更低的分数'" type="warning" show-icon :closable="false"/>
+          <el-alert v-if="errmessage.last.name !='无' " :title="'上一个人：'+errmessage.last.name+'，分值为'+errmessage.last.score" type="warning" show-icon :closable="false"/>
           <el-alert :title="'与'+ errmessage.same.name+'重复，分值为'+errmessage.same.score" type="error" show-icon :closable="false"/>
-          <el-alert :title="'下一个人：'+errmessage.next.name+'，分值为'+errmessage.next.score" type="warning" show-icon :closable="false"/>
+          <el-alert v-if="errmessage.next.name !='无' ":title="'下一个人：'+errmessage.next.name+'，分值为'+errmessage.next.score" type="warning" show-icon :closable="false"/>
+          <el-alert v-if="errmessage.next.name =='无' ":title="'不存在更高的分数'" type="warning" show-icon :closable="false"/>
+          
         </div>
       </template>
     </el-table-column>
