@@ -349,7 +349,12 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         # print(request.data)
         mul=request.data.get("mul")
         # print(mul)
-        joblist=["总监","部门正职","部门副职"]
+        positions = EvaluateTask.objects.filter(task_id=task_id).values('staffjob').distinct()
+
+        #获取职位名称的列表
+        joblist = [position['position'] for position in positions]
+        # joblist=["总监","部门正职","部门副职"]
+
         for job in joblist:
             task_all = EvaluateTask.objects.filter(task_id=task_id,staffjob=job)
             # 获取所有相关任务的评价人和被评价人的关系
