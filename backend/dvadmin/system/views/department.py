@@ -117,8 +117,8 @@ class DepartmentViewSet(CustomModelViewSet):
     filter_fields = [
          "normal_rank",
         "staff_rank",
-        "staff_department",
-        "normal_department"
+        # "staff_department",
+        # "normal_department"
     ]
     # search_fields = ["username", "name", "dept__name", "role__name"]
     search_fields = "__all__"
