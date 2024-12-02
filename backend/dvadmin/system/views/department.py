@@ -115,8 +115,8 @@ class DepartmentViewSet(CustomModelViewSet):
     update_serializer_class = DepartmentUpdateSerializer
     # filter_fields = ["name", "username", "gender", "is_active", "dept", "user_type"]
     filter_fields = [
-         "normal_rank",
-        "staff_rank",
+        #  "normal_rank",
+        # "staff_rank",
         "staff_department",
         "normal_department"
     ]

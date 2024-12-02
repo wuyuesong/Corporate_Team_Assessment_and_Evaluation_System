@@ -762,20 +762,6 @@
                 "cache": false,
                 "visible": true,
                 "children": []
-            },
-            {
-                "name": "评测结果统计",
-                "icon": "ele-Guide",
-                "sort": 4,
-                "is_link": false,
-                "is_catalog": false,
-                "web_path": "/resStatistics",
-                "component": "system/Taskmanage/resStatistics/index",
-                "component_name": "resStatistics",
-                "status": true,
-                "cache": false,
-                "visible": true,
-                "children": []
             }
         ]
     },{

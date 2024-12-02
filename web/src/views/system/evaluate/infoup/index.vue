@@ -278,11 +278,11 @@ const ResetInfo = async() => {
             <div class="container" style="padding-top: 50px; text-align: center;">
                 <div style="text-align: left; padding-left: 100px">
                   <el-button type="primary" size="large" @click="handleDLClick">
-                    下载模板<el-icon class="el-icon--right"><Download/></el-icon>
+                    下载数据格式文件<el-icon class="el-icon--right"><Download/></el-icon>
                   </el-button>
                 </div>
                 <div div-lc-mark style="font-size: 30px;">
-                    <b>请上传人员信息文件以供分析</b>
+                    <b>请上传数据文件</b>
                 </div>
             </div>
             <div class="container" style="min-height: 20%; padding-top: 0px;padding-left: 100px;padding-right: 100px;">

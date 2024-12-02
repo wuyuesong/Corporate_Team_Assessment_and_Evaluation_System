@@ -22,7 +22,7 @@ onMounted(() => {
   speed: 50,
   startDelay: 900,
 })
-  .type("欢迎使用我们的系统！", { delay: 100 })
+  .type("欢迎使用人员评价系统！", { delay: 100 })
   .move(null, { to: "START", instant: true, delay: 300 })
   .type("您好？", { delay: 200 })
   .move(0, { delay: 200 })

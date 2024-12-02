@@ -15,13 +15,15 @@ onMounted(()=>{
 
 
     ani.addEventListener("complete",()=>{
-         document.getElementById("JLanimationContainer")?.classList.add("container_hidden")
+        document.getElementById("JLanimationContainer")?.classList.add("container_visible")
     })  
     // 添加双击事件监听器
     JLC.value.addEventListener("dblclick", function() {
         // 将动画跳转到最后一帧
         ani.goToAndPlay(8500, false);
     });
+
+
 })
 </script>
 
@@ -46,10 +48,14 @@ onMounted(()=>{
     height: 100%;
     background-color: #dedede;
     z-index: 100;
+    
 }
-.container_hidden{
+/* .container_hidden{
     transform: translateY(100%);
     transition: transform 1.3s ease;
+} */
+.container_visible{
+    max-height: 0;
 }
 
 </style>
