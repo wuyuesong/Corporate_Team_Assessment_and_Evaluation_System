@@ -46,8 +46,8 @@ const deleteRow = (index: number) => {
         <el-card class="contain_middle">
             <el-table :data="model.tableData" style="width: 100%" max-height="250">
                 <el-table-column prop="staff_name" label="姓名" width="150" />
-                <el-table-column prop="staff_firm_id" label="ID" width="150" />
-                <el-table-column fixed="right" label="Operations" width="200">
+                <el-table-column prop="staff_firm_id" label="人员ID" width="150" />
+                <el-table-column fixed="right" label="操作" width="200">
                 <template #default="scope">
                     <el-button
                     link
