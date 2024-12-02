@@ -277,8 +277,8 @@ class StaffViewSet(CustomModelViewSet):
     #     "staff_telephone",
     #     "staff_email",
     #     "staff_id",]
-    # search_fields = ["username", "name", "dept__name", "role__name"]
-    search_fields = "__all__"
+    search_fields = ["username", "name", "dept__name", "role__name"]
+    # search_fields = "__all__"
     # 导出
     export_field_label = {
         "staff_department": "单位名称",
