@@ -350,45 +350,44 @@ class EvaluateTaskViewSet(CustomModelViewSet):
         mul=request.data.get("mul")
         # print(mul)
         positions = EvaluateTask.objects.filter(task_id=task_id).values('staffjob').distinct()
-
         #获取职位名称的列表
-        joblist = [position['position'] for position in positions]
+        joblist = list(set(position['staffjob'] for position in positions))
         # joblist=["总监","部门正职","部门副职"]
 
-        for job in joblist:
-            task_all = EvaluateTask.objects.filter(task_id=task_id,staffjob=job)
-            # 获取所有相关任务的评价人和被评价人的关系
-            
-            all_evaluate = list(EvaluateTask.objects.filter(task_id=task_id).values_list('evaluate_id', flat=True).distinct().order_by('evaluate_id'))
-            # 所有评价人
-            
-            all_evaluated = list(EvaluateTask.objects.filter(task_id=task_id).values_list('evaluated_id', flat=True).distinct().order_by('evaluated_id'))
-            # 所有被评价人
-            # print(all_evaluated)
-            map_evaluate = {}
-            map_evaluated = {}
-            for index, evaluate_id in enumerate(all_evaluate):
-                map_evaluate[evaluate_id] = index
-            
-            for index, evaluated_id in enumerate(all_evaluated):
-                map_evaluated[evaluated_id] = index
+        # for job in joblist:
+        task_all = EvaluateTask.objects.filter(task_id=task_id)
+        # 获取所有相关任务的评价人和被评价人的关系
+        
+        all_evaluate = list(EvaluateTask.objects.filter(task_id=task_id).values_list('evaluate_id', flat=True).distinct().order_by('evaluate_id'))
+        # 所有评价人
+        
+        all_evaluated = list(EvaluateTask.objects.filter(task_id=task_id).values_list('evaluated_id', flat=True).distinct().order_by('evaluated_id'))
+        # 所有被评价人
+        # print(all_evaluated)
+        map_evaluate = {}
+        map_evaluated = {}
+        for index, evaluate_id in enumerate(all_evaluate):
+            map_evaluate[evaluate_id] = index
+        
+        for index, evaluated_id in enumerate(all_evaluated):
+            map_evaluated[evaluated_id] = index
 
-            scores = np.zeros((len(all_evaluate), len(all_evaluated)))
-            weight = np.array(len(all_evaluate) * [0])
-            # print(weight)
-            for task in task_all:
-                i = map_evaluate[task.evaluate_id]
-                j = map_evaluated[task.evaluated_id]
-                scores[i, j] = task.score
-                weight[i] = task.task_weight
-            ranks, abnormal_datas = calc_score(len(all_evaluate), len(all_evaluated), mul, np.array(all_evaluated), np.array(all_evaluate), scores, weight)
-            for rank in ranks:
-                EvaluateTaskRank.objects.create(task_id=task_id, evaluated_id=rank["id"], evaluated_rank=rank["rank"], evaluated_score=rank["score"])
+        scores = np.zeros((len(all_evaluate), len(all_evaluated)))
+        weight = np.array(len(all_evaluate) * [0])
+        # print(weight)
+        for task in task_all:
+            i = map_evaluate[task.evaluate_id]
+            j = map_evaluated[task.evaluated_id]
+            scores[i, j] = task.score
+            weight[i] = task.task_weight
+        ranks, abnormal_datas = calc_score(len(all_evaluate), len(all_evaluated), mul, np.array(all_evaluated), np.array(all_evaluate), scores, weight)
+        for rank in ranks:
+            EvaluateTaskRank.objects.create(task_id=task_id, evaluated_id=rank["id"], evaluated_rank=rank["rank"], evaluated_score=rank["score"])
 
-            for abnormal_data in abnormal_datas:
-                EvaluateTaskAbnormalData.objects.create(task_id=task_id, evaluate_id=abnormal_data["evaluate_id"], evaluated_id=abnormal_data["evaluated_id"],origin_value=abnormal_data["origin_value"],fix_value=abnormal_data["fix_value"])
+        for abnormal_data in abnormal_datas:
+            EvaluateTaskAbnormalData.objects.create(task_id=task_id, evaluate_id=abnormal_data["evaluate_id"], evaluated_id=abnormal_data["evaluated_id"],origin_value=abnormal_data["origin_value"],fix_value=abnormal_data["fix_value"])
 
-            Task.objects.filter(task_id=task_id).update(task_done=1)
+        Task.objects.filter(task_id=task_id).update(task_done=1)
 
         return DetailResponse(data=[], msg="计算成功")
     

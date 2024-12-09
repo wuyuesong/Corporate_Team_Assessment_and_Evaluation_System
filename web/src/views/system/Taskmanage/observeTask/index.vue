@@ -342,6 +342,7 @@ const fetchrankresinfo=async()=>{
             if(response.data){
                 let count = 0
                 grouprank.value={}
+                grouprank.value['混合排名']=[]
                 temp.value=[]
                 response.data.forEach(ele =>{
                     //保留ele.evaluated_score两位小数四舍五入
@@ -375,7 +376,17 @@ const fetchrankresinfo=async()=>{
                                 staff_job:ele.staff_job,
                             })
                         }
-
+                        grouprank.value['混合排名'].push({
+                                rank:ele.evaluated_rank,
+                                name:ele.evaluated_name,
+                                score:ele.evaluated_score,
+                                evaluated_id:ele.evaluated_id,
+                                staff_rank:ele.staff_rank,
+                                staff_job:ele.staff_job,
+                        })
+                        grouprank.value['混合排名'].sort((a, b) => b.score - a.score).forEach((item, index) => {
+                            item.rank = index + 1;
+                        });
                     }
                 })
 

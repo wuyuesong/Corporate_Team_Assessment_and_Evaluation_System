@@ -111,7 +111,7 @@ const QNNsubmit=()=>{
         const data = await response.data;
         if(response.code===2000){
           subscoreloading.value=false;
-          ElMessageBox.alert('Success', '成功提交', {
+          ElMessageBox.alert('完成测评任务', '成功提交', {
             confirmButtonText: 'OK',
             callback: (action: Action) => {
               location.reload()

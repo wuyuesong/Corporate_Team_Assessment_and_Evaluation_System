@@ -258,7 +258,7 @@ const utlsubmitStyle=ref([])
  const submitTaskcore=()=>{
   ElMessageBox.confirm(
     '是否确认提交?',
-    'Warning',
+    '警告',
     {
       confirmButtonText: '确认',
       cancelButtonText: '取消',
@@ -299,7 +299,7 @@ const utlsubmitStyle=ref([])
         const data = await response.data;
         if(response.code===2000){
           subscoreloading.value=false;
-          ElMessageBox.alert('Success', '成功提交', {
+          ElMessageBox.alert('完成测评任务', '成功提交', {
             confirmButtonText: '确认',
             callback: (action: Action) => {
               location.reload()
