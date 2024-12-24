@@ -647,7 +647,14 @@ class Staff(CoreModel):
     staff_kpi3 = models.CharField(max_length=255, verbose_name="第三年KPI", null=True, blank=True, help_text="第三年KPI")
     username = models.CharField(max_length=255, verbose_name="登录账号", null=True, blank=True, help_text="登录账号")
     password = models.CharField(max_length=255, verbose_name="登录密码", null=True, blank=True, help_text="登录密码")
-    
+    company_name = models.CharField(max_length=255, verbose_name="公司名称", null=True, blank=True, help_text="公司名称")
+    aver_P = models.IntegerField(
+    verbose_name="均归系数",
+    null=True,
+    blank=True,
+    unique=True,
+    help_text="均归系数"
+)
     # username = models.CharField(max_length=150, unique=True, db_index=True, verbose_name="用户账号",
     #                             help_text="用户账号")
     # email = models.EmailField(max_length=255, verbose_name="邮箱", null=True, blank=True, help_text="邮箱")
@@ -764,7 +771,8 @@ class Task(CoreModel):
     
     TASK_TYPE = (
         (0, "评价任务"),
-        (1, "权重任务")
+        (1, "权重任务"),
+        (2, "系数任务")
     )
     
     task_type = models.IntegerField(

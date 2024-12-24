@@ -7,10 +7,11 @@ from scipy.stats import norm
 import pandas as pd
 import numpy as np
 import math
+from dvadmin.system.models import Staff
 
 
-# 用于计算评价任务的最终得分
-def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
+# 用于计算多级子公司的评价任务的最终得分
+def calc_score(rows, cols, mul, first_row, first_column, range_data, weight,taskcompnay):
     # rows:行数 ，即评价人
     # cols:列数 ，即被评价人
     # mul
@@ -19,12 +20,12 @@ def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
     # range_data :scores矩阵
     # weight
 
-
+    
 
     non_zero_counts_row = np.count_nonzero(range_data, axis=1)
     non_zero_counts_col = np.count_nonzero(range_data, axis=0)
 
-    #####################################  step1  ######################################### 归一化
+    #####################################  step1 （表2） ######################################### 归一化
     transformed_data = np.zeros_like(range_data)
 
     for i in range(transformed_data.shape[0]):
@@ -44,8 +45,35 @@ def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
     #         file.write('\n')
     #######################################################################################  
 
+    #######################################均归系数替换分数################################################  
+    # 计算每个公司的被评价人的平均分
+    for i in range(transformed_data.shape[0]):
+        for j in range(transformed_data.shape[1]):
+            company_score = {}
+            evaluated_id=first_row[j]
+            staff_company=Staff.objects.filter(staff_id=evaluated_id).values('company_name').distinct()
+            if (taskcompnay!=staff_company):
+                if staff_company in company_score:
+                    company_score[staff_company] += transformed_data[i, j]
+                    company_score[staff_company+"number"]+=1
+                else:
+                    company_score[staff_company] = transformed_data[i, j]
+                    company_score[staff_company+"number"]=1
+        for j in range(transformed_data.shape[1]):
+            company_score = {}
+            evaluated_id=first_row[j]
+            staff_company=Staff.objects.filter(staff_id=evaluated_id).values('company_name').distinct()
+            if (taskcompnay!=staff_company):
+                P=Staff.objects.filter(staff_id=evaluated_id).values('aver_P').distinct()
+                if P==None:
+                    return None,None
+                transformed_data[i, j]=P*company_score[staff_company]/company_score[staff_company+"number"]
 
-    #####################################  step2  ######################################### 平均值
+        
+                        
+
+
+    #####################################  step2（表3）  ######################################### 平均值
     # 计算每一列非零元素的和
     sum_non_zero_col = np.sum(transformed_data, axis=0)
 
@@ -77,7 +105,7 @@ def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
     #             file.write(str(round(num, 5)) + ' ') 
     #########################################################################################
 
-    #######################################  step4  ######################################### 偏差倍数
+    #######################################  step4(表4)  ######################################### 偏差倍数
     deviation_multiple = np.zeros_like(transformed_data)
     for i in range(transformed_data.shape[0]):
         for j in range(transformed_data.shape[1]):
@@ -116,7 +144,7 @@ def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
     
     #########################################################################################
 
-    #######################################  step6  ######################################### 计算中位数
+    #######################################  step6（表5）  ######################################### 计算中位数
     medians = np.zeros(transformed_data.shape[0], dtype=float)
     for i in range(transformed_data.shape[0]):
         medians[i] = np.median(transformed_data[i][np.nonzero(transformed_data[i])])
@@ -150,7 +178,7 @@ def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
                 median_bias[index] = (-7.5/min_val) * value
     #########################################################################################
 
-    #######################################  step8  ######################################### 计算左侧偏移S
+    #######################################  step8（表6）  ######################################### 计算左侧偏移S
     # 设置正态分布的均值和标准差
     mean = 80
     std_dev = 15
@@ -196,7 +224,7 @@ def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
     #         file.write("\n")
     ##########################################################################################
 
-    #######################################  step11  ######################################## 计算归一化数组
+    #######################################  step11(表7)  ######################################## 计算归一化数组
 
     for i in range(z_score.shape[0]):
         max_value = np.max(z_score[i])
@@ -213,7 +241,7 @@ def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
 
 
     # 根据weight计算权重
-    #######################################  step12  #########################################   最终排名
+    #######################################  step12(表8)  #########################################   最终排名
     dot_product = np.zeros_like(first_row)
     for i in range(z_score.shape[1]):
 
@@ -244,6 +272,122 @@ def calc_score(rows, cols, mul, first_row, first_column, range_data, weight):
         rank.append({"rank": i + 1, "id": first_row[sorted_indices[i]], "score": dot_product[sorted_indices[i]]})
 
     return rank, abnormal_data
+
+
+# 计算均归系数
+def clac_upper(self, rows, cols, mul, first_row, first_column, range_data, weight):
+    # rows:行数 ，即评价人
+    # cols:列数 ，即被评价人
+    # mul
+    # first_row:所有的被评价人
+    # first_column：所有的评价人
+    # range_data :scores矩阵
+    # weight
+    transformed_data=calc_P(rows, cols, mul, first_row, first_column, range_data, weight)
+
+    
+
+    rank,abnormal=calc_score(rows, cols, mul, first_row, first_column, transformed_data, weight)
+    
+    
+    return rank,abnormal
+def calc_P(rows, cols, mul, first_row, first_column, range_data, weight,evluated_id):
+    # 计算均归系数，均归系数是下级公司中，下级员工对于下级单位领导的评价结果，所以不需要计算异常数据
+    # 在需要计算均归系数的时候，输入的被评价人是下级单位的领导，评价人是下级单位的员工
+    # rows:行数 ，即评价人
+    # cols:列数 ，即被评价人
+    # mul
+    # first_row:所有的被评价人
+    # first_column：所有的评价人
+    # range_data :scores矩阵
+    # weight
+
+
+
+    non_zero_counts_row = np.count_nonzero(range_data, axis=1)#评价人中非零元素的个数
+    non_zero_counts_col = np.count_nonzero(range_data, axis=0)
+    
+    #####################################  step1 （表2） ######################################### 将
+    transformed_data = np.zeros_like(range_data)
+    row_sums = np.sum(range_data, axis=1)
+    row_means= row_sums / non_zero_counts_row
+    # row_means=np.where(non_zero_counts_row > 0, row_sums / non_zero_counts_row, 0)
+    for i in range(transformed_data.shape[0]):
+        for j in range(transformed_data.shape[1]):
+            if range_data[i][j] == 0:
+                transformed_data[i, j] = 0
+            else:
+                transformed_data[i, j] = range_data[i, j] /row_means[i]
+    #######################################################################################  
+
+
+
+    #####################################  step2（表3）  ######################################### 平均值
+    # 计算每一列非零元素的和
+    sum_non_zero_col = np.sum(transformed_data, axis=0)
+
+    # 计算 non_zero_means，即每一列非零元素的和除以非空元素的个数
+    # 如果除数为0，则对应值为0
+    non_zero_means = np.where(non_zero_counts_col > 0, sum_non_zero_col / non_zero_counts_col, 0)
+    
+    #######################################################################################
+
+    #####################################  step3  ######################################### 标准差
+
+    # 计算每一列元素与该列非零平均值的差的绝对值
+    absolute_differences_non_zero = np.zeros_like(transformed_data)
+    for i in range(transformed_data.shape[0]):
+        for j in range(transformed_data.shape[1]):
+            if transformed_data[i, j] != 0:
+                absolute_differences_non_zero[i, j] = np.abs(transformed_data[i, j] - non_zero_means[j])
+
+    # 只考虑非零元素的平均差
+    sum_absolute_non_zero_col = np.sum(absolute_differences_non_zero, axis=0)
+    mean_differences_non_zero = np.where(non_zero_counts_col > 0, sum_absolute_non_zero_col / non_zero_counts_col, 0)
+
+    #########################################################################################
+
+    #######################################  step4(表4)  ######################################### 偏差倍数
+    deviation_multiple = np.zeros_like(transformed_data)
+    for i in range(transformed_data.shape[0]):
+        for j in range(transformed_data.shape[1]):
+            if transformed_data[i, j] == 0:
+                deviation_multiple[i, j] = 0
+            else:
+                deviation_multiple[i, j] = np.abs(transformed_data[i, j] - non_zero_means[j]) / mean_differences_non_zero[j]
+
+    #########################################################################################
+
+    #######################################  step5  ######################################### 调整异常数据
+    for i in range(transformed_data.shape[0]):
+        for j in range(transformed_data.shape[1]):
+            if deviation_multiple[i, j] > mul:
+                origin_value = transformed_data[i, j]
+                if transformed_data[i, j] > non_zero_means[j]:
+                    transformed_data[i, j] = non_zero_means[j] + mul*mean_differences_non_zero[j]
+                else:
+                    transformed_data[i, j] = non_zero_means[j] - mul*mean_differences_non_zero[j]
+                
+       
+    #########################################################################################
+
+     # 根据weight计算权重
+    #######################################  step12  #########################################   最终排名
+    dot_product = np.zeros_like(first_row)
+    for i in range(transformed_data.shape[1]):
+
+        index = np.nonzero(transformed_data[:,i])
+        column = transformed_data[:, i][index]
+        weight_index = weight[index]
+        sum_weight = np.sum(weight_index)
+        weight_index = weight_index/sum_weight
+
+        dot_product[i] = np.dot(column, weight_index)
+
+    dot_product = dot_product.astype(float)
+    return dot_product
+
+
 
 # 用于计算部门相关权重
 def calc_relation(relation):
