@@ -342,6 +342,7 @@ const fetchrankresinfo=async()=>{
             if(response.data){
                 let count = 0
                 grouprank.value={}
+                grouprank.value['混合排名']=[]
                 temp.value=[]
                 response.data.forEach(ele =>{
                     //保留ele.evaluated_score两位小数四舍五入
@@ -375,7 +376,17 @@ const fetchrankresinfo=async()=>{
                                 staff_job:ele.staff_job,
                             })
                         }
-
+                        grouprank.value['混合排名'].push({
+                                rank:ele.evaluated_rank,
+                                name:ele.evaluated_name,
+                                score:ele.evaluated_score,
+                                evaluated_id:ele.evaluated_id,
+                                staff_rank:ele.staff_rank,
+                                staff_job:ele.staff_job,
+                        })
+                        grouprank.value['混合排名'].sort((a, b) => b.score - a.score).forEach((item, index) => {
+                            item.rank = index + 1;
+                        });
                     }
                 })
 
@@ -751,7 +762,7 @@ const parsePercent=(str)=>{
                     <el-button type="primary" :icon="Edit" :disabled="!(currentTask.length>0)||OTtaskcontent.task_done===1" @click="dialogVisible=true" >修改任务</el-button>
                 </div>
                 
-                <el-select v-model="Selectedtitle" placeholder="Select" size="large" style="width: 340px">
+                <el-select v-model="Selectedtitle" placeholder="请选择任务" size="large" style="width: 340px">
                     <el-option
                                 v-for="item in OTtasklist"
                                 :key="item.task_name"
@@ -811,7 +822,7 @@ const parsePercent=(str)=>{
             </el-dialog>
 
             <div class="OTmainer">
-                <el-descriptions title="TASK INFO" >
+                <el-descriptions title="任务信息" >
                     
                     <el-descriptions-item label="任务标题">{{OTtaskcontent.task_name}}</el-descriptions-item>
                     <el-descriptions-item label="任务创建时间">{{OTtaskcontent.task_create_date.replace('T',' ')}}</el-descriptions-item>
@@ -906,9 +917,7 @@ const parsePercent=(str)=>{
                 <el-collapse v-if="OTtaskcontent.task_done===1">
                      <el-collapse-item  title="详细信息-结果及排名" name="1">
                         <div class="chartzone">
-
                             <!-- 使用 :key 解决响应刷新问题 -->
-
                             <el-select v-model="rankjob" placeholder="请选择" style="width: 150px;">
                                 <el-option v-for="(item, key) in grouprank" :label="key" :value="key"   @click="switchjobrank(key)"></el-option>
                             </el-select>
@@ -1029,7 +1038,7 @@ const parsePercent=(str)=>{
                         <div class="chartzone">
                         
                             <el-table :data="abnormaltabledata" border style="width: 1200px; height: 500px;" height="500">
-                                <el-table-column fixed prop="name" label="" width="180px">
+                                <el-table-column fixed prop="evaluate_id" label="" width="180px">
                                     <template #header>
                                         <div class="group-bias-divide">
                                             <div class="top">被评价人</div>
@@ -1037,7 +1046,7 @@ const parsePercent=(str)=>{
                                         </div>
                                         </template>
                                         <template #default="{ row }">
-                                        <span >{{ row.name }}</span>
+                                        <span >{{ row.evaluate_id }}</span>
                                     </template>
                                 </el-table-column>
                                 <el-table-column v-for="(item,index) in ranktabledata" :key="index" :prop="item.evaluated_id" :label="item.name" width="200px" />

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted ,reactive,inject} from 'vue';
-import { ElMessageBox , ElMessage } from 'element-plus';
+import { ElMessageBox , ElMessage ,ElSegmented } from 'element-plus';
 import { request } from '/@/utils/service';
 import { getBaseURL } from '/@/utils/baseUrl';
 import evablock from '../component/evaluatorBlock.vue'
@@ -39,7 +39,10 @@ const taskpresentbutton=ref(true);
 
 const evaluatedrevert=async()=>{
 
-    ElMessageBox.confirm('Do you want to submit?')
+    ElMessageBox.confirm('确认提交?',{
+        confirmButtonText: '确认',
+        cancelButtonText: '取消'
+    })
     .then(async () => {
       loading.value = true;
       const response=await request({
@@ -104,7 +107,10 @@ const form = reactive({
  * @param done 
  */
 const handleClose = (done: () => void) => {
-  ElMessageBox.confirm('Are you sure you want to close this?')
+  ElMessageBox.confirm('确定要关闭吗',{
+    confirmButtonText: '确认',
+    cancelButtonText: '取消'
+  })
     .then(() => {
       done()
     })
@@ -208,7 +214,11 @@ const feach_rank_of_deparrtment=async(department:any)=>{
 
 
 const reset=()=>{
-    ElMessageBox.confirm('Are you sure you want to reset this?')
+    ElMessageBox.confirm('你确认要重置?',{
+        confirmButtonText: '确认',
+        cancelButtonText: '取消'
+
+    })
     .then(() => {
         griddata.value=[]
         evaluatingGroup.value = [];
@@ -754,11 +764,26 @@ const evavalue = ref()
             <h1 class="text-3xl font-extrabold text-center text-gray-700 bg-clip-text">
                 评价人权重配置
             </h1>
+            <!-- <div>
+                <el-segmented class="segment" v-model="evavalue" :options="evaedoptions" block />
+            </div> -->
+
             <el-segmented class="segment" v-model="evavalue" :options="evaedoptions" block >
                 <template #default="{ item }">
                     <div class="text-1xl font-bold text-center bg-clip-text">{{ item }}</div>
                 </template>
             </el-segmented>
+<!-- 
+            <el-radio-group v-model="evavalue" size="large" style="display: flex;">
+                <el-radio-button
+                    v-for="item in evaedoptions"
+                    :key="item"
+                    :label="item"
+                >
+                    {{ item }}
+                </el-radio-button>
+            </el-radio-group> -->
+            
             <div v-for="item in evaedoptions">
                 <div class="evacontent" v-if="item==evavalue">
                     <span class="text-xl  text-center text-gray-700 bg-clip-text">被评价对象层级 / {{ item }}</span>

@@ -36,7 +36,10 @@ const handlescore=()=>{
 }
 
 const handleClose = (done: () => void) => {
-  ElMessageBox.confirm('是否要关闭窗口?')
+  ElMessageBox.confirm('是否要关闭窗口?',{
+    confirmButtonText: '确认',
+    cancelButtonText: '取消'
+  })
     .then(() => {
       done()
     })
@@ -61,7 +64,6 @@ const handleClose = (done: () => void) => {
                 <p>结束时间: {{ Etime?.replace('T','') }}</p>
             </div>
             <div style="width: 500px;"></div>
-            
         </div>
     </el-card>
     <el-card  class="card-outtime" shadow="always"  v-if="!cardstate" >
@@ -72,7 +74,7 @@ const handleClose = (done: () => void) => {
         </template>
         <div class="decontent">
             <div>
-                <p>开始时间: {{ Btime?.replace('T','-') }}</p>
+                <p >开始时间: {{ Btime?.replace('T','-') }}</p>
                 <p>结束时间: {{ Etime?.replace('T','-') }}</p>
             </div>
             <div style="width: 500px;"></div>
@@ -121,11 +123,12 @@ const handleClose = (done: () => void) => {
     /* background-image: linear-gradient(rgba(255, 254, 254, 0.25), rgba(255, 241, 241, 0.25)),
                     url('../../../assets/cardbg.jpg'); */
     -webkit-backdrop-filter: blur(10px);/* 使文字等内容在模糊的背景前面显示清晰 */
-    background-image:  url('../../../assets/cardbg.jpg');
+    /* background-image:  url('../../../assets/cardbg.jpg'); */
+    background-color: #0ABAB5;
 
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     border-radius: 20px; 
-    height: 160px;
+    height: 180px;
     transition: box-shadow 0.3s ease; /* 添加过渡效果 */
 }
 
@@ -136,20 +139,19 @@ const handleClose = (done: () => void) => {
     margin-left: 50px;
     margin-right: 50px;
     
-    background-image: linear-gradient(rgba(210, 209, 209, 0.6), rgba(210, 209, 209, 0.6)),
-                    url('../../../assets/cardbg.jpg');
+    background-color:  rgba(101, 147, 145, 0.6);
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     border-radius: 20px; 
-    height: 160px;
+    height: 180px;
     position: relative;
 }
 .card-outtime::after {
-    content: "不在时间范围内";
+    content: "已过期";
     position: absolute;
     top: 10%;
     left: 60%;
     color: red;  /* 设置文字颜色 */
-    font-size: 1.4em;  /* 设置文字大小 */
+    font-size: 1.8em;  /* 设置文字大小 */
     font-weight: bold;
     text-align: center;  /* 让文字居中显示 */
     border: 4px solid red;  /* 添加这一行，创建一个红色的边框 */
@@ -169,11 +171,10 @@ const handleClose = (done: () => void) => {
     margin-left: 50px;
     margin-right: 50px;
     
-    background-image: linear-gradient(rgba(210, 209, 209, 0.6), rgba(210, 209, 209, 0.6)),
-                    url('../../../assets/cardbg.jpg');
+    background-color:  rgba(93, 143, 116, 0.6);
     box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     border-radius: 20px; 
-    height: 160px;
+    height: 180px;
     position: relative;
 }
 .card-already::after {
@@ -195,8 +196,7 @@ const handleClose = (done: () => void) => {
 }
 
 .card-item:hover {
-    background-image: linear-gradient(rgba(195, 195, 195, 0.4), rgba(195, 195, 195, 0.4)),
-                    url('../../../assets/cardbg.jpg');
+    background-color: rgba(15, 140, 136, 0.7);
     backdrop-filter:blur(10px) ;
 }
 
@@ -210,6 +210,7 @@ const handleClose = (done: () => void) => {
     color: white; /* 设置文本颜色为白色 */
     text-shadow: 1px 1px 2px rgba(0,0,0,1); /* 在文本下方添加阴影 */
     display: flex;
+    font-size: large;
 }
 .el-dialog{
     display: flex;

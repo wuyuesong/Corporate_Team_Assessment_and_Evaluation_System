@@ -222,6 +222,7 @@ const tableRowClassName = ({
   row: evaItem
   rowIndex: number
 }) => {
+
 }
 
 
@@ -257,7 +258,7 @@ const utlsubmitStyle=ref([])
  const submitTaskcore=()=>{
   ElMessageBox.confirm(
     '是否确认提交?',
-    'Warning',
+    '警告',
     {
       confirmButtonText: '确认',
       cancelButtonText: '取消',
@@ -298,7 +299,7 @@ const utlsubmitStyle=ref([])
         const data = await response.data;
         if(response.code===2000){
           subscoreloading.value=false;
-          ElMessageBox.alert('Success', '成功提交', {
+          ElMessageBox.alert('完成测评任务', '成功提交', {
             confirmButtonText: '确认',
             callback: (action: Action) => {
               location.reload()
@@ -399,11 +400,11 @@ const handleenter=(row:any,event)=>{
   <el-dialog
       v-model="dialogVisible"
       v-bind="errmessage"
-      title="tips"
+      title="提示:"
       width="500"
       :before-close="handleClose"
     >
-    <span>输入重复，请重新输入改为分数重复请重新打分（分数可以存在小数）</span><br>
+    <span>出现相同分数，请重新打分（分数可以存在小数）</span><br>
     <template #footer>
       <div class="dialog-footer">
         <el-button type="primary" @click="dialogVisible = false">
@@ -430,7 +431,7 @@ const handleenter=(row:any,event)=>{
     label-width="auto"
     class="demo-ruleForm"
     >
-    <el-table   ref="thistable" :key="loadingData" :data="gridData" :row-class-name="tableRowClassName" :row-style="changestyle">
+    <el-table   ref="thistable" :key="loadingData" :data="gridData" :row-class-name="tableRowClassName" :row-style="changestyle" stripe >
       <el-table-column type="index" width="70" />
       <el-table-column property="department" label="部门" width="150" />
       <el-table-column property="office" label="职位" width="200" />
@@ -443,28 +444,28 @@ const handleenter=(row:any,event)=>{
               <el-button type="info"  size="large" style="background-color:firebrick; margin-left: 10px;width: 70px;margin-top:5px;margin-bottom:5px;" v-if="row.score===0" @click="handlecancelignore(row)">撤销</el-button>
         </template>
       </el-table-column>
-    <el-table-column  label="排名" property="rank" width="100">
-      <template v-slot:default="{ row }">
-        <div class="rankandtips">
-            <p>{{ row.rank }}</p>
-        </div>
-        
-      </template>
-    </el-table-column>
-    <el-table-column width="300">
-      <template v-slot:default="{ row }">
-        <div :key="0" v-if="row.tips === 0"></div>
-        <el-alert :key="1" v-if="row.tips === 1" title="分数需要在60和100之间" type="warning" show-icon :closable="false"/>
-        <div :key="2" v-show="row.tips === 2">
-          <el-alert v-if="errmessage.last.name =='无' " :title="'不存在更低的分数'" type="warning" show-icon :closable="false"/>
-          <el-alert v-if="errmessage.last.name !='无' " :title="'上一个人：'+errmessage.last.name+'，分值为'+errmessage.last.score" type="warning" show-icon :closable="false"/>
-          <el-alert :title="'与'+ errmessage.same.name+'重复，分值为'+errmessage.same.score" type="error" show-icon :closable="false"/>
-          <el-alert v-if="errmessage.next.name !='无' ":title="'下一个人：'+errmessage.next.name+'，分值为'+errmessage.next.score" type="warning" show-icon :closable="false"/>
-          <el-alert v-if="errmessage.next.name =='无' ":title="'不存在更高的分数'" type="warning" show-icon :closable="false"/>
+      <el-table-column  label="排名" property="rank" width="100">
+        <template v-slot:default="{ row }">
+          <div class="rankandtips">
+              <p>{{ row.rank }}</p>
+          </div>
           
-        </div>
-      </template>
-    </el-table-column>
+        </template>
+      </el-table-column>
+      <el-table-column width="300">
+        <template v-slot:default="{ row }">
+          <div :key="0" v-if="row.tips === 0"></div>
+          <el-alert :key="1" v-if="row.tips === 1" title="分数需要在60和100之间" type="warning" show-icon :closable="false"/>
+          <div :key="2" v-show="row.tips === 2">
+            <el-alert v-if="errmessage.last.name =='无' " :title="'不存在更低的分数'" type="warning" show-icon :closable="false"/>
+            <el-alert v-if="errmessage.last.name !='无' " :title="'上一个人：'+errmessage.last.name+'，分值为'+errmessage.last.score" type="warning" show-icon :closable="false"/>
+            <el-alert :title="'与'+ errmessage.same.name+'重复，分值为'+errmessage.same.score" type="error" show-icon :closable="false"/>
+            <el-alert v-if="errmessage.next.name !='无' ":title="'下一个人：'+errmessage.next.name+'，分值为'+errmessage.next.score" type="warning" show-icon :closable="false"/>
+            <el-alert v-if="errmessage.next.name =='无' ":title="'不存在更高的分数'" type="warning" show-icon :closable="false"/>
+            
+          </div>
+        </template>
+      </el-table-column>
     </el-table>
   </el-form>
   <div class="submitscored">
@@ -489,13 +490,11 @@ const handleenter=(row:any,event)=>{
     display: flex;
     justify-content: center; /* horizontally center */
     font-size: 20px; /* 设置表格中字体的大小 */
-
 }
 
 .same-score {
   background-color: #ff1d1d; /* 警示背景色 */
 }
-
 
 .el-table .success-row {
   --el-table-tr-bg-color: #ff1d1d;
@@ -531,6 +530,14 @@ const handleenter=(row:any,event)=>{
   text-align: center;
   align-items: center;
   justify-content: center;
+}
+
+.el-table .warning-row  { 
+  --el-table-tr-bg-color: var(--el-color-warning-light-9);
+}
+
+.el-table .even-row { 
+  --el-table-tr-bg-color: #bfcaff; /* 自定义偶数行背景色 */
 }
 </style>
 
